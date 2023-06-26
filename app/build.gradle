@@ -4,6 +4,9 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     namespace 'com.pjm.cours'
     compileSdk 33
@@ -14,6 +17,8 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "GOOGLE_CLIENT_ID", properties["google_client_id"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
