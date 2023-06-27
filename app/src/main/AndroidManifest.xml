@@ -12,8 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Cours"
         tools:targetApi="31">
-        <activity android:name=".ui.LoginActivity"/>
-        <activity android:name=".ui.MapActivity"/>
+        <activity android:name=".ui.SettingUserInfoActivity"/>
+        <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".ui.MapActivity" />
         <activity
             android:name=".ui.LauncherActivity"
             android:exported="true">
