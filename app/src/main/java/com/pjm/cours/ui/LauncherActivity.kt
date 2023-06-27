@@ -1,9 +1,10 @@
-package com.pjm.cours
+package com.pjm.cours.ui
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.pjm.cours.util.Constants.KEY_MAIL_ADDRESS
+import com.pjm.cours.CoursApplication
+import com.pjm.cours.util.Constants.KEY_GOOGLE_ID_TOKEN
 
 class LauncherActivity : AppCompatActivity() {
 
@@ -13,7 +14,8 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun moveToFirstScreen() {
-        if (CoursApplication.preferencesManager.getString(KEY_MAIL_ADDRESS, "").isEmpty()) {
+        val localGoogleIdToken = CoursApplication.preferencesManager.getString(KEY_GOOGLE_ID_TOKEN, "")
+        if (localGoogleIdToken.isEmpty()) {
             startActivity(Intent(this, LoginActivity::class.java))
         } else {
             startActivity(Intent(this, MapActivity::class.java))
