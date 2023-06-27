@@ -3,6 +3,8 @@ package com.pjm.cours.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -45,6 +47,24 @@ class SettingUserInfoActivity : AppCompatActivity() {
             isNicknameEntered = binding.etUserNickname.text.toString().isNotBlank()
             checkInputs()
         }
+
+        binding.etUserIntro.addTextChangedListener(object : TextWatcher {
+            var maxText = ""
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                maxText = p0.toString()
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (binding.etUserIntro.lineCount > 3) {
+                    binding.etUserIntro.setText(maxText)
+                    binding.etUserIntro.setSelection(binding.etUserIntro.length())
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
     }
 
     private fun checkInputs() {
