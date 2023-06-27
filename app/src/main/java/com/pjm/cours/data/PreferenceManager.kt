@@ -12,4 +12,12 @@ class PreferenceManager(context: Context) {
     fun getString(key: String, defValue: String): String {
         return sharedPreferences.getString(key, defValue) ?: defValue
     }
+
+    fun setGoogleIdToken(key: String, googleIdToken:String){
+        sharedPreferences.edit().putString(key,googleIdToken).apply()
+    }
+
+    fun removeGoogleIdToken(key: String){
+        sharedPreferences.edit().remove(key).apply()
+    }
 }

@@ -12,10 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Cours"
         tools:targetApi="31">
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".MapActivity"/>
+        <activity android:name=".ui.LoginActivity"/>
+        <activity android:name=".ui.MapActivity"/>
         <activity
-            android:name=".LauncherActivity"
+            android:name=".ui.LauncherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
