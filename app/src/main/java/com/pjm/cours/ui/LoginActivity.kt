@@ -21,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import com.pjm.cours.BuildConfig
 import com.pjm.cours.databinding.ActivityLoginBinding
 import com.pjm.cours.ui.settinguserinfo.SettingUserInfoActivity
+import com.pjm.cours.util.Constants
 
 class LoginActivity : AppCompatActivity() {
 
@@ -72,6 +73,7 @@ class LoginActivity : AppCompatActivity() {
                                 .addOnCompleteListener(this) { task ->
                                     if (task.isSuccessful) {
                                         Intent(this, SettingUserInfoActivity::class.java).apply {
+                                            putExtra(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
                                             startActivity(this)
                                         }
                                     } else {

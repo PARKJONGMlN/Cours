@@ -5,25 +5,33 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
-import androidx.lifecycle.lifecycleScope
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
 import com.pjm.cours.CoursApplication
+import com.pjm.cours.data.UserRepository
 import com.pjm.cours.data.model.User
 import com.pjm.cours.databinding.ActivitySettingUserInfoBinding
 import com.pjm.cours.ui.MapActivity
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.pjm.cours.util.Constants
 
 class SettingUserInfoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingUserInfoBinding
+    private val viewModel: SettingUserInfoViewModel by viewModels {
+        SettingUserInfoViewModel.provideFactory(
+            UserRepository(
+                CoursApplication.apiContainer.provideApiClient(),
+                CoursApplication.preferencesManager
+            )
+        )
+    }
     private var isImageSelected = false
     private var isNicknameEntered = false
     private lateinit var selectedImageUri: Uri
@@ -43,48 +51,24 @@ class SettingUserInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingUserInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setLayout()
+        setObserver()
+    }
 
+    private fun setLayout() {
         binding.btnSettingComplete.setOnClickListener {
-            lifecycleScope.launch {
-                val storageRef = FirebaseStorage.getInstance().reference
-                val location =
-                    "image/${FirebaseAuth.getInstance().currentUser?.email.toString()}_${System.currentTimeMillis()}"
-                val imageRef = storageRef.child(location)
-                imageRef.putFile(selectedImageUri).await()
-                val idToken =
-                    FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
-                Log.d(
-                    "SettingUserInfoActivity",
-                    "Response: ${
-                        runCatching {
-                            CoursApplication.apiContainer.provideApiClient()
-                                .createUser(
-                                    idToken,
-                                    User(
-                                        location,
-                                        binding.etUserIntro.text.toString(),
-                                        binding.etUserIntro.text.toString(),
-                                        FirebaseAuth.getInstance().currentUser?.email.toString()
-                                    )
-                                )
-                        }.onSuccess {
-                            startActivity(
-                                Intent(
-                                    this@SettingUserInfoActivity,
-                                    MapActivity::class.java
-                                )
-                            )
-                        }.onFailure {
-                            Log.d("runCatching", "Throwable: $it")
-                        }
-                    }"
+            viewModel.createUser(
+                User(
+                    selectedImageUri.toString(),
+                    binding.etUserNickname.text.toString(),
+                    binding.etUserIntro.text.toString(),
+                    FirebaseAuth.getInstance().currentUser?.email.toString()
                 )
-            }
+            )
         }
 
         binding.ivUserProfileImage.setOnClickListener {
             getContent.launch("image/*")
-            Log.d("SettingUserInfoActivity", "onCreate: ")
         }
 
         binding.etUserNickname.doOnTextChanged { _, _, _, _ ->
@@ -111,7 +95,30 @@ class SettingUserInfoActivity : AppCompatActivity() {
         })
     }
 
+    private fun setObserver() {
+        viewModel.isLoading.observe(this) {
+            if (it.peekContent()) {
+                binding.groupLoading.visibility = View.VISIBLE
+                disableScreenTouch()
+            } else {
+                intent.getStringExtra(Constants.KEY_GOOGLE_ID_TOKEN)
+                    ?.let { idToken ->
+                        viewModel.saveGoogleIdToken(idToken)
+                        binding.groupLoading.visibility = View.GONE
+                        startActivity(Intent(this, MapActivity::class.java))
+                    }
+            }
+        }
+    }
+
     private fun checkInputs() {
         binding.btnSettingComplete.isEnabled = isImageSelected && isNicknameEntered
+    }
+
+    private fun disableScreenTouch() {
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
     }
 }
