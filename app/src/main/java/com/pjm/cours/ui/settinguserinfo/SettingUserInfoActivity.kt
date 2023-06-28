@@ -1,4 +1,4 @@
-package com.pjm.cours.ui
+package com.pjm.cours.ui.settinguserinfo
 
 import android.content.Intent
 import android.net.Uri
@@ -9,21 +9,31 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import com.pjm.cours.CoursApplication
+import com.pjm.cours.data.model.User
 import com.pjm.cours.databinding.ActivitySettingUserInfoBinding
+import com.pjm.cours.ui.MapActivity
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class SettingUserInfoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingUserInfoBinding
     private var isImageSelected = false
     private var isNicknameEntered = false
+    private lateinit var selectedImageUri: Uri
     private val getContent =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri.let {
+            uri?.let {
                 binding.ivUserProfileImage.load(uri) {
                     transformations(CircleCropTransformation())
                 }
+                selectedImageUri = it
                 isImageSelected = true
                 checkInputs()
             }
@@ -34,8 +44,42 @@ class SettingUserInfoActivity : AppCompatActivity() {
         binding = ActivitySettingUserInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSettingComplete.setOnClickListener{
-            startActivity(Intent(this, MapActivity::class.java))
+        binding.btnSettingComplete.setOnClickListener {
+            lifecycleScope.launch {
+                val storageRef = FirebaseStorage.getInstance().reference
+                val location =
+                    "image/${FirebaseAuth.getInstance().currentUser?.email.toString()}_${System.currentTimeMillis()}"
+                val imageRef = storageRef.child(location)
+                imageRef.putFile(selectedImageUri).await()
+                val idToken =
+                    FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+                Log.d(
+                    "SettingUserInfoActivity",
+                    "Response: ${
+                        runCatching {
+                            CoursApplication.apiContainer.provideApiClient()
+                                .createUser(
+                                    idToken,
+                                    User(
+                                        location,
+                                        binding.etUserIntro.text.toString(),
+                                        binding.etUserIntro.text.toString(),
+                                        FirebaseAuth.getInstance().currentUser?.email.toString()
+                                    )
+                                )
+                        }.onSuccess {
+                            startActivity(
+                                Intent(
+                                    this@SettingUserInfoActivity,
+                                    MapActivity::class.java
+                                )
+                            )
+                        }.onFailure {
+                            Log.d("runCatching", "Throwable: $it")
+                        }
+                    }"
+                )
+            }
         }
 
         binding.ivUserProfileImage.setOnClickListener {
