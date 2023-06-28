@@ -2,6 +2,7 @@ package com.pjm.cours
 
 import android.app.Application
 import com.pjm.cours.data.PreferenceManager
+import com.pjm.cours.data.remote.ApiContainer
 
 class CoursApplication : Application() {
 
@@ -11,6 +12,7 @@ class CoursApplication : Application() {
     }
 
     companion object {
+        val apiContainer = ApiContainer()
         lateinit var preferencesManager: PreferenceManager
     }
 }
