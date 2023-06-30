@@ -17,4 +17,6 @@
     <string name="label_post_category">카테고리</string>
     <string name="label_post_language">언어</string>
     <string name="label_post_date">모임 날짜</string>
+    <string name="label_dialog_title_category">카테고리 선택</string>
+    <string name="label_dialog_title_language">언어 선택</string>
 </resources>

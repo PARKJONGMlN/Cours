@@ -1,10 +1,13 @@
 package com.pjm.cours.ui.postcomposition
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.pjm.cours.R
+import com.pjm.cours.data.ItemStorage
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
+import com.pjm.cours.util.Constants
 import com.pjm.cours.util.DateFormat
 
 class PostCompositionActivity : AppCompatActivity() {
@@ -33,7 +36,40 @@ class PostCompositionActivity : AppCompatActivity() {
             datePicker.addOnPositiveButtonClickListener {
                 binding.tvPostSelectedDate.text = DateFormat.convertDisplayDate(it)
             }
-            datePicker.show(supportFragmentManager,"SELECT_DATE")
+            datePicker.show(supportFragmentManager, "SELECT_DATE")
         }
+
+        binding.ivSelectCategoryIcon.setOnClickListener {
+            setDialog(
+                getString(R.string.label_dialog_title_category),
+                ItemStorage.getCategory(),
+                Constants.DIALOG_TAG_CATEGORY,
+                binding.tvPostSelectedCategory
+            )
+        }
+
+        binding.ivSelectLanguageIcon.setOnClickListener {
+            setDialog(
+                getString(R.string.label_dialog_title_language),
+                ItemStorage.getLanguage(),
+                Constants.DIALOG_TAG_LANGUAGE,
+                binding.tvPostSelectedLanguage
+            )
+        }
+    }
+
+    private fun setDialog(
+        dialogTitle: String,
+        dialogItemList: List<String>,
+        dialogTag: String,
+        selectedTextView: TextView
+    ) {
+        val dialog = ItemPickDialogFragment(
+            dialogTitle,
+            dialogItemList
+        ) { selectedItem ->
+            selectedTextView.text = selectedItem
+        }
+        dialog.show(supportFragmentManager, dialogTag)
     }
 }
