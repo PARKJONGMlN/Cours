@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.postcomposition.PostCompositionActivity">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_bar_post_composition"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/label_post_composition"
+            app:navigationIcon="@drawable/baseline_arrow_back_24"
+            app:titleCentered="true" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_post_title"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:hint="@string/hint_input_post_title"
+            app:hintTextColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_composition">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_post_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLength="20"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_post_body"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:hint="@string/hint_input_post_body"
+            app:boxStrokeColor="@color/orange"
+            app:hintTextColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_post_body"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="top" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_post_number_of_member"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:hint="@string/hint_input_post_number_of_member"
+            app:hintTextColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_body">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_post_number_of_member"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="1"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_label_post_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/label_post_location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
+
+        <TextView
+            android:id="@+id/tv_post_selected_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/label_post_select_location_message"
+            app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
+
+        <ImageView
+            android:id="@+id/iv_select_location_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member"
+            app:srcCompat="@drawable/baseline_edit_location_24" />
+
+        <TextView
+            android:id="@+id/tv_label_post_meeting_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/label_post_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_label_post_location" />
+
+        <TextView
+            android:id="@+id/tv_post_selected_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/label_post_select_date_message"
+            app:layout_constraintEnd_toStartOf="@+id/tv_select_date_icon"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date" />
+
+        <ImageView
+            android:id="@+id/tv_select_date_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_date"
+            app:srcCompat="@drawable/baseline_edit_calendar_24" />
+
+        <TextView
+            android:id="@+id/tv_label_post_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/label_post_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_label_post_meeting_date" />
+
+        <TextView
+            android:id="@+id/tv_post_selected_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/label_post_select_category_message"
+            app:layout_constraintEnd_toStartOf="@+id/iv_select_category_icon"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_category" />
+
+        <ImageView
+            android:id="@+id/iv_select_category_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_category"
+            app:srcCompat="@drawable/baseline_app_registration_24" />
+
+        <TextView
+            android:id="@+id/tv_label_post_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/label_post_language"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_label_post_category" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_post_complete"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@drawable/button_background"
+            android:enabled="false"
+            android:gravity="center"
+            android:text="@string/btn_complete"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_post_selected_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/label_post_select_language_message"
+            app:layout_constraintEnd_toStartOf="@+id/iv_select_language_icon"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_language" />
+
+        <ImageView
+            android:id="@+id/iv_select_language_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_language"
+            app:srcCompat="@drawable/baseline_app_registration_24" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

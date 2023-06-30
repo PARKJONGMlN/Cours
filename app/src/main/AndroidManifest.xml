@@ -14,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Cours"
         tools:targetApi="31">
+        <activity android:name=".ui.postcomposition.PostCompositionActivity"/>
         <activity android:name=".ui.settinguserinfo.SettingUserInfoActivity" />
         <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.MapActivity" />

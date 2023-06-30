@@ -1,7 +1,20 @@
 <resources>
     <string name="app_name">Cours</string>
     <string name="label_user_info">프로필 설정</string>
+    <string name="label_post_composition">모임 생성</string>
+    <string name="label_post_map">모임 지도</string>
+    <string name="label_post_location">위치</string>
     <string name="btn_complete">완료</string>
     <string name="hint_input_user_nickname">닉네임</string>
     <string name="hint_input_user_intro">소개</string>
+    <string name="hint_input_post_title">제목</string>
+    <string name="hint_input_post_body">내용</string>
+    <string name="hint_input_post_number_of_member">인원</string>
+    <string name="label_post_select_location_message">위치를 선택해 주세요</string>
+    <string name="label_post_select_date_message">날짜를 선택해 주세요</string>
+    <string name="label_post_select_category_message">카테고리를 선택해 주세요</string>
+    <string name="label_post_select_language_message">언어를 선택해 주세요</string>
+    <string name="label_post_category">카테고리</string>
+    <string name="label_post_language">언어</string>
+    <string name="label_post_date">모임 날짜</string>
 </resources>
