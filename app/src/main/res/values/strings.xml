@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Cours</string>
+    <string name="label_user_info">프로필 설정</string>
+    <string name="btn_complete">완료</string>
+    <string name="hint_input_user_nickname">닉네임</string>
+    <string name="hint_input_user_intro">소개</string>
 </resources>
