@@ -19,7 +19,7 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "GOOGLE_CLIENT_ID", properties["google_client_id"]
-        buildConfigField "String", "REALTIME_DB_URL", properties["google_firebase_realtime_db_url"]
+        buildConfigField "String", "BASE_URL", properties["google_firebase_realtime_db_url"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

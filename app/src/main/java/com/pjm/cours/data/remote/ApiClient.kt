@@ -23,7 +23,7 @@ interface ApiClient {
 
     companion object {
 
-        private const val baseUrl = BuildConfig.REALTIME_DB_URL
+        private const val baseUrl = BuildConfig.BASE_URL
 
         fun create(): ApiClient {
             val loggingInterceptor = HttpLoggingInterceptor().apply {
