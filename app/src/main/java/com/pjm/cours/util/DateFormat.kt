@@ -5,7 +5,7 @@ import java.util.*
 
 object DateFormat {
 
-    private const val DATE_YEAR_MONTH_DAY = "yyyy / MM / dd"
+    private const val DATE_YEAR_MONTH_DAY = "yyyy. MM. dd"
 
     fun convertDisplayDate(long: Long): String {
         val simpleDateFormat = SimpleDateFormat(DATE_YEAR_MONTH_DAY, Locale.KOREA)
