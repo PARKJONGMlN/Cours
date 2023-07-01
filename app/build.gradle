@@ -20,6 +20,7 @@ android {
 
         buildConfigField "String", "GOOGLE_CLIENT_ID", properties["google_client_id"]
         buildConfigField "String", "BASE_URL", properties["google_firebase_realtime_db_url"]
+        buildConfigField "String", "KAKAO_MAP_KEY", properties["kakao_map_api_key"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
