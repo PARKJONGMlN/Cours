@@ -1,2 +1,4 @@
 /build
+libs
 google-services.json
+src/main/jniLibs
