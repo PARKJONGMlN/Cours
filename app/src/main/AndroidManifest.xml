@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".CoursApplication"
@@ -13,8 +15,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cours"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity android:name=".ui.postcomposition.PostCompositionActivity"/>
+        <activity android:name=".ui.location.LocationActivity" />
+        <activity android:name=".ui.postcomposition.PostCompositionActivity" />
         <activity android:name=".ui.settinguserinfo.SettingUserInfoActivity" />
         <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.MapActivity" />
@@ -27,6 +31,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="a54f2e7713031c8b4a83ad68f005f42c" />
     </application>
 
 </manifest>
