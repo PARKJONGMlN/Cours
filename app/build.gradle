@@ -82,4 +82,7 @@ dependencies {
     // Fragment
     implementation 'androidx.fragment:fragment-ktx:1.6.0'
 
+
+    // KakaoMap
+    implementation files('libs/libDaumMapAndroid.jar')
 }
