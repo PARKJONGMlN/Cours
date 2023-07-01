@@ -29,8 +29,11 @@ class PostCompositionActivity : AppCompatActivity() {
             val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION)!!
             binding.tvPostSelectedLocation.text = location
             isLocationSelected = true
-            checkInputs()
+        } else {
+            binding.tvPostSelectedLocation.text = getString(R.string.label_post_select_location_message)
+            isLocationSelected = false
         }
+        checkInputs()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +48,15 @@ class PostCompositionActivity : AppCompatActivity() {
         binding.appBarPostComposition.setNavigationOnClickListener {
             finish()
         }
-
         binding.etPostTitle.doOnTextChanged { _, _, _, _ ->
             checkInputs()
         }
-
         binding.etPostBody.doOnTextChanged { _, _, _, _ ->
             checkInputs()
         }
-
         binding.etPostNumberOfMember.doOnTextChanged { _, _, _, _ ->
             checkInputs()
         }
-
         binding.ivSelectDateIcon.setOnClickListener {
             val datePicker =
                 MaterialDatePicker.Builder.datePicker()
@@ -71,7 +70,6 @@ class PostCompositionActivity : AppCompatActivity() {
             }
             datePicker.show(supportFragmentManager, "SELECT_DATE")
         }
-
         binding.ivSelectCategoryIcon.setOnClickListener {
             setDialog(
                 getString(R.string.label_dialog_title_category),
@@ -83,7 +81,6 @@ class PostCompositionActivity : AppCompatActivity() {
                 checkInputs()
             }
         }
-
         binding.ivSelectLanguageIcon.setOnClickListener {
             setDialog(
                 getString(R.string.label_dialog_title_language),
@@ -95,12 +92,12 @@ class PostCompositionActivity : AppCompatActivity() {
                 checkInputs()
             }
         }
-
         binding.ivSelectLocationIcon.setOnClickListener {
             startForResult.launch(Intent(this, LocationActivity::class.java))
         }
-
-        binding.btnPostComplete
+        binding.btnPostComplete.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setDialog(
