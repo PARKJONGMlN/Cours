@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -29,12 +30,8 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     MapView.CurrentLocationEventListener {
 
     private lateinit var binding: ActivityLocationBinding
+    private val viewModel: LocationViewModel by viewModels { LocationViewModel.provideFactory() }
     private lateinit var mapView: MapView
-    private lateinit var selectedPoint: MapPoint
-    private lateinit var selectedLocation: String
-    private var wasSettingsOpened = false
-    private var isTrackingMode = false
-    private var currentMapPoint: MapPoint? = null
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -42,20 +39,12 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
         permissions.entries.forEach { permission ->
             when {
                 permission.value -> {
-                    setCurrentLocation()
+                    if (viewModel.isGrantedPermission.value?.peekContent() != true) {
+                        viewModel.setPermission(true)
+                    }
                 }
                 else -> {
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.location_permission_message),
-                        Snackbar.LENGTH_SHORT
-                    ).apply {
-                        setAction(getString(R.string.location_permission_button)) {
-                            openSettings()
-                        }
-                        show()
-                    }
-                    showMap()
+                    viewModel.setPermission(false)
                 }
             }
         }
@@ -69,15 +58,119 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
         launchPermission()
 
         setLayout()
+        setObserver()
+    }
+
+    private fun setLayout() {
+        mapView = MapView(this)
+        mapView.setMapViewEventListener(this)
+        mapView.setPOIItemEventListener(this)
+        mapView.setCurrentLocationEventListener(this)
+        binding.mapView.addView(mapView)
+
+        binding.topAppBarLocation.setNavigationOnClickListener {
+            finish()
+        }
+        binding.btnLocationComplete.setOnClickListener {
+            val intent = Intent(this, LocationActivity::class.java).apply {
+                putExtra(
+                    Constants.SELECTED_LOCATION,
+                    viewModel.selectedLocation.value?.peekContent()
+                )
+            }
+            setResult(RESULT_OK, intent)
+            finish()
+        }
+        binding.ivMyLocation.setOnClickListener {
+            launchPermission()
+            viewModel.currentMapPoint.value?.peekContent()?.let {
+                viewModel.startTracking()
+                mapView.setMapCenterPoint(it, true)
+            }
+        }
+    }
+
+    private fun setObserver() {
+        viewModel.isLoading.observe(this) {
+            if (!it.peekContent()) {
+                showMap()
+            }
+        }
+        viewModel.isGrantedPermission.observe(this) {
+            if (it.peekContent()) {
+                viewModel.startTracking()
+            } else {
+                showMap()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.location_permission_message),
+                    Snackbar.LENGTH_SHORT
+                ).apply {
+                    setAction(getString(R.string.location_permission_button)) {
+                        viewModel.openSetting(true)
+                    }
+                    show()
+                }
+            }
+        }
+        viewModel.isSettingOpened.observe(this) {
+            if (it.peekContent()) {
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }.run(::startActivity)
+            }
+        }
+        viewModel.isTrackingMode.observe(this) {
+            if (it.peekContent()) {
+                mapView.currentLocationTrackingMode =
+                    MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+            } else {
+                mapView.currentLocationTrackingMode =
+                    MapView.CurrentLocationTrackingMode.TrackingModeOff
+            }
+        }
+        viewModel.selectedPoint.observe(this) {
+            val reverseGeoCoder =
+                MapReverseGeoCoder(BuildConfig.KAKAO_MAP_KEY, it.peekContent(), this, this)
+            reverseGeoCoder.startFindingAddress()
+        }
+        viewModel.selectedLocation.observe(this) {
+            mapView.setMapCenterPoint(viewModel.selectedPoint.value?.peekContent(), true)
+            mapView.removeAllPOIItems()
+            val marker = createMarker(it.peekContent())
+            mapView.addPOIItem(marker)
+            mapView.selectPOIItem(marker, true)
+            binding.btnLocationComplete.isEnabled = true
+        }
+        viewModel.currentMapPoint.observe(this) {
+            mapView.setMapCenterPoint(it.peekContent(), true)
+            viewModel.endTracking()
+            showMap()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (wasSettingsOpened) {
+        if (viewModel.isSettingOpened.value?.peekContent() == true) {
+            viewModel.openSetting(false)
             if (checkLocationPermission()) {
-                setCurrentLocation()
+                viewModel.startTracking()
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.endTracking()
+    }
+
+    private fun createMarker(location: String): MapPOIItem {
+        val marker = MapPOIItem()
+        marker.itemName = location
+        marker.tag = 0
+        marker.mapPoint = viewModel.selectedPoint.value?.peekContent()
+        marker.markerType = MapPOIItem.MarkerType.RedPin
+        return marker
     }
 
     private fun checkLocationPermission() = ContextCompat.checkSelfPermission(
@@ -89,49 +182,16 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
 
-    private fun setCurrentLocation() {
-        isTrackingMode = true
-        mapView.currentLocationTrackingMode =
-            MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-    }
-
-    private fun openSettings() {
-        wasSettingsOpened = true
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts("package", packageName, null)
-        }.run(::startActivity)
-    }
-
-    private fun setLayout() {
-        mapView = MapView(this)
-        binding.topAppBarLocation.setNavigationOnClickListener {
-            finish()
-        }
-
-        binding.btnLocationComplete.setOnClickListener {
-            val intent = Intent(this, LocationActivity::class.java).apply {
-                putExtra(Constants.SELECTED_LOCATION, selectedLocation)
-            }
-            setResult(RESULT_OK, intent)
-            finish()
-        }
-
-        mapView.setMapViewEventListener(this)
-        mapView.setPOIItemEventListener(this)
-        mapView.setCurrentLocationEventListener(this)
-        binding.mapView.addView(mapView)
-
-        binding.ivMyLocation.setOnClickListener {
-            launchPermission()
-            currentMapPoint?.let {
-                setCurrentLocation()
-                mapView.setMapCenterPoint(it, true)
-            }
-        }
-    }
-
     private fun launchPermission() {
         locationPermissionRequest.launch(REQUIRED_PERMISSIONS)
+    }
+
+    private fun showMap() {
+        lifecycleScope.launch {
+            delay(300)
+            binding.mapView.visibility = View.VISIBLE
+            binding.progressBarMap.visibility = View.GONE
+        }
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
@@ -147,10 +207,7 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     }
 
     override fun onMapViewSingleTapped(mapView: MapView, mapPoint: MapPoint) {
-        selectedPoint = mapPoint
-        val reverseGeoCoder =
-            MapReverseGeoCoder(BuildConfig.KAKAO_MAP_KEY, selectedPoint, this, this)
-        reverseGeoCoder.startFindingAddress()
+        viewModel.selectPoint(selectedPoint = mapPoint)
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -174,7 +231,7 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     }
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
-        mapView.setMapCenterPoint(selectedPoint, true)
+        mapView.setMapCenterPoint(viewModel.selectedPoint.value?.peekContent(), true)
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
@@ -194,18 +251,7 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     }
 
     override fun onReverseGeoCoderFoundAddress(p0: MapReverseGeoCoder?, result: String) {
-        mapView.setMapCenterPoint(selectedPoint, true)
-        mapView.removeAllPOIItems()
-        selectedLocation = result
-        val marker = MapPOIItem()
-        marker.itemName = result;
-        marker.tag = 0;
-        marker.mapPoint = selectedPoint
-        marker.markerType = MapPOIItem.MarkerType.RedPin
-        mapView.addPOIItem(marker)
-        mapView.selectPOIItem(marker, true)
-        binding.btnLocationComplete.isEnabled = true
-
+        viewModel.selectLocation(selectedLocation = result)
     }
 
     override fun onReverseGeoCoderFailedToFindAddress(p0: MapReverseGeoCoder?) {
@@ -214,22 +260,9 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     override fun onCurrentLocationUpdate(p0: MapView, mapPoint: MapPoint, p2: Float) {
         val mapPointGeo = mapPoint.mapPointGeoCoord
-        currentMapPoint = MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
-        mapView.setMapCenterPoint(currentMapPoint, true)
-        if (isTrackingMode) {
-            isTrackingMode = false
-            mapView.currentLocationTrackingMode =
-                MapView.CurrentLocationTrackingMode.TrackingModeOff
-        }
-        showMap()
-    }
-
-    private fun showMap() {
-        lifecycleScope.launch {
-            delay(300)
-            binding.mapView.visibility = View.VISIBLE
-            binding.progressBarMap.visibility = View.GONE
-        }
+        val currentMapPoint =
+            MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+        viewModel.setCurrentMapPoint(currentMapPoint)
     }
 
     override fun onCurrentLocationDeviceHeadingUpdate(p0: MapView?, p1: Float) {
@@ -244,12 +277,8 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     }
 
-    override fun onStop() {
-        super.onStop()
-        mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
-    }
-
     companion object {
+        const val TAG = "LocationActivity"
         private val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
