@@ -9,5 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FD9347</color>
     <color name="colorButtonDisabled">#D9D9D9</color>
+    <color name="dialogBackground">#D9D9D9</color>
     <color name="grey_transparent">#AA616161</color>
 </resources>
