@@ -7,7 +7,7 @@ import com.pjm.cours.util.DateFormat
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
 
-class PostCompositionRepository(
+class PostRepository(
     private val apiClient: ApiClient,
 ) {
 

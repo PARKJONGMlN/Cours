@@ -12,7 +12,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
-import com.pjm.cours.data.PostCompositionRepository
+import com.pjm.cours.data.PostRepository
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
 import com.pjm.cours.ui.location.LocationActivity
 import com.pjm.cours.util.Constants
@@ -22,7 +22,7 @@ class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
     private val viewModel: PostCompositionViewModel by viewModels {
-        PostCompositionViewModel.provideFactory(PostCompositionRepository(CoursApplication.apiContainer.provideApiClient()))
+        PostCompositionViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
     }
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()

@@ -3,13 +3,13 @@ package com.pjm.cours.ui.postcomposition
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.PostCompositionRepository
+import com.pjm.cours.data.PostRepository
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class PostCompositionViewModel(
-    private val repository: PostCompositionRepository
+    private val repository: PostRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableLiveData(false)
@@ -134,7 +134,7 @@ class PostCompositionViewModel(
 
     companion object {
 
-        fun provideFactory(repository: PostCompositionRepository) = viewModelFactory {
+        fun provideFactory(repository: PostRepository) = viewModelFactory {
             initializer {
                 PostCompositionViewModel(repository)
             }
