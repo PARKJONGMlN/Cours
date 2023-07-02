@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="@dimen/viewpager_item_width"
+            android:layout_height="116dp"
+            android:layout_marginStart="@dimen/viewpager_item_margin"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:contentDescription="@string/description_host_profile_image"
+                    android:id="@+id/iv_host_profile_image"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/baseline_circle_24" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_category_preview"
+                    android:layout_width="56dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/grey"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_category_preview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="카테고리" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_language_preview"
+                    android:layout_width="56dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/grey"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/cv_category_preview"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_language_preview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="언어" />
+                </androidx.cardview.widget.CardView>
+
+
+                <TextView
+                    android:id="@+id/tv_title_preview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_category_preview"
+                    tools:text="모임 제목" />
+
+                <ImageView
+                    android:contentDescription="@string/description_distance_icon"
+                    android:id="@+id/iv_distance_icon_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_preview"
+                    app:srcCompat="@drawable/baseline_location_on_24" />
+
+                <TextView
+                    android:id="@+id/tv_distance_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_preview"
+                    app:layout_constraintStart_toEndOf="@+id/iv_distance_icon_preview"
+                    tools:text="거리" />
+
+                <ImageView
+                    android:contentDescription="@string/description_current_people_icon"
+                    android:id="@+id/iv_current_people_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="9dp"
+                    app:layout_constraintStart_toEndOf="@+id/tv_distance_preview"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_preview"
+                    app:srcCompat="@drawable/baseline_group_24" />
+
+                <TextView
+                    android:id="@+id/tv_current_people_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_current_people_icon"
+                    app:layout_constraintStart_toEndOf="@+id/iv_current_people_icon"
+                    tools:text="현재인원/전체인원" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

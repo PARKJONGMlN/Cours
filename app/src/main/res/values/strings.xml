@@ -25,4 +25,8 @@
     <string name="description_meeting_date_icon">날짜 선택 아이콘</string>
     <string name="description_category_icon">카테고리 선택 아이콘</string>
     <string name="description_language_icon">언어 선택 아이콘</string>
+    <string name="description_host_profile_image">모임 호스트 프로필</string>
+    <string name="description_my_location_icon">내 위치로 이동하는 아이콘</string>
+    <string name="description_distance_icon">나와 모임 위치 사이 거리</string>
+    <string name="description_current_people_icon">현재 모임 인원</string>
 </resources>
