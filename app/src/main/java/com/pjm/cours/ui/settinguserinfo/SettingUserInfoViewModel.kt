@@ -31,7 +31,7 @@ class SettingUserInfoViewModel(
         setLoading()
         viewModelScope.launch {
             try {
-                val response = repository.createPost(user)
+                val response = repository.createUser(user)
                 if (response.isSuccessful && response.body() != null) {
                     _isLoading.value = Event(false)
                 } else {
