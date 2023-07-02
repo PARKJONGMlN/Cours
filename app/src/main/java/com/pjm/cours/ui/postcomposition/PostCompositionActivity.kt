@@ -2,11 +2,10 @@ package com.pjm.cours.ui.postcomposition
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doOnTextChanged
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
@@ -18,22 +17,20 @@ import com.pjm.cours.util.DateFormat
 class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
-    private var isLocationSelected = false
-    private var isMeetingDateSelected = false
-    private var isCategorySelected = false
-    private var isLanguageSelected = false
+    private val viewModel: PostCompositionViewModel by viewModels {
+        PostCompositionViewModel.provideFactory()
+    }
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
-            val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION)!!
-            binding.tvPostSelectedLocation.text = location
-            isLocationSelected = true
+            val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
+            viewModel.setLocation(location)
+            viewModel.setLocationSelection(true)
         } else {
-            binding.tvPostSelectedLocation.text = getString(R.string.label_post_select_location_message)
-            isLocationSelected = false
+            viewModel.setLocation(getString(R.string.label_post_select_location_message))
+            viewModel.setLocationSelection(false)
         }
-        checkInputs()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,20 +39,14 @@ class PostCompositionActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setLayout()
+        setObserver()
     }
 
     private fun setLayout() {
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
         binding.appBarPostComposition.setNavigationOnClickListener {
             finish()
-        }
-        binding.etPostTitle.doOnTextChanged { _, _, _, _ ->
-            checkInputs()
-        }
-        binding.etPostBody.doOnTextChanged { _, _, _, _ ->
-            checkInputs()
-        }
-        binding.etPostNumberOfMember.doOnTextChanged { _, _, _, _ ->
-            checkInputs()
         }
         binding.ivSelectDateIcon.setOnClickListener {
             val datePicker =
@@ -64,9 +55,8 @@ class PostCompositionActivity : AppCompatActivity() {
                     .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                     .build()
             datePicker.addOnPositiveButtonClickListener {
-                binding.tvPostSelectedDate.text = DateFormat.convertDisplayDate(it)
-                isMeetingDateSelected = true
-                checkInputs()
+                viewModel.setMeetingDate(DateFormat.convertDisplayDate(it))
+                viewModel.setMeetingDateSelection(true)
             }
             datePicker.show(supportFragmentManager, "SELECT_DATE")
         }
@@ -75,10 +65,9 @@ class PostCompositionActivity : AppCompatActivity() {
                 getString(R.string.label_dialog_title_category),
                 ItemStorage.getCategory(),
                 Constants.DIALOG_TAG_CATEGORY,
-                binding.tvPostSelectedCategory,
-            ) {
-                isCategorySelected = true
-                checkInputs()
+            ) {selectedItem ->
+                viewModel.setCategory(selectedItem)
+                viewModel.setCategorySelection(true)
             }
         }
         binding.ivSelectLanguageIcon.setOnClickListener {
@@ -86,10 +75,9 @@ class PostCompositionActivity : AppCompatActivity() {
                 getString(R.string.label_dialog_title_language),
                 ItemStorage.getLanguage(),
                 Constants.DIALOG_TAG_LANGUAGE,
-                binding.tvPostSelectedLanguage,
-            ) {
-                isLanguageSelected = true
-                checkInputs()
+            ) {selectedItem ->
+                viewModel.setLanguage(selectedItem)
+                viewModel.setLanguageSelection(true)
             }
         }
         binding.ivSelectLocationIcon.setOnClickListener {
@@ -100,31 +88,34 @@ class PostCompositionActivity : AppCompatActivity() {
         }
     }
 
+    private fun setObserver() {
+        viewModel.location.observe(this) {
+            binding.tvPostSelectedLocation.text = it.peekContent()
+        }
+        viewModel.meetingDate.observe(this) {
+            binding.tvPostSelectedDate.text = it.peekContent()
+        }
+        viewModel.category.observe(this) {
+            binding.tvPostSelectedCategory.text = it.peekContent()
+        }
+        viewModel.language.observe(this) {
+            binding.tvPostSelectedLanguage.text = it.peekContent()
+        }
+    }
+
     private fun setDialog(
         dialogTitle: String,
         dialogItemList: List<String>,
         dialogTag: String,
-        selectedTextView: TextView,
-        itemSelected: () -> Unit
+        itemSelected: (selectedItem: String) -> Unit
     ) {
         val dialog = ItemPickDialogFragment(
             dialogTitle,
             dialogItemList
         ) { selectedItem ->
-            selectedTextView.text = selectedItem
-            itemSelected()
+            itemSelected(selectedItem)
         }
         dialog.show(supportFragmentManager, dialogTag)
     }
 
-    private fun checkInputs() {
-        binding.btnPostComplete.isEnabled =
-            binding.etPostTitle.text.toString().isNotBlank()
-                    && binding.etPostBody.text.toString().isNotBlank()
-                    && binding.etPostNumberOfMember.text.toString().isNotBlank()
-                    && isLocationSelected
-                    && isMeetingDateSelected
-                    && isCategorySelected
-                    && isLanguageSelected
-    }
 }

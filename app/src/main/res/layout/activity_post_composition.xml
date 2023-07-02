@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.pjm.cours.ui.postcomposition.PostCompositionViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,6 +40,7 @@
             app:layout_constraintTop_toBottomOf="@+id/app_bar_post_composition">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:text="@={viewModel.title}"
                 android:id="@+id/et_post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,6 +64,7 @@
             app:layout_constraintTop_toBottomOf="@+id/til_post_title">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:text="@={viewModel.body}"
                 android:id="@+id/et_post_body"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -76,6 +85,7 @@
             app:layout_constraintTop_toBottomOf="@+id/til_post_body">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:text="@={viewModel.numberOfMember}"
                 android:id="@+id/et_post_number_of_member"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
-            android:text="@string/label_post_select_location_message"
+            tools:text="@string/label_post_select_location_message"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
             app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
 
@@ -188,7 +198,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
             android:backgroundTint="@drawable/button_background"
-            android:enabled="false"
+            android:enabled="@{viewModel.isInputComplete}"
             android:gravity="center"
             android:text="@string/btn_complete"
             android:textColor="@color/white"
