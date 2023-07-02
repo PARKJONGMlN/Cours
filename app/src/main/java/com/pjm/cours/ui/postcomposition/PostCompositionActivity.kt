@@ -2,6 +2,8 @@ package com.pjm.cours.ui.postcomposition
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -96,6 +98,18 @@ class PostCompositionActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
+        viewModel.isLoading.observe(this) { isLoading ->
+            if (isLoading) {
+                binding.groupLoading.visibility = View.VISIBLE
+                disableScreenTouch()
+            }
+        }
+        viewModel.isCompleted.observe(this) { isCompleted ->
+            if(isCompleted) {
+                binding.groupLoading.visibility = View.GONE
+                finish()
+            }
+        }
         viewModel.location.observe(this) {
             binding.tvPostSelectedLocation.text = it.peekContent()
         }
@@ -125,4 +139,10 @@ class PostCompositionActivity : AppCompatActivity() {
         dialog.show(supportFragmentManager, dialogTag)
     }
 
+    private fun disableScreenTouch() {
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
 }

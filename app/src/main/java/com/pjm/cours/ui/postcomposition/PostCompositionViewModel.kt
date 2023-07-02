@@ -6,10 +6,18 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.PostCompositionRepository
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class PostCompositionViewModel(
     private val repository: PostCompositionRepository
 ) : ViewModel() {
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isCompleted = MutableLiveData(false)
+    val isCompleted: LiveData<Boolean> = _isCompleted
+    private val _isError = MutableLiveData(false)
+    val isError: LiveData<Boolean> = _isError
 
     val title = MutableLiveData<String>()
     val body = MutableLiveData<String>()
@@ -84,17 +92,30 @@ class PostCompositionViewModel(
 
     fun createPost() {
         viewModelScope.launch {
-            repository.createPost(
-                title = title.value ?: "",
-                body = body.value ?: "",
-                numberOfMember = numberOfMember.value ?: "",
-                location = _location.value?.peekContent() ?: "",
-                latitude = _locationLatitude.value?.peekContent() ?: "",
-                longitude = _locationLongitude.value?.peekContent() ?: "",
-                meetingDate = _meetingDate.value?.peekContent() ?: "",
-                category = _category.value?.peekContent() ?: "",
-                language = _language.value?.peekContent() ?: ""
-            )
+            _isLoading.value = true
+            try {
+                val result = repository.createPost(
+                    title = title.value ?: "",
+                    body = body.value ?: "",
+                    numberOfMember = numberOfMember.value ?: "",
+                    location = _location.value?.peekContent() ?: "",
+                    latitude = _locationLatitude.value?.peekContent() ?: "",
+                    longitude = _locationLongitude.value?.peekContent() ?: "",
+                    meetingDate = _meetingDate.value?.peekContent() ?: "",
+                    category = _category.value?.peekContent() ?: "",
+                    language = _language.value?.peekContent() ?: ""
+                )
+                if (result.isSuccessful && result.body() != null) {
+                    _isLoading.value = false
+                    _isCompleted.value = true
+                } else {
+
+                }
+            } catch (e: HttpException) {
+                // TODO
+            } catch (e: Throwable) {
+                // TODO
+            }
         }
     }
 
