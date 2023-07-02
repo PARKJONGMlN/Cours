@@ -60,6 +60,16 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         binding.viewPagerMap.adapter = adapter
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        initMapView()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.removeView(mapView)
+    }
+
     private fun setObserver() {
         viewModel.isCompleted.observe(this) { isCompleted ->
             if (isCompleted) {

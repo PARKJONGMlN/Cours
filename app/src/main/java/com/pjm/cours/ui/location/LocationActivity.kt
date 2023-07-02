@@ -172,6 +172,11 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
         viewModel.endTracking()
     }
 
+    override fun finish() {
+        super.finish()
+        binding.mapView.removeView(mapView)
+    }
+
     private fun createMarker(location: String): MapPOIItem {
         val marker = MapPOIItem()
         marker.itemName = location
