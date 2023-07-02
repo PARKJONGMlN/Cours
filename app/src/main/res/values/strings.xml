@@ -21,4 +21,8 @@
     <string name="label_dialog_title_language">언어 선택</string>
     <string name="location_permission_message">위치 권한을 허용하면 현재 위치로 이동 할 수 있습니다.</string>
     <string name="location_permission_button">권한 설정</string>
+    <string name="description_location_icon">위치선택아이콘</string>
+    <string name="description_meeting_date_icon">날짜 선택 아이콘</string>
+    <string name="description_category_icon">카테고리 선택 아이콘</string>
+    <string name="description_language_icon">언어 선택 아이콘</string>
 </resources>

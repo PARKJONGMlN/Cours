@@ -7,8 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
+import com.pjm.cours.data.PostCompositionRepository
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
 import com.pjm.cours.ui.location.LocationActivity
 import com.pjm.cours.util.Constants
@@ -18,17 +20,19 @@ class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
     private val viewModel: PostCompositionViewModel by viewModels {
-        PostCompositionViewModel.provideFactory()
+        PostCompositionViewModel.provideFactory(PostCompositionRepository(CoursApplication.apiContainer.provideApiClient()))
     }
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
             val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
-            val locationLatitude = result.data?.getStringExtra(Constants.SELECTED_LOCATION_LATITUDE) ?: ""
-            val locationLongitude = result.data?.getStringExtra(Constants.SELECTED_LOCATION_LONGITUDE) ?: ""
+            val locationLatitude =
+                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LATITUDE) ?: ""
+            val locationLongitude =
+                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LONGITUDE) ?: ""
             viewModel.setLocation(location)
-            viewModel.setLocationPoint(locationLatitude,locationLongitude)
+            viewModel.setLocationPoint(locationLatitude, locationLongitude)
             viewModel.setLocationSelection(true)
         } else {
             viewModel.setLocation(getString(R.string.label_post_select_location_message))
@@ -68,7 +72,7 @@ class PostCompositionActivity : AppCompatActivity() {
                 getString(R.string.label_dialog_title_category),
                 ItemStorage.getCategory(),
                 Constants.DIALOG_TAG_CATEGORY,
-            ) {selectedItem ->
+            ) { selectedItem ->
                 viewModel.setCategory(selectedItem)
                 viewModel.setCategorySelection(true)
             }
@@ -78,7 +82,7 @@ class PostCompositionActivity : AppCompatActivity() {
                 getString(R.string.label_dialog_title_language),
                 ItemStorage.getLanguage(),
                 Constants.DIALOG_TAG_LANGUAGE,
-            ) {selectedItem ->
+            ) { selectedItem ->
                 viewModel.setLanguage(selectedItem)
                 viewModel.setLanguageSelection(true)
             }

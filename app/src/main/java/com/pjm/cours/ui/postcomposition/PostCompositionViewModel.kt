@@ -1,14 +1,15 @@
 package com.pjm.cours.ui.postcomposition
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.pjm.cours.data.PostCompositionRepository
 import com.pjm.cours.util.Event
+import kotlinx.coroutines.launch
 
-class PostCompositionViewModel : ViewModel() {
+class PostCompositionViewModel(
+    private val repository: PostCompositionRepository
+) : ViewModel() {
 
     val title = MutableLiveData<String>()
     val body = MutableLiveData<String>()
@@ -48,7 +49,7 @@ class PostCompositionViewModel : ViewModel() {
         _location.value = Event(location)
     }
 
-    fun setLocationPoint(latitude: String, longitude: String){
+    fun setLocationPoint(latitude: String, longitude: String) {
         _locationLatitude.value = Event(latitude)
         _locationLongitude.value = Event(longitude)
     }
@@ -81,6 +82,22 @@ class PostCompositionViewModel : ViewModel() {
         _isLanguageSelected.value = Event(boolean)
     }
 
+    fun createPost() {
+        viewModelScope.launch {
+            repository.createPost(
+                title = title.value ?: "",
+                body = body.value ?: "",
+                numberOfMember = numberOfMember.value ?: "",
+                location = _location.value?.peekContent() ?: "",
+                latitude = _locationLatitude.value?.peekContent() ?: "",
+                longitude = _locationLongitude.value?.peekContent() ?: "",
+                meetingDate = _meetingDate.value?.peekContent() ?: "",
+                category = _category.value?.peekContent() ?: "",
+                language = _language.value?.peekContent() ?: ""
+            )
+        }
+    }
+
     private fun checkInputs(): Boolean {
         val currentTitle = title.value ?: ""
         val currentBody = body.value ?: ""
@@ -96,9 +113,9 @@ class PostCompositionViewModel : ViewModel() {
 
     companion object {
 
-        fun provideFactory() = viewModelFactory {
+        fun provideFactory(repository: PostCompositionRepository) = viewModelFactory {
             initializer {
-                PostCompositionViewModel()
+                PostCompositionViewModel(repository)
             }
         }
     }

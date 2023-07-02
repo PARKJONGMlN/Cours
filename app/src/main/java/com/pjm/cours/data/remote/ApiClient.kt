@@ -1,6 +1,7 @@
 package com.pjm.cours.data.remote
 
 import com.pjm.cours.BuildConfig
+import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.model.User
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -19,7 +20,13 @@ interface ApiClient {
     suspend fun createUser(
         @Query("auth") auth: String?,
         @Body user: User
-    ): Response<Map<String,String>>
+    ): Response<Map<String, String>>
+
+    @POST("post.json")
+    suspend fun createPost(
+        @Query("auth") auth: String?,
+        @Body user: Post
+    ): Response<Map<String, String>>
 
     companion object {
 

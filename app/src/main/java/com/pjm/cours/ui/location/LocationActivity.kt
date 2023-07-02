@@ -79,11 +79,11 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                 )
                 putExtra(
                     Constants.SELECTED_LOCATION_LATITUDE,
-                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.latitude
+                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.latitude.toString()
                 )
                 putExtra(
                     Constants.SELECTED_LOCATION_LONGITUDE,
-                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.longitude
+                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.longitude.toString()
                 )
             }
             setResult(RESULT_OK, intent)

@@ -22,8 +22,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:title="@string/label_post_composition"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
+            app:title="@string/label_post_composition"
             app:titleCentered="true" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -40,13 +40,13 @@
             app:layout_constraintTop_toBottomOf="@+id/app_bar_post_composition">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:text="@={viewModel.title}"
                 android:id="@+id/et_post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:maxLength="20"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:text="@={viewModel.title}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -64,11 +64,11 @@
             app:layout_constraintTop_toBottomOf="@+id/til_post_title">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:text="@={viewModel.body}"
                 android:id="@+id/et_post_body"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="top" />
+                android:gravity="top"
+                android:text="@={viewModel.body}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -85,13 +85,13 @@
             app:layout_constraintTop_toBottomOf="@+id/til_post_body">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:text="@={viewModel.numberOfMember}"
                 android:id="@+id/et_post_number_of_member"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:maxLength="1"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:text="@={viewModel.numberOfMember}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -110,11 +110,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
-            tools:text="@string/label_post_select_location_message"
+            android:text="@string/label_post_select_location_message"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
             app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
 
         <ImageView
+            android:contentDescription="@string/description_location_icon"
             android:id="@+id/iv_select_location_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -144,6 +145,7 @@
             app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date" />
 
         <ImageView
+            android:contentDescription="@string/description_meeting_date_icon"
             android:id="@+id/iv_select_date_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -172,6 +174,7 @@
             app:layout_constraintTop_toTopOf="@+id/tv_label_post_category" />
 
         <ImageView
+            android:contentDescription="@string/description_category_icon"
             android:id="@+id/iv_select_category_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -200,6 +203,7 @@
             android:backgroundTint="@drawable/button_background"
             android:enabled="@{viewModel.isInputComplete}"
             android:gravity="center"
+            android:onClick="@{()->viewModel.createPost()}"
             android:text="@string/btn_complete"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -217,6 +221,7 @@
             app:layout_constraintTop_toTopOf="@+id/tv_label_post_language" />
 
         <ImageView
+            android:contentDescription="@string/description_language_icon"
             android:id="@+id/iv_select_language_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
