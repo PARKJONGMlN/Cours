@@ -42,4 +42,9 @@ class PostRepository(
             )
         )
     }
+
+    suspend fun getPostList(): Response<Map<String, Post>> {
+        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+        return apiClient.getPosts(idToken)
+    }
 }
