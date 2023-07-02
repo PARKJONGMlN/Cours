@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.pjm.cours.CoursApplication
+import com.pjm.cours.ui.map.MapActivity
 import com.pjm.cours.util.Constants.KEY_GOOGLE_ID_TOKEN
 
 class LauncherActivity : AppCompatActivity() {

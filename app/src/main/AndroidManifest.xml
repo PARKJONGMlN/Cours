@@ -21,7 +21,7 @@
         <activity android:name=".ui.postcomposition.PostCompositionActivity" />
         <activity android:name=".ui.settinguserinfo.SettingUserInfoActivity" />
         <activity android:name=".ui.LoginActivity" />
-        <activity android:name=".ui.MapActivity" />
+        <activity android:name=".ui.map.MapActivity" />
         <activity
             android:name=".ui.LauncherActivity"
             android:exported="true">

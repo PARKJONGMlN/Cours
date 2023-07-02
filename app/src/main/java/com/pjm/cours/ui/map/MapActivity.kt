@@ -1,4 +1,4 @@
-package com.pjm.cours.ui
+package com.pjm.cours.ui.map
 
 import android.content.Intent
 import android.os.Bundle
