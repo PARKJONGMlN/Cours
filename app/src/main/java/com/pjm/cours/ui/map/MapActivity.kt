@@ -1,17 +1,28 @@
 package com.pjm.cours.ui.map
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.databinding.ActivityMapBinding
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
+import com.pjm.cours.util.EventObserver
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
@@ -19,7 +30,8 @@ import net.daum.mf.map.api.MapView.MapViewEventListener
 import net.daum.mf.map.api.MapView.POIItemEventListener
 
 
-class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListener {
+class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListener,
+    MapView.CurrentLocationEventListener {
 
     private lateinit var binding: ActivityMapBinding
     private val viewModel: MapViewModel by viewModels {
@@ -29,10 +41,30 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     private var makerList: List<Post>? = listOf()
     private var stringList: List<String> = listOf()
     private val adapter = PreviewAdapter()
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissions.entries.forEach { permission ->
+            when {
+                permission.value -> {
+                    if (viewModel.isGrantedPermission.value?.peekContent() != true) {
+                        viewModel.setPermission(true)
+                    }
+                }
+                else -> {
+                    viewModel.setPermission(false)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        launchPermission()
 
         initMapView()
         setLayout()
@@ -44,6 +76,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         mapView = MapView(this)
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
+        mapView.setCurrentLocationEventListener(this)
         binding.mapView.addView(mapView)
     }
 
@@ -58,6 +91,13 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
             }
         }
         binding.viewPagerMap.adapter = adapter
+        binding.ivMyLocationMap.setOnClickListener {
+            launchPermission()
+            viewModel.currentMapPoint.value?.peekContent()?.let {
+                viewModel.startTracking()
+                mapView.setMapCenterPoint(it, true)
+            }
+        }
     }
 
     override fun onRestart() {
@@ -65,12 +105,12 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         initMapView()
     }
 
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.removeView(mapView)
-    }
-
     private fun setObserver() {
+        viewModel.isLoading.observe(this, EventObserver {
+            if (it) {
+                showMap()
+            }
+        })
         viewModel.isCompleted.observe(this) { isCompleted ->
             if (isCompleted) {
                 makerList = viewModel.postList
@@ -122,6 +162,75 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
                 }
 
             }
+        }
+        viewModel.isGrantedPermission.observe(this, EventObserver {
+            if (it) {
+                viewModel.startTracking()
+            } else {
+                showMap()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.location_permission_message),
+                    Snackbar.LENGTH_SHORT
+                ).apply {
+                    setAction(getString(R.string.location_permission_button)) {
+                        viewModel.openSetting(true)
+                    }
+                    show()
+                }
+            }
+        })
+        viewModel.isSettingOpened.observe(this) {
+            if (it.peekContent()) {
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }.run(::startActivity)
+            }
+        }
+        viewModel.isTrackingMode.observe(this) {
+            if (it.peekContent()) {
+                mapView.currentLocationTrackingMode =
+                    MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+            } else {
+                mapView.currentLocationTrackingMode =
+                    MapView.CurrentLocationTrackingMode.TrackingModeOff
+            }
+        }
+        viewModel.currentMapPoint.observe(this) {
+            mapView.setMapCenterPoint(it.peekContent(), true)
+            viewModel.endTracking()
+            showMap()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (viewModel.isSettingOpened.value?.peekContent() == true) {
+            viewModel.openSetting(false)
+            if (checkLocationPermission()) {
+                viewModel.startTracking()
+            }
+        }
+    }
+
+    private fun checkLocationPermission() = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+    private fun launchPermission() {
+        locationPermissionRequest.launch(REQUIRED_PERMISSIONS)
+    }
+
+    private fun showMap() {
+        lifecycleScope.launch {
+            delay(300)
+            binding.mapView.visibility = View.VISIBLE
+            binding.progressBarMap.visibility = View.GONE
         }
     }
 
@@ -180,6 +289,32 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     }
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
+
+    }
+
+    companion object {
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+    }
+
+    override fun onCurrentLocationUpdate(p0: MapView?, mapPoint: MapPoint, p2: Float) {
+        val mapPointGeo = mapPoint.mapPointGeoCoord
+        val currentMapPoint =
+            MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+        viewModel.setCurrentMapPoint(currentMapPoint)
+    }
+
+    override fun onCurrentLocationDeviceHeadingUpdate(p0: MapView?, p1: Float) {
+
+    }
+
+    override fun onCurrentLocationUpdateFailed(p0: MapView?) {
+
+    }
+
+    override fun onCurrentLocationUpdateCancelled(p0: MapView?) {
 
     }
 }
