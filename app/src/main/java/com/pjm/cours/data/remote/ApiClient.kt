@@ -11,6 +11,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -27,6 +28,11 @@ interface ApiClient {
         @Query("auth") auth: String?,
         @Body user: Post
     ): Response<Map<String, String>>
+
+    @GET("post.json")
+    suspend fun getPosts(
+        @Query("auth") auth: String?
+    ): Response<Map<String, Post>>
 
     companion object {
 

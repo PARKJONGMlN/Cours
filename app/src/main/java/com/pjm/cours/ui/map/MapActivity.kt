@@ -1,4 +1,4 @@
-package com.pjm.cours.ui.location
+package com.pjm.cours.ui.map
 
 import android.Manifest
 import android.content.Intent
@@ -12,26 +12,35 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.pjm.cours.BuildConfig
+import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.databinding.ActivityLocationBinding
-import com.pjm.cours.util.Constants
+import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.model.Post
+import com.pjm.cours.databinding.ActivityMapBinding
+import com.pjm.cours.ui.postcomposition.PostCompositionActivity
+import com.pjm.cours.util.EventObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
-import net.daum.mf.map.api.MapReverseGeoCoder
 import net.daum.mf.map.api.MapView
+import net.daum.mf.map.api.MapView.MapViewEventListener
+import net.daum.mf.map.api.MapView.POIItemEventListener
 
 
-class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
-    MapView.POIItemEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener,
+class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListener,
     MapView.CurrentLocationEventListener {
 
-    private lateinit var binding: ActivityLocationBinding
-    private val viewModel: LocationViewModel by viewModels { LocationViewModel.provideFactory() }
+    private lateinit var binding: ActivityMapBinding
+    private val viewModel: MapViewModel by viewModels {
+        MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
+    }
     private lateinit var mapView: MapView
+    private var makerList: List<Post>? = listOf()
+    private var stringList: List<String> = listOf()
+    private val adapter = PreviewAdapter()
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -52,44 +61,37 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLocationBinding.inflate(layoutInflater)
+        binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         launchPermission()
 
+        initMapView()
         setLayout()
         setObserver()
     }
 
-    private fun setLayout() {
+    private fun initMapView() {
+        viewModel.getPosts()
         mapView = MapView(this)
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
         mapView.setCurrentLocationEventListener(this)
         binding.mapView.addView(mapView)
+    }
 
-        binding.topAppBarLocation.setNavigationOnClickListener {
-            finish()
-        }
-        binding.btnLocationComplete.setOnClickListener {
-            val intent = Intent(this, LocationActivity::class.java).apply {
-                putExtra(
-                    Constants.SELECTED_LOCATION,
-                    viewModel.selectedLocation.value?.peekContent()
-                )
-                putExtra(
-                    Constants.SELECTED_LOCATION_LATITUDE,
-                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.latitude.toString()
-                )
-                putExtra(
-                    Constants.SELECTED_LOCATION_LONGITUDE,
-                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.longitude.toString()
-                )
+    private fun setLayout() {
+        binding.appBarMap.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.create_post -> {
+                    startActivity(Intent(this, PostCompositionActivity::class.java))
+                    true
+                }
+                else -> false
             }
-            setResult(RESULT_OK, intent)
-            finish()
         }
-        binding.ivMyLocation.setOnClickListener {
+        binding.viewPagerMap.adapter = adapter
+        binding.ivMyLocationMap.setOnClickListener {
             launchPermission()
             viewModel.currentMapPoint.value?.peekContent()?.let {
                 viewModel.startTracking()
@@ -98,14 +100,71 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
         }
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        initMapView()
+    }
+
     private fun setObserver() {
-        viewModel.isLoading.observe(this) {
-            if (!it.peekContent()) {
+        viewModel.isLoading.observe(this, EventObserver {
+            if (it) {
                 showMap()
             }
+        })
+        viewModel.isCompleted.observe(this) { isCompleted ->
+            if (isCompleted) {
+                makerList = viewModel.postList
+                val markerArr = ArrayList<MapPOIItem>()
+                for (data in makerList!!) {
+                    val marker = MapPOIItem()
+                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(
+                        data.latitude.toDouble(),
+                        data.longitude.toDouble()
+                    )
+                    marker.markerType = MapPOIItem.MarkerType.BluePin
+                    marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                    marker.itemName = data.location
+                    markerArr.add(marker)
+                    mapView.addPOIItem(marker)
+                }
+                stringList = makerList!!.map { it.location }
+                adapter.submitList(stringList)
+                with(binding.viewPagerMap) {
+                    val pageWidth = resources.getDimension(R.dimen.viewpager_item_width)
+                    val pageMargin = resources.getDimension(R.dimen.viewpager_item_margin)
+                    val screenWidth = resources.displayMetrics.widthPixels
+                    val offset = screenWidth - pageWidth - pageMargin
+
+                    offscreenPageLimit = 2
+                    setPageTransformer { page, position ->
+                        page.translationX = position * -offset
+                    }
+                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                        override fun onPageScrolled(
+                            position: Int,
+                            positionOffset: Float,
+                            positionOffsetPixels: Int
+                        ) {
+                            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                        }
+
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            mapView.selectPOIItem(mapView.poiItems[position], true)
+                            mapView.setMapCenterPoint(mapView.poiItems[position].mapPoint, true)
+
+                        }
+
+                        override fun onPageScrollStateChanged(state: Int) {
+                            super.onPageScrollStateChanged(state)
+                        }
+                    })
+                }
+
+            }
         }
-        viewModel.isGrantedPermission.observe(this) {
-            if (it.peekContent()) {
+        viewModel.isGrantedPermission.observe(this, EventObserver {
+            if (it) {
                 viewModel.startTracking()
             } else {
                 showMap()
@@ -120,7 +179,7 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                     show()
                 }
             }
-        }
+        })
         viewModel.isSettingOpened.observe(this) {
             if (it.peekContent()) {
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -137,19 +196,6 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                     MapView.CurrentLocationTrackingMode.TrackingModeOff
             }
         }
-        viewModel.selectedPoint.observe(this) {
-            val reverseGeoCoder =
-                MapReverseGeoCoder(BuildConfig.KAKAO_MAP_KEY, it.peekContent(), this, this)
-            reverseGeoCoder.startFindingAddress()
-        }
-        viewModel.selectedLocation.observe(this) {
-            mapView.setMapCenterPoint(viewModel.selectedPoint.value?.peekContent(), true)
-            mapView.removeAllPOIItems()
-            val marker = createMarker(it.peekContent())
-            mapView.addPOIItem(marker)
-            mapView.selectPOIItem(marker, true)
-            binding.btnLocationComplete.isEnabled = true
-        }
         viewModel.currentMapPoint.observe(this) {
             mapView.setMapCenterPoint(it.peekContent(), true)
             viewModel.endTracking()
@@ -165,25 +211,6 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                 viewModel.startTracking()
             }
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.endTracking()
-    }
-
-    override fun finish() {
-        super.finish()
-        binding.mapView.removeView(mapView)
-    }
-
-    private fun createMarker(location: String): MapPOIItem {
-        val marker = MapPOIItem()
-        marker.itemName = location
-        marker.tag = 0
-        marker.mapPoint = viewModel.selectedPoint.value?.peekContent()
-        marker.markerType = MapPOIItem.MarkerType.RedPin
-        return marker
     }
 
     private fun checkLocationPermission() = ContextCompat.checkSelfPermission(
@@ -219,8 +246,8 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     }
 
-    override fun onMapViewSingleTapped(mapView: MapView, mapPoint: MapPoint) {
-        viewModel.selectPoint(selectedPoint = mapPoint)
+    override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
+        binding.viewPagerMap.visibility = View.GONE
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
@@ -244,7 +271,9 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     }
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
-        mapView.setMapCenterPoint(viewModel.selectedPoint.value?.peekContent(), true)
+        mapView.setMapCenterPoint(p1?.mapPoint, true)
+        binding.viewPagerMap.visibility = View.VISIBLE
+        binding.viewPagerMap.currentItem = mapView.poiItems.indexOf(p1)
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
@@ -263,15 +292,14 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     }
 
-    override fun onReverseGeoCoderFoundAddress(p0: MapReverseGeoCoder?, result: String) {
-        viewModel.selectLocation(selectedLocation = result)
+    companion object {
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
     }
 
-    override fun onReverseGeoCoderFailedToFindAddress(p0: MapReverseGeoCoder?) {
-
-    }
-
-    override fun onCurrentLocationUpdate(p0: MapView, mapPoint: MapPoint, p2: Float) {
+    override fun onCurrentLocationUpdate(p0: MapView?, mapPoint: MapPoint, p2: Float) {
         val mapPointGeo = mapPoint.mapPointGeoCoord
         val currentMapPoint =
             MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
@@ -288,13 +316,5 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
 
     override fun onCurrentLocationUpdateCancelled(p0: MapView?) {
 
-    }
-
-    companion object {
-        const val TAG = "LocationActivity"
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
     }
 }

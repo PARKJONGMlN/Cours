@@ -7,7 +7,7 @@ import com.pjm.cours.util.DateFormat
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
 
-class PostCompositionRepository(
+class PostRepository(
     private val apiClient: ApiClient,
 ) {
 
@@ -41,5 +41,10 @@ class PostCompositionRepository(
                 createdAt = currentTime,
             )
         )
+    }
+
+    suspend fun getPostList(): Response<Map<String, Post>> {
+        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+        return apiClient.getPosts(idToken)
     }
 }

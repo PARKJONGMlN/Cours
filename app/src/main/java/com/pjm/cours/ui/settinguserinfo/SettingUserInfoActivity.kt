@@ -18,7 +18,7 @@ import com.pjm.cours.CoursApplication
 import com.pjm.cours.data.UserRepository
 import com.pjm.cours.data.model.User
 import com.pjm.cours.databinding.ActivitySettingUserInfoBinding
-import com.pjm.cours.ui.MapActivity
+import com.pjm.cours.ui.map.MapActivity
 import com.pjm.cours.util.Constants
 
 class SettingUserInfoActivity : AppCompatActivity() {
