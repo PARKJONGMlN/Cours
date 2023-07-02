@@ -25,7 +25,10 @@ class PostCompositionActivity : AppCompatActivity() {
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
             val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
+            val locationLatitude = result.data?.getStringExtra(Constants.SELECTED_LOCATION_LATITUDE) ?: ""
+            val locationLongitude = result.data?.getStringExtra(Constants.SELECTED_LOCATION_LONGITUDE) ?: ""
             viewModel.setLocation(location)
+            viewModel.setLocationPoint(locationLatitude,locationLongitude)
             viewModel.setLocationSelection(true)
         } else {
             viewModel.setLocation(getString(R.string.label_post_select_location_message))

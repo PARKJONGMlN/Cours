@@ -77,6 +77,14 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
                     Constants.SELECTED_LOCATION,
                     viewModel.selectedLocation.value?.peekContent()
                 )
+                putExtra(
+                    Constants.SELECTED_LOCATION_LATITUDE,
+                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.latitude
+                )
+                putExtra(
+                    Constants.SELECTED_LOCATION_LONGITUDE,
+                    viewModel.selectedPoint.value?.peekContent()?.mapPointGeoCoord?.longitude
+                )
             }
             setResult(RESULT_OK, intent)
             finish()

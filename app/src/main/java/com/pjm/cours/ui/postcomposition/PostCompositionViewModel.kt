@@ -17,6 +17,9 @@ class PostCompositionViewModel : ViewModel() {
     private val _location = MutableLiveData<Event<String>>()
     val location: LiveData<Event<String>> = _location
 
+    private val _locationLatitude = MutableLiveData<Event<String>>()
+    private val _locationLongitude = MutableLiveData<Event<String>>()
+
     private val _meetingDate = MutableLiveData<Event<String>>()
     val meetingDate: LiveData<Event<String>> = _meetingDate
 
@@ -32,17 +35,22 @@ class PostCompositionViewModel : ViewModel() {
     private val _isLanguageSelected = MutableLiveData<Event<Boolean>>()
 
     val isInputComplete = MediatorLiveData<Boolean>().apply {
-        addSource(title) { value = checkInputs()}
-        addSource(body) { value = checkInputs()}
-        addSource(numberOfMember) { value = checkInputs()}
-        addSource(_isLocationSelected) { value = checkInputs()}
-        addSource(_isMeetingDateSelected) { value = checkInputs()}
-        addSource(_isCategorySelected) { value = checkInputs()}
-        addSource(_isLanguageSelected) { value = checkInputs()}
+        addSource(title) { value = checkInputs() }
+        addSource(body) { value = checkInputs() }
+        addSource(numberOfMember) { value = checkInputs() }
+        addSource(_isLocationSelected) { value = checkInputs() }
+        addSource(_isMeetingDateSelected) { value = checkInputs() }
+        addSource(_isCategorySelected) { value = checkInputs() }
+        addSource(_isLanguageSelected) { value = checkInputs() }
     }
 
     fun setLocation(location: String) {
         _location.value = Event(location)
+    }
+
+    fun setLocationPoint(latitude: String, longitude: String){
+        _locationLatitude.value = Event(latitude)
+        _locationLongitude.value = Event(longitude)
     }
 
     fun setMeetingDate(location: String) {
