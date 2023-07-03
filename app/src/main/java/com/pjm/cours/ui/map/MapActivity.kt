@@ -20,6 +20,8 @@ import com.pjm.cours.data.PostRepository
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ActivityMapBinding
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
+import com.pjm.cours.ui.postdetail.PostDetailActivity
+import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,7 +41,11 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     }
     private lateinit var mapView: MapView
     private var makerList: List<PostPreview>? = listOf()
-    private val adapter = PreviewAdapter()
+    private val adapter = PreviewAdapter { preview ->
+        val intent = Intent(this, PostDetailActivity::class.java)
+        intent.putExtra(Constants.POST_ID,preview.postId)
+        startActivity(intent)
+    }
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
