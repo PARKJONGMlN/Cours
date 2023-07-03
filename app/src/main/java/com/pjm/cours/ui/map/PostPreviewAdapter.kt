@@ -3,6 +3,7 @@ package com.pjm.cours.ui.map
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.pjm.cours.R
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ItemPreviewBinding
 
@@ -19,6 +20,8 @@ class PreviewAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(preview: PostPreview) {
+            binding.tvDistancePreview.text =
+                itemView.resources.getString(R.string.format_post_distance_m, preview.distance)
             binding.tvCategoryPreview.text = preview.category
             binding.tvLanguagePreview.text = preview.language
             binding.tvTitlePreview.text = preview.title

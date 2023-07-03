@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.model.PostPreview
+import com.pjm.cours.util.DistanceManager
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
@@ -57,6 +58,36 @@ class MapViewModel(
     fun setCurrentMapPoint(currentMapPoint: MapPoint) {
         _currentMapPoint.value = Event(currentMapPoint)
         _isLoading.value = Event(false)
+    }
+
+    fun calculateDistance(): List<PostPreview>? {
+        val currentUserLatitude = _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.latitude
+        val currentUserLongitude =
+            _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.longitude
+        if (currentUserLatitude != null && currentUserLongitude != null) {
+            postPreviewList = postPreviewList?.map {
+                PostPreview(
+                    postId = it.postId,
+                    title = it.title,
+                    currentMemberCount = it.currentMemberCount,
+                    location = it.location,
+                    latitude = it.latitude,
+                    longitude = it.longitude,
+                    category = it.category,
+                    language = it.language,
+                    distance = DistanceManager.getDistance(
+                        currentUserLatitude.toDouble(),
+                        currentUserLongitude.toDouble(),
+                        it.latitude.toDouble(),
+                        it.longitude.toDouble()
+                    ).toString()
+                )
+
+            }?.sortedBy {
+                it.distance.toInt()
+            }
+        }
+        return postPreviewList
     }
 
     fun getPosts() {

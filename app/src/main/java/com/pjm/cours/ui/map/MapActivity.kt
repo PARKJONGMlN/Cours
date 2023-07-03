@@ -206,6 +206,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         viewModel.currentMapPoint.observe(this) {
             mapView.setMapCenterPoint(it.peekContent(), true)
             viewModel.endTracking()
+            viewModel.calculateDistance()?.let { it1 -> adapter.submitList(it1) }
             showMap()
         }
     }
