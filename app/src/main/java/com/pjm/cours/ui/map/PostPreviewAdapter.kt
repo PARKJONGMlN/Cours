@@ -3,17 +3,23 @@ package com.pjm.cours.ui.map
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ItemPreviewBinding
 
 class PreviewAdapter : RecyclerView.Adapter<PreviewAdapter.PreViewHolder>() {
 
-    private val previewList = mutableListOf<String>()
+    private val previewList = mutableListOf<PostPreview>()
 
-    class PreViewHolder(private val binding: ItemPreviewBinding) :
+    class PreViewHolder(
+        private val binding: ItemPreviewBinding
+    ) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(preview: String) {
-            binding.tvTitlePreview.text = preview
+        fun bind(preview: PostPreview) {
+            binding.tvCategoryPreview.text = preview.category
+            binding.tvLanguagePreview.text = preview.language
+            binding.tvTitlePreview.text = preview.title
+            binding.tvCurrentPeoplePreview.text = preview.currentMemberCount
         }
 
         companion object {
@@ -26,7 +32,7 @@ class PreviewAdapter : RecyclerView.Adapter<PreviewAdapter.PreViewHolder>() {
         }
     }
 
-    fun submitList(items: List<String>) {
+    fun submitList(items: List<PostPreview>) {
         previewList.clear()
         previewList.addAll(items)
         notifyDataSetChanged()

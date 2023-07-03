@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
@@ -35,6 +36,7 @@ class MapViewModel(
     val isCompleted: LiveData<Boolean> = _isCompleted
 
     var postList: List<Post>? = listOf()
+    var postPreviewList: List<PostPreview>? = listOf()
 
     fun setPermission(boolean: Boolean) {
         _isGrantedPermission.value = Event(boolean)
@@ -60,6 +62,18 @@ class MapViewModel(
     fun getPosts() {
         viewModelScope.launch {
             val result = repository.getPostList()
+            postPreviewList = result.body()?.map {
+                PostPreview(
+                    postId = it.key,
+                    title = it.value.title,
+                    currentMemberCount = it.value.numberOfMember,
+                    location = it.value.location,
+                    latitude = it.value.latitude,
+                    longitude = it.value.longitude,
+                    category = it.value.category,
+                    language = it.value.language
+                )
+            }
             postList = result.body()?.values?.toList()
             _isCompleted.value = true
         }

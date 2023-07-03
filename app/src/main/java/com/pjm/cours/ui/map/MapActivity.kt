@@ -17,7 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.PostRepository
-import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ActivityMapBinding
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.util.EventObserver
@@ -38,8 +38,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
     }
     private lateinit var mapView: MapView
-    private var makerList: List<Post>? = listOf()
-    private var stringList: List<String> = listOf()
+    private var makerList: List<PostPreview>? = listOf()
     private val adapter = PreviewAdapter()
 
     private val locationPermissionRequest = registerForActivityResult(
@@ -113,22 +112,24 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         })
         viewModel.isCompleted.observe(this) { isCompleted ->
             if (isCompleted) {
-                makerList = viewModel.postList
-                val markerArr = ArrayList<MapPOIItem>()
-                for (data in makerList!!) {
-                    val marker = MapPOIItem()
-                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(
-                        data.latitude.toDouble(),
-                        data.longitude.toDouble()
-                    )
-                    marker.markerType = MapPOIItem.MarkerType.BluePin
-                    marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
-                    marker.itemName = data.location
-                    markerArr.add(marker)
-                    mapView.addPOIItem(marker)
+                viewModel.postPreviewList?.let {
+                    makerList = it
+                    val markerArr = ArrayList<MapPOIItem>()
+                    for (data in it) {
+                        val marker = MapPOIItem()
+                        marker.mapPoint = MapPoint.mapPointWithGeoCoord(
+                            data.latitude.toDouble(),
+                            data.longitude.toDouble()
+                        )
+                        marker.markerType = MapPOIItem.MarkerType.BluePin
+                        marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                        marker.itemName = data.location
+                        markerArr.add(marker)
+                        mapView.addPOIItem(marker)
+                    }
+                    adapter.submitList(it)
                 }
-                stringList = makerList!!.map { it.location }
-                adapter.submitList(stringList)
+
                 with(binding.viewPagerMap) {
                     val pageWidth = resources.getDimension(R.dimen.viewpager_item_width)
                     val pageMargin = resources.getDimension(R.dimen.viewpager_item_margin)
