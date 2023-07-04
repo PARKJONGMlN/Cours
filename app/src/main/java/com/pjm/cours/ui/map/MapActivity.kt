@@ -17,9 +17,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.PostRepository
-import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ActivityMapBinding
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
+import com.pjm.cours.ui.postdetail.PostDetailActivity
+import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,9 +40,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
     }
     private lateinit var mapView: MapView
-    private var makerList: List<Post>? = listOf()
-    private var stringList: List<String> = listOf()
-    private val adapter = PreviewAdapter()
+    private lateinit var adapter: PostPreviewAdapter
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -64,6 +64,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.getPosts()
         launchPermission()
 
         initMapView()
@@ -72,7 +73,6 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     }
 
     private fun initMapView() {
-        viewModel.getPosts()
         mapView = MapView(this)
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
@@ -90,7 +90,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
                 else -> false
             }
         }
-        binding.viewPagerMap.adapter = adapter
+        setViewPagerForm()
         binding.ivMyLocationMap.setOnClickListener {
             launchPermission()
             viewModel.currentMapPoint.value?.peekContent()?.let {
@@ -103,68 +103,25 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     override fun onRestart() {
         super.onRestart()
         initMapView()
+        viewModel.setUiState()
     }
 
     private fun setObserver() {
-        viewModel.isLoading.observe(this, EventObserver {
-            if (it) {
+        viewModel.isLoading.observe(this, EventObserver { isLoading ->
+            if (isLoading) {
                 showMap()
             }
         })
-        viewModel.isCompleted.observe(this) { isCompleted ->
+        viewModel.isCompleted.observe(this, EventObserver { isCompleted ->
             if (isCompleted) {
-                makerList = viewModel.postList
-                val markerArr = ArrayList<MapPOIItem>()
-                for (data in makerList!!) {
-                    val marker = MapPOIItem()
-                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(
-                        data.latitude.toDouble(),
-                        data.longitude.toDouble()
-                    )
-                    marker.markerType = MapPOIItem.MarkerType.BluePin
-                    marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
-                    marker.itemName = data.location
-                    markerArr.add(marker)
-                    mapView.addPOIItem(marker)
+                viewModel.postPreviewList.value?.let { postPreviewList ->
+                    setMarker(postPreviewList)
+                    adapter.submitList(postPreviewList)
                 }
-                stringList = makerList!!.map { it.location }
-                adapter.submitList(stringList)
-                with(binding.viewPagerMap) {
-                    val pageWidth = resources.getDimension(R.dimen.viewpager_item_width)
-                    val pageMargin = resources.getDimension(R.dimen.viewpager_item_margin)
-                    val screenWidth = resources.displayMetrics.widthPixels
-                    val offset = screenWidth - pageWidth - pageMargin
-
-                    offscreenPageLimit = 2
-                    setPageTransformer { page, position ->
-                        page.translationX = position * -offset
-                    }
-                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                        override fun onPageScrolled(
-                            position: Int,
-                            positionOffset: Float,
-                            positionOffsetPixels: Int
-                        ) {
-                            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                        }
-
-                        override fun onPageSelected(position: Int) {
-                            super.onPageSelected(position)
-                            mapView.selectPOIItem(mapView.poiItems[position], true)
-                            mapView.setMapCenterPoint(mapView.poiItems[position].mapPoint, true)
-
-                        }
-
-                        override fun onPageScrollStateChanged(state: Int) {
-                            super.onPageScrollStateChanged(state)
-                        }
-                    })
-                }
-
             }
-        }
-        viewModel.isGrantedPermission.observe(this, EventObserver {
-            if (it) {
+        })
+        viewModel.isGrantedPermission.observe(this, EventObserver { isGrantedPermission ->
+            if (isGrantedPermission) {
                 viewModel.startTracking()
             } else {
                 showMap()
@@ -180,26 +137,70 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
                 }
             }
         })
-        viewModel.isSettingOpened.observe(this) {
-            if (it.peekContent()) {
+        viewModel.isSettingOpened.observe(this, EventObserver { isSettingOpened ->
+            if (isSettingOpened) {
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", packageName, null)
                 }.run(::startActivity)
             }
-        }
-        viewModel.isTrackingMode.observe(this) {
-            if (it.peekContent()) {
+        })
+        viewModel.isTrackingMode.observe(this, EventObserver { isTrackingMode ->
+            if (isTrackingMode) {
                 mapView.currentLocationTrackingMode =
                     MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
             } else {
                 mapView.currentLocationTrackingMode =
                     MapView.CurrentLocationTrackingMode.TrackingModeOff
             }
-        }
+        })
         viewModel.currentMapPoint.observe(this) {
             mapView.setMapCenterPoint(it.peekContent(), true)
             viewModel.endTracking()
             showMap()
+        }
+    }
+
+    private fun setMarker(postPreviewList: List<PostPreview>) {
+        mapView.removeAllPOIItems()
+        val markerArr = ArrayList<MapPOIItem>()
+        for (data in postPreviewList) {
+            val marker = MapPOIItem()
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(
+                data.latitude.toDouble(),
+                data.longitude.toDouble()
+            )
+            marker.markerType = MapPOIItem.MarkerType.BluePin
+            marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
+            marker.itemName = data.location
+            markerArr.add(marker)
+            mapView.addPOIItem(marker)
+        }
+    }
+
+    private fun setViewPagerForm() {
+        adapter = PostPreviewAdapter { preview ->
+            val intent = Intent(this, PostDetailActivity::class.java)
+            intent.putExtra(Constants.POST_ID, preview.postId)
+            startActivity(intent)
+        }
+        with(binding.viewPagerMap) {
+            adapter = this@MapActivity.adapter
+            val pageWidth = resources.getDimension(R.dimen.viewpager_item_width)
+            val pageMargin = resources.getDimension(R.dimen.viewpager_item_margin)
+            val screenWidth = resources.displayMetrics.widthPixels
+            val offset = screenWidth - pageWidth - pageMargin
+            offscreenPageLimit = 2
+            setPageTransformer { page, position ->
+                page.translationX = position * -offset
+            }
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    mapView.selectPOIItem(mapView.poiItems[position], true)
+                    mapView.setMapCenterPoint(mapView.poiItems[position].mapPoint, true)
+                }
+            })
         }
     }
 

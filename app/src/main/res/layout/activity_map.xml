@@ -20,28 +20,27 @@
             app:titleCentered="true" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:visibility="invisible"
             android:id="@+id/map_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_map"
-            app:layout_constraintVertical_bias="1.0">
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_map">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ProgressBar
             android:id="@+id/progress_bar_map"
-            android:indeterminateTint="@color/orange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:indeterminateTint="@color/orange"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/app_bar_map" />
+            app:layout_constraintTop_toBottomOf="@id/app_bar_map"
+            tools:visibility="gone" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager_map"
@@ -65,10 +64,10 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
-                android:contentDescription="@string/description_my_location_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:contentDescription="@string/description_my_location_icon"
                 app:srcCompat="@drawable/baseline_my_location_24" />
         </androidx.cardview.widget.CardView>
 

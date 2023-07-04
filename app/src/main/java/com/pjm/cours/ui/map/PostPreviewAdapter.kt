@@ -1,39 +1,60 @@
 package com.pjm.cours.ui.map
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.pjm.cours.R
+import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ItemPreviewBinding
 
-class PreviewAdapter : RecyclerView.Adapter<PreviewAdapter.PreViewHolder>() {
+class PostPreviewAdapter(
+    private val clickListener: OnPreviewClickListener
+) : RecyclerView.Adapter<PostPreviewAdapter.PreViewHolder>() {
 
-    private val previewList = mutableListOf<String>()
+    private val previewList = mutableListOf<PostPreview>()
 
-    class PreViewHolder(private val binding: ItemPreviewBinding) :
+    class PreViewHolder(
+        private val binding: ItemPreviewBinding,
+        private val clickListener: OnPreviewClickListener
+    ) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(preview: String) {
-            binding.tvTitlePreview.text = preview
+        fun bind(preview: PostPreview) {
+            if(preview.distance.isBlank()){
+                binding.ivDistanceIconPreview.visibility = View.GONE
+                binding.tvDistancePreview.visibility = View.GONE
+            } else {
+                binding.tvDistancePreview.text =
+                    itemView.resources.getString(R.string.format_post_distance_m, preview.distance)
+            }
+            binding.tvCategoryPreview.text = preview.category
+            binding.tvLanguagePreview.text = preview.language
+            binding.tvTitlePreview.text = preview.title
+            binding.tvCurrentPeoplePreview.text = preview.currentMemberCount
+            itemView.setOnClickListener {
+                clickListener.onClick(preview)
+            }
         }
 
         companion object {
 
-            fun from(parent: ViewGroup): PreViewHolder {
+            fun from(parent: ViewGroup, clickListener: OnPreviewClickListener): PreViewHolder {
                 val binding =
                     ItemPreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return PreViewHolder(binding)
+                return PreViewHolder(binding, clickListener)
             }
         }
     }
 
-    fun submitList(items: List<String>) {
+    fun submitList(items: List<PostPreview>) {
         previewList.clear()
         previewList.addAll(items)
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreViewHolder {
-        return PreViewHolder.from(parent)
+        return PreViewHolder.from(parent, clickListener)
     }
 
     override fun getItemCount(): Int {

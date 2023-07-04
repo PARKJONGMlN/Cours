@@ -7,7 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.PostRepository
-import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.model.PostPreview
+import com.pjm.cours.util.DistanceManager
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
@@ -31,10 +32,15 @@ class MapViewModel(
     private val _isGrantedPermission = MutableLiveData<Event<Boolean>>()
     val isGrantedPermission: LiveData<Event<Boolean>> = _isGrantedPermission
 
-    private val _isCompleted = MutableLiveData(false)
-    val isCompleted: LiveData<Boolean> = _isCompleted
+    private val _isCompleted = MutableLiveData(Event(false))
+    val isCompleted: LiveData<Event<Boolean>> = _isCompleted
 
-    var postList: List<Post>? = listOf()
+    private val _postPreviewList = MutableLiveData<List<PostPreview>>()
+    val postPreviewList: LiveData<List<PostPreview>> = _postPreviewList
+
+    fun setUiState(){
+        _isCompleted.value = Event(true)
+    }
 
     fun setPermission(boolean: Boolean) {
         _isGrantedPermission.value = Event(boolean)
@@ -54,14 +60,59 @@ class MapViewModel(
 
     fun setCurrentMapPoint(currentMapPoint: MapPoint) {
         _currentMapPoint.value = Event(currentMapPoint)
+        calculateDistance()
         _isLoading.value = Event(false)
+    }
+
+    private fun calculateDistance() {
+        val currentUserLatitude = _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.latitude
+        val currentUserLongitude =
+            _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.longitude
+        if (currentUserLatitude != null && currentUserLongitude != null) {
+            _postPreviewList.value = postPreviewList.value?.map {
+                PostPreview(
+                    postId = it.postId,
+                    title = it.title,
+                    currentMemberCount = it.currentMemberCount,
+                    location = it.location,
+                    latitude = it.latitude,
+                    longitude = it.longitude,
+                    category = it.category,
+                    language = it.language,
+                    distance = DistanceManager.getDistance(
+                        currentUserLatitude.toDouble(),
+                        currentUserLongitude.toDouble(),
+                        it.latitude.toDouble(),
+                        it.longitude.toDouble()
+                    ).toString()
+                )
+            }?.sortedBy {
+                it.distance.toInt()
+            }
+            _isCompleted.value = Event(true)
+        }
     }
 
     fun getPosts() {
         viewModelScope.launch {
             val result = repository.getPostList()
-            postList = result.body()?.values?.toList()
-            _isCompleted.value = true
+            val postList = result.body()
+            if (result.isSuccessful && postList != null) {
+                result.body()
+                _postPreviewList.value = postList.map {
+                    PostPreview(
+                        postId = it.key,
+                        title = it.value.title,
+                        currentMemberCount = it.value.numberOfMember,
+                        location = it.value.location,
+                        latitude = it.value.latitude,
+                        longitude = it.value.longitude,
+                        category = it.value.category,
+                        language = it.value.language
+                    )
+                }
+                _isCompleted.value = Event(true)
+            }
         }
     }
 

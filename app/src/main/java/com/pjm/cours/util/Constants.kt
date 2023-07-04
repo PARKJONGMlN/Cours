@@ -14,4 +14,7 @@ object Constants {
     const val SELECTED_LOCATION_LATITUDE = "selected_location_latitude"
     const val SELECTED_LOCATION_LONGITUDE = "selected_location_longitude"
 
+    // post
+    const val POST_ID = "post_id"
+
 }
