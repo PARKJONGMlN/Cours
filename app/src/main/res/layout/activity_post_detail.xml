@@ -16,7 +16,173 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
-            app:title="제목제목" />
+            app:title="@string/label_post_detail"
+            app:titleCentered="true" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll_view_post_detail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/btn_setting_complete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_deatil"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_title_post_detail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
+                    android:textSize="24sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/place_holder_text_title" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_category_post_detail"
+                    android:layout_width="56dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="@color/grey"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_title_post_detail">
+
+                    <TextView
+                        android:id="@+id/tv_category_post_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="카테고리" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_language_post_detail"
+                    android:layout_width="56dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="8dp"
+                    app:cardBackgroundColor="@color/grey"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/cv_category_post_detail"
+                    app:layout_constraintTop_toTopOf="@+id/cv_category_post_detail">
+
+                    <TextView
+                        android:id="@+id/tv_language_post_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="언어" />
+                </androidx.cardview.widget.CardView>
+
+                <ImageView
+                    android:id="@+id/iv_distance_icon_post_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:contentDescription="@string/description_distance_icon"
+                    app:layout_constraintStart_toEndOf="@+id/cv_language_post_detail"
+                    app:layout_constraintTop_toTopOf="@+id/cv_language_post_detail"
+                    app:srcCompat="@drawable/baseline_location_on_24" />
+
+                <TextView
+                    android:id="@+id/tv_distance_post_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_post_detail"
+                    app:layout_constraintStart_toEndOf="@+id/iv_distance_icon_post_detail"
+                    tools:text="거리" />
+
+                <ImageView
+                    android:id="@+id/iv_current_people_icon_post_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:contentDescription="@string/description_current_people_icon"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_post_detail"
+                    app:layout_constraintStart_toEndOf="@+id/tv_distance_post_detail"
+                    app:srcCompat="@drawable/baseline_group_24" />
+
+                <TextView
+                    android:id="@+id/tv_current_people_post_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/iv_current_people_icon_post_detail"
+                    app:layout_constraintStart_toEndOf="@+id/iv_current_people_icon_post_detail"
+                    tools:text="현재인원/전체인원" />
+
+                <TextView
+                    android:id="@+id/tv_meeting_date_post_detail_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/label_post_date"
+                    app:layout_constraintStart_toStartOf="@+id/cv_category_post_detail"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_category_post_detail" />
+
+                <TextView
+                    android:id="@+id/tv_meeting_date_post_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_meeting_date_post_detail_label"
+                    app:layout_constraintStart_toEndOf="@+id/tv_meeting_date_post_detail_label"
+                    app:layout_constraintTop_toTopOf="@+id/tv_meeting_date_post_detail_label"
+                    tools:text="yyyy.mm.dd" />
+
+                <TextView
+                    android:id="@+id/tv_body_post_detail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_meeting_date_post_detail_label"
+                    tools:text="@string/place_holder_text_body" />
+
+                <TextView
+                    android:id="@+id/tv_post_member_post_detail_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/label_post_member"
+                    app:layout_constraintStart_toStartOf="@+id/tv_body_post_detail"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_body_post_detail" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_post_member_post_detail_label"
+                    tools:listitem="@layout/item_member_profile_image" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_setting_complete"
@@ -26,35 +192,12 @@
             android:layout_marginBottom="8dp"
             android:backgroundTint="@drawable/button_background"
             android:gravity="center"
-            tools:text="가입하기"
+            android:text="@string/label_post_register"
             android:textColor="@color/white"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:textSize="46sp"
-            android:id="@+id/tv_current_member"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="TextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title" />
-
-        <TextView
-            android:textSize="46sp"
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            tools:text="TextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_deatil" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

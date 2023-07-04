@@ -4,12 +4,17 @@
     <string name="label_post_composition">모임 생성</string>
     <string name="label_post_map">모임 지도</string>
     <string name="label_post_location">위치</string>
+    <string name="label_post_detail">모임 상세 화면</string>
+
+
     <string name="btn_complete">완료</string>
+
     <string name="hint_input_user_nickname">닉네임</string>
     <string name="hint_input_user_intro">소개</string>
     <string name="hint_input_post_title">제목</string>
     <string name="hint_input_post_body">내용</string>
     <string name="hint_input_post_number_of_member">인원</string>
+
     <string name="label_post_select_location_message">위치를 선택해 주세요</string>
     <string name="label_post_select_date_message">날짜를 선택해 주세요</string>
     <string name="label_post_select_category_message">카테고리를 선택해 주세요</string>
@@ -17,10 +22,14 @@
     <string name="label_post_category">카테고리</string>
     <string name="label_post_language">언어</string>
     <string name="label_post_date">모임 날짜</string>
+    <string name="label_post_member">참여 멤버</string>
+    <string name="label_post_register">가입 하기</string>
     <string name="label_dialog_title_category">카테고리 선택</string>
     <string name="label_dialog_title_language">언어 선택</string>
+
     <string name="location_permission_message">위치 권한을 허용하면 현재 위치로 이동 할 수 있습니다.</string>
     <string name="location_permission_button">권한 설정</string>
+
     <string name="description_location_icon">위치선택아이콘</string>
     <string name="description_meeting_date_icon">날짜 선택 아이콘</string>
     <string name="description_category_icon">카테고리 선택 아이콘</string>
@@ -29,5 +38,9 @@
     <string name="description_my_location_icon">내 위치로 이동하는 아이콘</string>
     <string name="description_distance_icon">나와 모임 위치 사이 거리</string>
     <string name="description_current_people_icon">현재 모임 인원</string>
+
     <string name="format_post_distance_m">%s m</string>
+
+    <string name="place_holder_text_title">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temt laborum.</string>
+    <string name="place_holder_text_body">At vero eos et accusamus et iusto odio dignissimos quidem rexpedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.</string>
 </resources>
