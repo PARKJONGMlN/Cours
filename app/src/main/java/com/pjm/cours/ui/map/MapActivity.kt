@@ -181,6 +181,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         adapter = PostPreviewAdapter { preview ->
             val intent = Intent(this, PostDetailActivity::class.java)
             intent.putExtra(Constants.POST_ID, preview.postId)
+            intent.putExtra(Constants.POST_DISTANCE,preview.distance)
             startActivity(intent)
         }
         with(binding.viewPagerMap) {

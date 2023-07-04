@@ -17,5 +17,6 @@ object Constants {
 
     // post
     const val POST_ID = "post_id"
+    const val POST_DISTANCE = "post_distance"
 
 }
