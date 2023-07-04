@@ -207,8 +207,8 @@ class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
         }
     }
 
-    override fun onMapViewInitialized(p0: MapView?) {
-
+    override fun onMapViewInitialized(mapView: MapView) {
+        mapView.removeAllPOIItems()
     }
 
     override fun onMapViewCenterPointMoved(p0: MapView?, p1: MapPoint?) {
