@@ -10,10 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiClient {
 
@@ -23,11 +20,31 @@ interface ApiClient {
         @Body user: User
     ): Response<Map<String, String>>
 
+    @GET("user/{userId}.json")
+    suspend fun getUser(
+        @Path("userId") userId: String,
+        @Query("auth") auth: String?
+    ): Response<User>
+
     @POST("post.json")
     suspend fun createPost(
         @Query("auth") auth: String?,
         @Body user: Post
     ): Response<Map<String, String>>
+
+    @POST("meeting_member/{postId}.json")
+    suspend fun registerMemberMeeting(
+        @Path("postId") postId: String,
+        @Query("auth") auth: String?,
+        @Body user: Map<String,Boolean>
+    ): Response<Map<String, String>>
+
+    @POST("member_meeting/{userId}.json")
+    suspend fun registerMeetingMember(
+        @Path("userId") userId: String,
+        @Query("auth") auth: String?,
+        @Body post: Map<String,Boolean>
+        ): Response<Map<String, String>>
 
     @GET("post.json")
     suspend fun getPosts(

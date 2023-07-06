@@ -22,7 +22,12 @@ class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
     private val viewModel: PostCompositionViewModel by viewModels {
-        PostCompositionViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
+        PostCompositionViewModel.provideFactory(
+            PostRepository(
+                CoursApplication.apiContainer.provideApiClient(),
+                CoursApplication.preferencesManager
+            )
+        )
     }
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -105,7 +110,7 @@ class PostCompositionActivity : AppCompatActivity() {
             }
         }
         viewModel.isCompleted.observe(this) { isCompleted ->
-            if(isCompleted) {
+            if (isCompleted) {
                 binding.groupLoading.visibility = View.GONE
                 finish()
             }

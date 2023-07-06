@@ -97,7 +97,7 @@ class PostCompositionViewModel(
                 val result = repository.createPost(
                     title = title.value ?: "",
                     body = body.value ?: "",
-                    numberOfMember = numberOfMember.value ?: "",
+                    limitMemberCount = numberOfMember.value ?: "",
                     location = _location.value?.peekContent() ?: "",
                     latitude = _locationLatitude.value?.peekContent() ?: "",
                     longitude = _locationLongitude.value?.peekContent() ?: "",
@@ -112,9 +112,9 @@ class PostCompositionViewModel(
 
                 }
             } catch (e: HttpException) {
-                // TODO
+
             } catch (e: Throwable) {
-                // TODO
+
             }
         }
     }
