@@ -4,6 +4,7 @@ object Constants {
 
     // sign in
     const val KEY_GOOGLE_ID_TOKEN = "google_id_token"
+    const val USER_ID = "user_id"
 
     // dialog
     const val DIALOG_TAG_CATEGORY = "tag_category"

@@ -19,6 +19,10 @@ class UserRepository(
         preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
     }
 
+    fun saveUserId(userId: String){
+        preferenceManager.setUserId(Constants.USER_ID,userId)
+    }
+
     suspend fun createUser(user: User): Response<Map<String, String>> {
         val uri = uploadImage(user.profileUri.toUri())
         val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token

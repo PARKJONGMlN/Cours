@@ -17,6 +17,10 @@ class PreferenceManager(context: Context) {
         sharedPreferences.edit().putString(key,googleIdToken).apply()
     }
 
+    fun setUserId(key: String, userId: String){
+        sharedPreferences.edit().putString(key,userId).apply()
+    }
+
     fun removeGoogleIdToken(key: String){
         sharedPreferences.edit().remove(key).apply()
     }

@@ -33,6 +33,8 @@ class SettingUserInfoViewModel(
             try {
                 val response = repository.createUser(user)
                 if (response.isSuccessful && response.body() != null) {
+                    val result = response.body()
+                    result?.get("name")?.let { repository.saveUserId(it) }
                     _isLoading.value = Event(false)
                 } else {
 
