@@ -27,7 +27,8 @@ class PostDetailActivity : AppCompatActivity() {
     }
     private lateinit var postId: String
     private lateinit var distance: String
-    private lateinit var dialog: ProgressDialogFragment
+    private lateinit var dialogLoading: ProgressDialogFragment
+    private lateinit var dialogCheckRegister: CheckRegisterDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,12 +48,15 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun setDialog(){
-        dialog = ProgressDialogFragment()
+        dialogLoading = ProgressDialogFragment()
+        dialogCheckRegister = CheckRegisterDialogFragment{
+            viewModel.joinMeeting(postId)
+        }
     }
 
     private fun setLayout() {
         binding.btnSettingComplete.setOnClickListener {
-            viewModel.joinMeeting(postId)
+            dialogCheckRegister.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_CHECK_REGISTER_TAG)
         }
         binding.appBarPostDeatil.setNavigationOnClickListener {
             finish()
@@ -86,17 +90,19 @@ class PostDetailActivity : AppCompatActivity() {
 
         viewModel.isRegisterCompleted.observe(this, EventObserver { isRegisterCompleted ->
             if (isRegisterCompleted) {
+                dialogCheckRegister.dismiss()
                 intent = Intent(this, ChatActivity::class.java)
                 intent.putExtra(Constants.POST_ID, postId)
                 startActivity(intent)
+                finish()
             }
         })
 
         viewModel.isLoading.observe(this, EventObserver { isLoading ->
             if (isLoading) {
-                dialog.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_TAG)
+                dialogLoading.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
             } else {
-                dialog.dismiss()
+                dialogLoading.dismiss()
             }
         })
     }
