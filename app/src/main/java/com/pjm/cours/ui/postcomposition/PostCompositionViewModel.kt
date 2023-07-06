@@ -112,9 +112,9 @@ class PostCompositionViewModel(
 
                 }
             } catch (e: HttpException) {
-                // TODO
+
             } catch (e: Throwable) {
-                // TODO
+
             }
         }
     }

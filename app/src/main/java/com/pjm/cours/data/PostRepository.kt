@@ -28,7 +28,7 @@ class PostRepository(
         val userId = preferenceManager.getString(Constants.USER_ID,"")
         val user = apiClient.getUser(auth = idToken, userId = userId).body()!!
         val currentTime = DateFormat.getCurrentTime()
-        return apiClient.createPost(
+        val result = apiClient.createPost(
             idToken,
             Post(
                 hostUserId = userId,
@@ -46,6 +46,9 @@ class PostRepository(
                 createdAt = currentTime,
             )
         )
+        val postId = result.body()?.get("name")
+        apiClient.registerMeetingMember(userId = userId, auth = idToken, post = mapOf(postId!! to true))
+        return apiClient.registerMemberMeeting(postId = postId, auth = idToken, user = mapOf(userId to true))
     }
 
     suspend fun getPostList(): Response<Map<String, Post>> {

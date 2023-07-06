@@ -32,6 +32,20 @@ interface ApiClient {
         @Body user: Post
     ): Response<Map<String, String>>
 
+    @POST("meeting_member/{postId}.json")
+    suspend fun registerMemberMeeting(
+        @Path("postId") postId: String,
+        @Query("auth") auth: String?,
+        @Body user: Map<String,Boolean>
+    ): Response<Map<String, String>>
+
+    @POST("member_meeting/{userId}.json")
+    suspend fun registerMeetingMember(
+        @Path("userId") userId: String,
+        @Query("auth") auth: String?,
+        @Body post: Map<String,Boolean>
+        ): Response<Map<String, String>>
+
     @GET("post.json")
     suspend fun getPosts(
         @Query("auth") auth: String?
