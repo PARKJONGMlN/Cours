@@ -9,6 +9,8 @@ object Constants {
     // dialog
     const val DIALOG_TAG_CATEGORY = "tag_category"
     const val DIALOG_TAG_LANGUAGE = "tag_language"
+    const val DIALOG_FRAGMENT_PROGRESS_TAG = "tag_progress_dialog_fragment"
+    const val DIALOG_FRAGMENT_CHECK_REGISTER_TAG = "tag_check_register_dialog_fragment"
 
     // location
     const val SELECTED_LOCATION = "selected_location"
@@ -17,5 +19,6 @@ object Constants {
 
     // post
     const val POST_ID = "post_id"
+    const val POST_DISTANCE = "post_distance"
 
 }

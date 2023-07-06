@@ -25,7 +25,7 @@ class PostRepository(
         language: String
     ): Response<Map<String, String>> {
         val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
-        val userId = preferenceManager.getString(Constants.USER_ID,"")
+        val userId = preferenceManager.getString(Constants.USER_ID, "")
         val user = apiClient.getUser(auth = idToken, userId = userId).body()!!
         val currentTime = DateFormat.getCurrentTime()
         val result = apiClient.createPost(
@@ -47,12 +47,43 @@ class PostRepository(
             )
         )
         val postId = result.body()?.get("name")
-        apiClient.registerMeetingMember(userId = userId, auth = idToken, post = mapOf(postId!! to true))
-        return apiClient.registerMemberMeeting(postId = postId, auth = idToken, user = mapOf(userId to true))
+        apiClient.registerMeetingMember(
+            userId = userId,
+            auth = idToken,
+            post = mapOf(postId!! to true)
+        )
+        return apiClient.registerMemberMeeting(
+            postId = postId,
+            auth = idToken,
+            user = mapOf(userId to true)
+        )
+    }
+
+    suspend fun registerMember(postId: String, currentMemberCount: String): Response<Map<String, String>> {
+        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+        val userId = preferenceManager.getString(Constants.USER_ID, "")
+        val updateCount = currentMemberCount.toInt() + 1
+        apiClient.updateCurrentMemberCount(postId = postId, auth = idToken, mapOf("currentMemberCount" to updateCount.toString()))
+        apiClient.registerMeetingMember(
+            userId = userId,
+            auth = idToken,
+            post = mapOf(postId to true)
+        )
+        return apiClient.registerMemberMeeting(
+            postId = postId,
+            auth = idToken,
+            user = mapOf(userId to true)
+        )
     }
 
     suspend fun getPostList(): Response<Map<String, Post>> {
         val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
         return apiClient.getPosts(idToken)
     }
+
+    suspend fun getPost(postId: String): Response<Post> {
+        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+        return apiClient.getPost(postId, idToken)
+    }
+
 }

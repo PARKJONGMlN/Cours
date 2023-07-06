@@ -51,6 +51,20 @@ interface ApiClient {
         @Query("auth") auth: String?
     ): Response<Map<String, Post>>
 
+    @GET("post/{postId}.json")
+    suspend fun getPost(
+        @Path("postId") postId: String?,
+        @Query("auth") auth: String?,
+    ): Response<Post>
+
+    @PATCH("post/{postId}.json")
+    suspend fun updateCurrentMemberCount(
+        @Path("postId") postId: String?,
+        @Query("auth") auth: String?,
+        @Body currentMemberCount: Map<String,String>
+    ): Response<Map<String,String>>
+
+
     companion object {
 
         private const val baseUrl = BuildConfig.BASE_URL
