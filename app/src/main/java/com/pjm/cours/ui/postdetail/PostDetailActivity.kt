@@ -10,6 +10,7 @@ import com.pjm.cours.R
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.databinding.ActivityPostDetailBinding
 import com.pjm.cours.ui.chat.ChatActivity
+import com.pjm.cours.ui.common.ProgressDialogFragment
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
 
@@ -26,6 +27,7 @@ class PostDetailActivity : AppCompatActivity() {
     }
     private lateinit var postId: String
     private lateinit var distance: String
+    private lateinit var dialog: ProgressDialogFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,18 +36,18 @@ class PostDetailActivity : AppCompatActivity() {
         postId = intent.getStringExtra(Constants.POST_ID) ?: ""
         distance = intent.getStringExtra(Constants.POST_DISTANCE) ?: ""
 
+        initUiState()
         setLayout()
         setObserver()
+    }
 
+    private fun initUiState() {
         viewModel.getPost(postId)
     }
 
     private fun setLayout() {
         binding.btnSettingComplete.setOnClickListener {
             viewModel.joinMeeting(postId)
-            intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra(Constants.POST_ID, postId)
-            startActivity(intent)
         }
         binding.appBarPostDeatil.setNavigationOnClickListener {
             finish()
@@ -53,16 +55,16 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        viewModel.isCompleted.observe(this, EventObserver { isCompleted ->
-            if (isCompleted) {
+        viewModel.isGetPostCompleted.observe(this, EventObserver { isGetPostCompleted ->
+            if (isGetPostCompleted) {
                 binding.tvTitlePostDetail.text = viewModel.post.value?.title
                 binding.tvCategoryPostDetail.text = viewModel.post.value?.category
                 binding.tvLanguagePostDetail.text = viewModel.post.value?.language
                 binding.tvDistancePostDetail.text =
                     getString(R.string.format_post_distance_m, distance)
                 binding.tvBodyPostDetail.text = viewModel.post.value?.body
-                val limitMemberCount = viewModel.post.value?.limitMemberCount?: ""
-                val currentMemberCount = viewModel.post.value?.currentMemberCount?: ""
+                val limitMemberCount = viewModel.post.value?.limitMemberCount ?: ""
+                val currentMemberCount = viewModel.post.value?.currentMemberCount ?: ""
                 binding.tvCurrentPeoplePostDetail.text = getString(
                     R.string.format_post_member_count,
                     currentMemberCount,
@@ -71,9 +73,17 @@ class PostDetailActivity : AppCompatActivity() {
                 binding.tvMeetingDatePostDetail.text = viewModel.post.value?.meetingDate
                 binding.nestedScrollViewPostDetail.visibility = View.VISIBLE
 
-                if(currentMemberCount.toInt() < limitMemberCount.toInt() ){
+                if (currentMemberCount.toInt() < limitMemberCount.toInt()) {
                     binding.btnSettingComplete.isEnabled = true
                 }
+            }
+        })
+
+        viewModel.isRegisterCompleted.observe(this, EventObserver { isRegisterCompleted ->
+            if (isRegisterCompleted) {
+                intent = Intent(this, ChatActivity::class.java)
+                intent.putExtra(Constants.POST_ID, postId)
+                startActivity(intent)
             }
         })
     }

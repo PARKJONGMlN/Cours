@@ -16,8 +16,11 @@ class PostDetailViewModel(private val repository: PostRepository) : ViewModel() 
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
 
-    private val _isCompleted = MutableLiveData(Event(false))
-    val isCompleted: LiveData<Event<Boolean>> = _isCompleted
+    private val _isGetPostCompleted = MutableLiveData(Event(false))
+    val isGetPostCompleted: LiveData<Event<Boolean>> = _isGetPostCompleted
+
+    private val _isRegisterCompleted = MutableLiveData(Event(false))
+    val isRegisterCompleted: LiveData<Event<Boolean>> = _isRegisterCompleted
 
     fun getPost(postId: String) {
         viewModelScope.launch {
@@ -25,14 +28,17 @@ class PostDetailViewModel(private val repository: PostRepository) : ViewModel() 
             val resultPost = result.body()
             resultPost?.let { post ->
                 _post.value = post
-                _isCompleted.value = Event(true)
+                _isGetPostCompleted.value = Event(true)
             }
         }
     }
 
     fun joinMeeting(postId: String) {
         viewModelScope.launch {
-            repository.registerMember(postId,_post.value?.currentMemberCount ?: "")
+            val result = repository.registerMember(postId, _post.value?.currentMemberCount ?: "")
+            result.body()?.let {
+                _isRegisterCompleted.value = Event(true)
+            }
         }
     }
 
