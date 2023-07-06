@@ -61,9 +61,13 @@ class PostDetailActivity : AppCompatActivity() {
                 binding.tvDistancePostDetail.text =
                     getString(R.string.format_post_distance_m, distance)
                 binding.tvBodyPostDetail.text = viewModel.post.value?.body
-                val limitMemberCount = viewModel.post.value?.limitMemberCount
-                val currentMemberCount = viewModel.post.value?.currentMemberCount
-                binding.tvCurrentPeoplePostDetail.text = "$limitMemberCount / $currentMemberCount"
+                val limitMemberCount = viewModel.post.value?.limitMemberCount?: ""
+                val currentMemberCount = viewModel.post.value?.currentMemberCount?: ""
+                binding.tvCurrentPeoplePostDetail.text = getString(
+                    R.string.format_post_member_count,
+                    currentMemberCount,
+                    limitMemberCount
+                )
                 binding.tvMeetingDatePostDetail.text = viewModel.post.value?.meetingDate
                 binding.nestedScrollViewPostDetail.visibility = View.VISIBLE
             }

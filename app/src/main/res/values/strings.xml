@@ -40,6 +40,7 @@
     <string name="description_current_people_icon">현재 모임 인원</string>
 
     <string name="format_post_distance_m">%s m</string>
+    <string name="format_post_member_count">%s / %s</string>
 
     <string name="place_holder_text_title">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temt laborum.</string>
     <string name="place_holder_text_body">At vero eos et accusamus et iusto odio dignissimos quidem rexpedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.</string>
