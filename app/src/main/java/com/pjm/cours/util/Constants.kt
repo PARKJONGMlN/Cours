@@ -9,6 +9,7 @@ object Constants {
     // dialog
     const val DIALOG_TAG_CATEGORY = "tag_category"
     const val DIALOG_TAG_LANGUAGE = "tag_language"
+    const val DIALOG_FRAGMENT_TAG = "tag_dialog_fragment"
 
     // location
     const val SELECTED_LOCATION = "selected_location"

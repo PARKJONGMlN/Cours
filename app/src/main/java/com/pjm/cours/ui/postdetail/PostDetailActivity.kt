@@ -37,12 +37,17 @@ class PostDetailActivity : AppCompatActivity() {
         distance = intent.getStringExtra(Constants.POST_DISTANCE) ?: ""
 
         initUiState()
+        setDialog()
         setLayout()
         setObserver()
     }
 
     private fun initUiState() {
         viewModel.getPost(postId)
+    }
+
+    private fun setDialog(){
+        dialog = ProgressDialogFragment()
     }
 
     private fun setLayout() {
@@ -84,6 +89,14 @@ class PostDetailActivity : AppCompatActivity() {
                 intent = Intent(this, ChatActivity::class.java)
                 intent.putExtra(Constants.POST_ID, postId)
                 startActivity(intent)
+            }
+        })
+
+        viewModel.isLoading.observe(this, EventObserver { isLoading ->
+            if (isLoading) {
+                dialog.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_TAG)
+            } else {
+                dialog.dismiss()
             }
         })
     }
