@@ -37,7 +37,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
 
     private lateinit var binding: ActivityMapBinding
     private val viewModel: MapViewModel by viewModels {
-        MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient()))
+        MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient(),CoursApplication.preferencesManager))
     }
     private lateinit var mapView: MapView
     private lateinit var adapter: PostPreviewAdapter

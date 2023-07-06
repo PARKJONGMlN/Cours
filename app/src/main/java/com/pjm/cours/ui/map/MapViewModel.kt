@@ -103,7 +103,7 @@ class MapViewModel(
                     PostPreview(
                         postId = it.key,
                         title = it.value.title,
-                        currentMemberCount = it.value.numberOfMember,
+                        currentMemberCount = it.value.currentMemberCount,
                         location = it.value.location,
                         latitude = it.value.latitude,
                         longitude = it.value.longitude,
