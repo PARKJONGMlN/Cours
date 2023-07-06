@@ -70,6 +70,10 @@ class PostDetailActivity : AppCompatActivity() {
                 )
                 binding.tvMeetingDatePostDetail.text = viewModel.post.value?.meetingDate
                 binding.nestedScrollViewPostDetail.visibility = View.VISIBLE
+
+                if(currentMemberCount.toInt() < limitMemberCount.toInt() ){
+                    binding.btnSettingComplete.isEnabled = true
+                }
             }
         })
     }
