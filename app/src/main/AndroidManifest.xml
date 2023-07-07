@@ -17,8 +17,7 @@
         android:theme="@style/Theme.Cours"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity android:name=".ui.chat.ChatActivity"
-            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".ui.chat.ChatActivity"/>
         <activity android:name=".ui.postdetail.PostDetailActivity" />
         <activity android:name=".ui.location.LocationActivity" />
         <activity android:name=".ui.postcomposition.PostCompositionActivity" />

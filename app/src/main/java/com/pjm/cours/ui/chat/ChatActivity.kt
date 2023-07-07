@@ -40,6 +40,7 @@ class ChatActivity : AppCompatActivity() {
     private fun setLayout() {
         binding.recyclerViewChat.adapter = adapter
         val layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true
         binding.recyclerViewChat.layoutManager = layoutManager
         binding.recyclerViewChat.scrollToPosition(adapter.itemCount - 1)
 
