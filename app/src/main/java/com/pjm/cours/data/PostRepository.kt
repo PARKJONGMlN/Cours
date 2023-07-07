@@ -52,18 +52,26 @@ class PostRepository(
             auth = idToken,
             post = mapOf(postId!! to true)
         )
-        return apiClient.registerMemberMeeting(
+        apiClient.registerMemberMeeting(
             postId = postId,
             auth = idToken,
             user = mapOf(userId to true)
         )
+        return result
     }
 
-    suspend fun registerMember(postId: String, currentMemberCount: String): Response<Map<String, String>> {
+    suspend fun registerMember(
+        postId: String,
+        currentMemberCount: String
+    ): Response<Map<String, String>> {
         val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
         val userId = preferenceManager.getString(Constants.USER_ID, "")
         val updateCount = currentMemberCount.toInt() + 1
-        apiClient.updateCurrentMemberCount(postId = postId, auth = idToken, mapOf("currentMemberCount" to updateCount.toString()))
+        apiClient.updateCurrentMemberCount(
+            postId = postId,
+            auth = idToken,
+            mapOf("currentMemberCount" to updateCount.toString())
+        )
         apiClient.registerMeetingMember(
             userId = userId,
             auth = idToken,

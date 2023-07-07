@@ -36,15 +36,15 @@ interface ApiClient {
     suspend fun registerMemberMeeting(
         @Path("postId") postId: String,
         @Query("auth") auth: String?,
-        @Body user: Map<String,Boolean>
+        @Body user: Map<String, Boolean>
     ): Response<Map<String, String>>
 
-    @POST("member_meeting/{userId}.json")
+    @PATCH("member_meeting/{userId}.json")
     suspend fun registerMeetingMember(
         @Path("userId") userId: String,
         @Query("auth") auth: String?,
-        @Body post: Map<String,Boolean>
-        ): Response<Map<String, String>>
+        @Body post: Map<String, Boolean>
+    ): Response<Map<String, Boolean>>
 
     @GET("post.json")
     suspend fun getPosts(
@@ -61,9 +61,8 @@ interface ApiClient {
     suspend fun updateCurrentMemberCount(
         @Path("postId") postId: String?,
         @Query("auth") auth: String?,
-        @Body currentMemberCount: Map<String,String>
-    ): Response<Map<String,String>>
-
+        @Body currentMemberCount: Map<String, String>
+    ): Response<Map<String, String>>
 
     companion object {
 

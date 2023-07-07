@@ -14,6 +14,7 @@ import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
+import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.ui.location.LocationActivity
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.DateFormat
@@ -97,9 +98,6 @@ class PostCompositionActivity : AppCompatActivity() {
         binding.ivSelectLocationIcon.setOnClickListener {
             startForResult.launch(Intent(this, LocationActivity::class.java))
         }
-        binding.btnPostComplete.setOnClickListener {
-            finish()
-        }
     }
 
     private fun setObserver() {
@@ -112,6 +110,10 @@ class PostCompositionActivity : AppCompatActivity() {
         viewModel.isCompleted.observe(this) { isCompleted ->
             if (isCompleted) {
                 binding.groupLoading.visibility = View.GONE
+                Intent(this, ChatActivity::class.java).apply {
+                    putExtra(Constants.POST_ID, viewModel.postId.value)
+                    startActivity(this)
+                }
                 finish()
             }
         }

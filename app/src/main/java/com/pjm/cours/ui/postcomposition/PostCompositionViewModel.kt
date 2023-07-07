@@ -19,6 +19,7 @@ class PostCompositionViewModel(
     private val _isError = MutableLiveData(false)
     val isError: LiveData<Boolean> = _isError
 
+    val postId = MutableLiveData<String>()
     val title = MutableLiveData<String>()
     val body = MutableLiveData<String>()
     val numberOfMember = MutableLiveData<String>()
@@ -106,6 +107,7 @@ class PostCompositionViewModel(
                     language = _language.value?.peekContent() ?: ""
                 )
                 if (result.isSuccessful && result.body() != null) {
+                    postId.value = result.body()?.get("name")
                     _isLoading.value = false
                     _isCompleted.value = true
                 } else {
