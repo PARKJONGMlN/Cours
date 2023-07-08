@@ -41,7 +41,7 @@ class PostDetailViewModel(private val repository: PostRepository) : ViewModel() 
     fun joinMeeting(postId: String) {
         viewModelScope.launch {
             _isLoading.value = Event(true)
-            val result = repository.registerMember(postId, _post.value?.currentMemberCount ?: "")
+            val result = repository.addMember(postId, _post.value?.currentMemberCount ?: "")
             result.body()?.let {
                 _isLoading.value = Event(false)
                 _isRegisterCompleted.value = Event(true)

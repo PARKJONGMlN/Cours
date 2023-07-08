@@ -8,5 +8,48 @@
         android:layout_height="match_parent"
         tools:context=".ui.chat.ChatActivity">
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_bar_chat"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:menu="@menu/top_app_bar_chat"
+            app:navigationIcon="@drawable/baseline_arrow_back_24"
+            app:title="@string/label_post_date"
+            app:titleCentered="true" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_chat"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/et_message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_chat"
+            tools:listitem="@layout/item_my_chat" />
+
+        <EditText
+            android:id="@+id/et_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:inputType="textPersonName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_send_message"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:contentDescription="@string/description_send_icon"
+            android:id="@+id/btn_send_message"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_message"
+            app:srcCompat="@drawable/baseline_play_arrow_48" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

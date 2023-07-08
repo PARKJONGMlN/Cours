@@ -26,6 +26,8 @@
     <string name="label_post_register">가입 하기</string>
     <string name="label_dialog_title_category">카테고리 선택</string>
     <string name="label_dialog_title_language">언어 선택</string>
+    
+    <string name="label_post_chat">모임 채팅</string>
 
     <string name="location_permission_message">위치 권한을 허용하면 현재 위치로 이동 할 수 있습니다.</string>
     <string name="location_permission_button">권한 설정</string>
@@ -48,4 +50,6 @@
     <string name="label_check_register">가입 하시겠습니까?</string>
     <string name="label_cancel_register">취소</string>
     <string name="label_complete_register">가입</string>
+    <string name="description_send_icon">채팅 전송</string>
+    <string name="description_other_profile_image">상대방 이미지</string>
 </resources>
