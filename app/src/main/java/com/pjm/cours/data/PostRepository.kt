@@ -60,7 +60,7 @@ class PostRepository(
         return result
     }
 
-    suspend fun registerMember(
+    suspend fun addMember(
         postId: String,
         currentMemberCount: String
     ): Response<Map<String, String>> {
