@@ -66,10 +66,10 @@ class ChatActivity : AppCompatActivity() {
 
     private fun setObserver() {
         viewModel.newMessage.observe(this, EventObserver { message ->
-            if (message.senderNickname == viewModel.email) {
+            if (message.senderEmail == viewModel.email) {
                 adapter.submitChat(MyChat(message.text))
             } else {
-                adapter.submitChat(OtherChat(message.senderNickname, message.text))
+                adapter.submitChat(OtherChat(message.senderEmail, message.text))
             }
         })
     }
