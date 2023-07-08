@@ -16,6 +16,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:menu="@menu/top_app_bar_map"
+            app:navigationIcon="@drawable/baseline_menu_24"
             app:title="@string/label_post_map"
             app:titleCentered="true" />
 
