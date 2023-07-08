@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.data.model.MyChat
@@ -35,6 +36,14 @@ class ChatActivity : AppCompatActivity() {
 
     private fun setAdapter() {
         binding.recyclerViewChat.adapter = adapter
+        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver(){
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                val insertedPosition = positionStart + itemCount - 1
+                binding.recyclerViewChat.scrollToPosition(insertedPosition)
+            }
+        })
         val layoutManager = LinearLayoutManager(this)
         layoutManager.stackFromEnd = true
         binding.recyclerViewChat.layoutManager = layoutManager
@@ -56,18 +65,12 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        viewModel.isSendComplete.observe(this, EventObserver { isSendComplete ->
-            if (isSendComplete) {
-                binding.recyclerViewChat.scrollToPosition(adapter.itemCount - 1)
-            }
-        })
         viewModel.newMessage.observe(this, EventObserver { message ->
             if (message.senderNickname == viewModel.email) {
                 adapter.submitChat(MyChat(message.text))
             } else {
                 adapter.submitChat(OtherChat(message.senderNickname, message.text))
             }
-            binding.recyclerViewChat.scrollToPosition(adapter.itemCount - 1)
         })
     }
 }
