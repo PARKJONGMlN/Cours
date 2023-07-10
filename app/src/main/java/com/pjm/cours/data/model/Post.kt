@@ -2,7 +2,7 @@ package com.pjm.cours.data.model
 
 data class Post(
     val hostUserId: String = "",
-    val hostUser: User,
+    val hostUser: User = User(),
     val title: String = "",
     val body: String = "",
     val limitMemberCount: String = "",
