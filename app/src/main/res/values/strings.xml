@@ -53,4 +53,6 @@
     <string name="label_complete_register">가입</string>
     <string name="description_send_icon">채팅 전송</string>
     <string name="description_other_profile_image">상대방 이미지</string>
+    <string name="description_profile_image_select_icon">프로필 이미지 선택 아이콘</string>
+
 </resources>
