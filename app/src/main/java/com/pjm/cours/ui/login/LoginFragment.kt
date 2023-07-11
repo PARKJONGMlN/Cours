@@ -25,6 +25,7 @@ import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentLoginBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.settinguserinfo.SettingUserInfoFragment
+import com.pjm.cours.util.Constants
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
 
@@ -65,7 +66,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                                         parentFragmentManager.commit {
                                             setReorderingAllowed(true)
                                             addToBackStack(null)
-                                            replace<SettingUserInfoFragment>(R.id.fragment_container_view)
+                                            val bundle = Bundle().apply {
+                                                putString(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
+                                            }
+                                            replace<SettingUserInfoFragment>(
+                                                R.id.fragment_container_view,
+                                                null,
+                                                bundle
+                                            )
                                         }
                                     } else {
 
