@@ -19,6 +19,7 @@ import com.pjm.cours.R
 import com.pjm.cours.data.PostRepository
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ActivityMapBinding
+import com.pjm.cours.ui.chatlist.ChatListActivity
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
@@ -37,7 +38,12 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
 
     private lateinit var binding: ActivityMapBinding
     private val viewModel: MapViewModel by viewModels {
-        MapViewModel.provideFactory(PostRepository(CoursApplication.apiContainer.provideApiClient(),CoursApplication.preferencesManager))
+        MapViewModel.provideFactory(
+            PostRepository(
+                CoursApplication.apiContainer.provideApiClient(),
+                CoursApplication.preferencesManager
+            )
+        )
     }
     private lateinit var mapView: MapView
     private lateinit var adapter: PostPreviewAdapter
@@ -64,12 +70,16 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getPosts()
         launchPermission()
 
         initMapView()
         setLayout()
         setObserver()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.getPosts()
     }
 
     private fun initMapView() {
@@ -81,6 +91,9 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
     }
 
     private fun setLayout() {
+        binding.appBarMap.setNavigationOnClickListener {
+            startActivity(Intent(this, ChatListActivity::class.java))
+        }
         binding.appBarMap.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.create_post -> {
@@ -181,7 +194,7 @@ class MapActivity : AppCompatActivity(), MapViewEventListener, POIItemEventListe
         adapter = PostPreviewAdapter { preview ->
             val intent = Intent(this, PostDetailActivity::class.java)
             intent.putExtra(Constants.POST_ID, preview.postId)
-            intent.putExtra(Constants.POST_DISTANCE,preview.distance)
+            intent.putExtra(Constants.POST_DISTANCE, preview.distance)
             startActivity(intent)
         }
         with(binding.viewPagerMap) {
