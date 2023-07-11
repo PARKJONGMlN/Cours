@@ -3,29 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.MainFragment">
+        tools:context=".ui.postlist.PostListFragment">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_view_main"
-            android:name="com.pjm.cours.ui.chatlist.ChatListFragment"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/app_bar_post_list"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+            android:layout_height="?attr/actionBarSize"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:menu="@menu/top_app_bar_map"
+            app:title="@string/label_post_list"
+            app:titleCentered="true" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="목록리스트"
+            android:textSize="50sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_list" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
