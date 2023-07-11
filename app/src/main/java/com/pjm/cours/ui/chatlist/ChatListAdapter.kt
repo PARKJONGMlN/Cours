@@ -7,6 +7,7 @@ import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.databinding.ItemChatPreviewBinding
+import com.pjm.cours.util.DateFormat
 
 class ChatListAdapter(
     private val clickListener: OnChatPreviewClickListener
@@ -45,7 +46,7 @@ class ChatListAdapter(
             binding.tvLastChatPreview.text = preview.lastMessage
             binding.tvTitleChatPreview.text = preview.postTitle
             binding.tvUnreadChatPreview.text = preview.unReadMessageCount
-            binding.tvLastChatDatePreview.text = preview.messageDate
+            binding.tvLastChatDatePreview.text = DateFormat.convertTimestamp(preview.messageDate)
             itemView.setOnClickListener {
                 clickListener.onClick(preview)
             }
