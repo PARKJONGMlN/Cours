@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/item_map"
+        android:enabled="true"
+        android:icon="@drawable/ic_map_outline"
+        android:title="@string/label_item_map" />
+    <item
+        android:id="@+id/item_list"
+        android:enabled="true"
+        android:icon="@drawable/ic_list_outline"
+        android:title="@string/label_item_list" />
+    <item
+        android:id="@+id/item_chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_chat_outline"
+        android:title="@string/label_item_chat" />
+    <item
+        android:id="@+id/item_profile"
+        android:enabled="true"
+        android:icon="@drawable/ic_profile_outline"
+        android:title="@string/label_item_profile" />
+</menu>

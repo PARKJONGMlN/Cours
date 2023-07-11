@@ -15,6 +15,9 @@ class UserRepository(
     private val preferenceManager: PreferenceManager
 ) {
 
+    fun getGoogleIdToken() = preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
+
+
     fun saveGoogleIdToken(idToken: String) {
         preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
     }

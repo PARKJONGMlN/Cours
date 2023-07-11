@@ -17,6 +17,7 @@
         android:theme="@style/Theme.Cours"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity android:name=".ui.LauncherActivity"/>
         <activity android:name=".ui.chatlist.ChatListActivity" />
         <activity android:name=".ui.chat.ChatActivity" />
         <activity android:name=".ui.postdetail.PostDetailActivity" />
@@ -26,7 +27,7 @@
         <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.map.MapActivity" />
         <activity
-            android:name=".ui.LauncherActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
