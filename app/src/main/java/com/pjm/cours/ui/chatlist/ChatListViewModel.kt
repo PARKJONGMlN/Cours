@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.ChatRepository
 import com.pjm.cours.data.model.ChatPreview
+import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch
 
 class ChatListViewModel(
@@ -15,7 +16,6 @@ class ChatListViewModel(
 ) : ViewModel() {
 
     data class ChatListUiState(
-        val isLoading: Boolean = false,
         val isDefaultListSetting: Boolean = false,
         val newChatPreviewItem: ChatPreview = ChatPreview(),
         val defaultChatPreviewList: List<ChatPreview> = listOf()
@@ -23,6 +23,9 @@ class ChatListViewModel(
 
     private val _chatListUiState = MutableLiveData<ChatListUiState>()
     val chatListUiState: LiveData<ChatListUiState> = _chatListUiState
+
+    private val _isLoading = MutableLiveData(Event(true))
+    val isLoading: LiveData<Event<Boolean>> = _isLoading
 
     init {
         setDefaultChatPreviewList()
@@ -46,9 +49,9 @@ class ChatListViewModel(
             _chatListUiState.value =
                 ChatListUiState(
                     isDefaultListSetting = true,
-                    isLoading = false,
                     defaultChatPreviewList = sortedChatPreviewList
                 )
+            _isLoading.value = Event(false)
         }
     }
 

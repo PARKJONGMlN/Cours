@@ -13,6 +13,7 @@ import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.util.Constants
+import com.pjm.cours.util.EventObserver
 
 class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment_chat_list) {
 
@@ -46,7 +47,7 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
     }
 
     private fun setObserver() {
-        viewModel.chatListUiState.observe(this) { chatListUiState ->
+        viewModel.chatListUiState.observe(viewLifecycleOwner) { chatListUiState ->
             chatListUiState?.let {
                 if (chatListUiState.isDefaultListSetting) {
                     adapter.submitFirst(chatListUiState.defaultChatPreviewList)
@@ -55,5 +56,12 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
                 }
             }
         }
+        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
+            if(isLoading){
+                binding.progressLoading.visibility = View.VISIBLE
+            } else {
+                binding.progressLoading.visibility = View.INVISIBLE
+            }
+        })
     }
 }

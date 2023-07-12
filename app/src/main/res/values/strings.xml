@@ -16,6 +16,7 @@
     <string name="hint_input_post_title">제목</string>
     <string name="hint_input_post_body">내용</string>
     <string name="hint_input_post_number_of_member">인원</string>
+    <string name="hint_search_post">검색어를 입력해 주세요</string>
 
     <string name="label_post_select_location_message">위치를 선택해 주세요</string>
     <string name="label_post_select_date_message">날짜를 선택해 주세요</string>
