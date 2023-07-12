@@ -14,4 +14,5 @@ data class Post(
     val createdAt: String = "",
     val category: String = "",
     val language: String = "",
+    val key: String = "",
 )

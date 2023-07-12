@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_category_post"
+            android:layout_width="56dp"
+            android:layout_height="24dp"
+            app:cardBackgroundColor="@color/grey"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_category_post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="카테고리" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_language_post"
+            android:layout_width="56dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            app:cardBackgroundColor="@color/grey"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintStart_toEndOf="@+id/cv_category_post"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_language_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="2dp"
+                tools:text="Kotlin" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tv_meeting_date_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            tools:text="모임 날짜"
+            app:layout_constraintBottom_toBottomOf="@+id/cv_language_post"
+            app:layout_constraintStart_toEndOf="@+id/cv_language_post"
+            app:layout_constraintTop_toTopOf="@+id/cv_language_post" />
+
+        <ImageView
+            android:id="@+id/iv_current_people_icon_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/description_current_people_icon"
+            app:layout_constraintEnd_toStartOf="@+id/tv_current_people_post"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/baseline_group_24" />
+
+        <TextView
+            android:id="@+id/tv_current_people_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="현재인원/전체인원" />
+
+        <TextView
+            android:id="@+id/tv_title_post"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="모임 제목"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cv_category_post" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
