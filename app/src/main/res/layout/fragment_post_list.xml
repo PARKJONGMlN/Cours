@@ -23,15 +23,35 @@
             app:title="@string/label_post_list"
             app:titleCentered="true" />
 
-        <TextView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_post_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:text="목록리스트"
-            android:textSize="50sp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_list" />
+            app:layout_constraintTop_toBottomOf="@+id/search_view"
+            tools:listitem="@layout/item_post" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:iconifiedByDefault="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_post_list"
+            app:queryHint="@string/hint_search_post" />
+
+        <com.pjm.cours.ui.common.ProgressView
+            android:id="@+id/progress_loading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
