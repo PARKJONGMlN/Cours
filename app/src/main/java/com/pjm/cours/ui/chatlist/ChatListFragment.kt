@@ -6,9 +6,9 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.ChatRepository
 import com.pjm.cours.data.remote.ChatDataSource
 import com.pjm.cours.data.remote.ImageUriDataSource
+import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.chat.ChatActivity
@@ -24,7 +24,9 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
             ChatRepository(
                 ChatDataSource(),
                 ImageUriDataSource(),
-                CoursApplication.preferencesManager
+                CoursApplication.preferencesManager,
+                (requireContext().applicationContext as CoursApplication).database.messageDao(),
+                CoursApplication.apiContainer.provideApiClient()
             )
         )
     }

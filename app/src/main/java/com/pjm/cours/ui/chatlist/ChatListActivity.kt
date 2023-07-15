@@ -5,9 +5,9 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.pjm.cours.CoursApplication
-import com.pjm.cours.data.ChatRepository
 import com.pjm.cours.data.remote.ChatDataSource
 import com.pjm.cours.data.remote.ImageUriDataSource
+import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.databinding.ActivityChatListBinding
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.util.Constants
@@ -22,7 +22,9 @@ class ChatListActivity : AppCompatActivity() {
             ChatRepository(
                 ChatDataSource(),
                 ImageUriDataSource(),
-                CoursApplication.preferencesManager
+                CoursApplication.preferencesManager,
+                (application as CoursApplication).database.messageDao(),
+                CoursApplication.apiContainer.provideApiClient()
             )
         )
     }

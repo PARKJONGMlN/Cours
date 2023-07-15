@@ -2,6 +2,8 @@ package com.pjm.cours.ui.chat
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pjm.cours.data.model.ChatItem
 import com.pjm.cours.data.model.MyChat
@@ -12,14 +14,7 @@ import com.pjm.cours.databinding.ItemOtherChatBinding
 private const val VIEW_TYPE_OTHER_CHAT = 0
 private const val VIEW_TYPE_MY_CHAT = 1
 
-class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private val items = mutableListOf<ChatItem>()
-
-    fun submitChat(chat: ChatItem) {
-        items.add(chat)
-        notifyItemInserted(items.size - 1)
-    }
+class ChatAdapter : ListAdapter<ChatItem, RecyclerView.ViewHolder>(ChatDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -28,16 +23,14 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    override fun getItemCount() = items.size
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         return when (holder) {
             is OtherChatViewHolder -> {
-                val item = items[position] as OtherChat
+                val item = getItem(position) as OtherChat
                 holder.bind(item)
             }
             is MyChatViewHolder -> {
-                val item = items[position] as MyChat
+                val item = getItem(position) as MyChat
                 holder.bind(item)
             }
             else -> {}
@@ -45,7 +38,7 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (items[position]) {
+        return when (getItem(position)) {
             is OtherChat -> VIEW_TYPE_OTHER_CHAT
             is MyChat -> VIEW_TYPE_MY_CHAT
         }
@@ -55,8 +48,8 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: OtherChat) {
-            binding.tvUserNicknameOtherChat.text = item.nickname
-            binding.tvMessageOtherChat.text = item.message
+            binding.tvUserNicknameOtherChat.text = item.sender
+            binding.tvMessageOtherChat.text = item.text
         }
 
         companion object {
@@ -73,7 +66,7 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: MyChat) {
-            binding.tvMessageMyChat.text = item.message
+            binding.tvMessageMyChat.text = item.text
         }
 
         companion object {
@@ -83,6 +76,16 @@ class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     ItemMyChatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 )
             }
+        }
+    }
+
+    class ChatDiffCallback : DiffUtil.ItemCallback<ChatItem>() {
+        override fun areItemsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
+            return oldItem.messageId == newItem.messageId
+        }
+
+        override fun areContentsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
+            return oldItem == newItem
         }
     }
 }
