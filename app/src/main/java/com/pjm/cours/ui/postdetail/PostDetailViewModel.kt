@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch

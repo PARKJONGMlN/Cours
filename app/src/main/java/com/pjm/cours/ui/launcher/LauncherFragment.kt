@@ -7,7 +7,7 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.UserRepository
+import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.ui.login.LoginFragment
 import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.util.EventObserver

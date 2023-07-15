@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import com.pjm.cours.data.UserRepository
+import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.data.model.User
 import com.pjm.cours.util.Event
 import kotlinx.coroutines.launch

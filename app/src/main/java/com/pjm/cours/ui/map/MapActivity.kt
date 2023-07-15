@@ -16,7 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ActivityMapBinding
 import com.pjm.cours.ui.chatlist.ChatListActivity

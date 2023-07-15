@@ -6,7 +6,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.databinding.FragmentPostListBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity

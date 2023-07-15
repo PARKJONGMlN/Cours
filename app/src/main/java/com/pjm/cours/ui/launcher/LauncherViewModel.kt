@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.UserRepository
+import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.util.Event
 
 class LauncherViewModel(

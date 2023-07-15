@@ -1,6 +1,7 @@
-package com.pjm.cours.data
+package com.pjm.cours.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
+import com.pjm.cours.data.PreferenceManager
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.ApiClient
 import com.pjm.cours.util.Constants

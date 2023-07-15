@@ -12,7 +12,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.UserRepository
+import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.common.ProgressDialogFragment

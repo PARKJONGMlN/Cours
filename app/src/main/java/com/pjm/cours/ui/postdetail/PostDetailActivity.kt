@@ -7,7 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.databinding.ActivityPostDetailBinding
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.ui.common.ProgressDialogFragment

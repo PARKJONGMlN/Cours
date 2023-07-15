@@ -1,9 +1,10 @@
-package com.pjm.cours.data
+package com.pjm.cours.data.repository
 
 import android.net.Uri
 import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
+import com.pjm.cours.data.PreferenceManager
 import com.pjm.cours.data.model.User
 import com.pjm.cours.data.remote.ApiClient
 import com.pjm.cours.util.Constants
