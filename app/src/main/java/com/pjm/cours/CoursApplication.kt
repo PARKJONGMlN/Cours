@@ -17,6 +17,7 @@ class CoursApplication : Application() {
             ImageUriDataSource(),
             preferencesManager,
             database.messageDao(),
+            database.chatPreviewDao(),
             apiContainer.provideApiClient()
         )
     }

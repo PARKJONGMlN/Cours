@@ -2,37 +2,25 @@ package com.pjm.cours.ui.chatlist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.databinding.ItemChatPreviewBinding
-import com.pjm.cours.util.DateFormat
 
 class ChatListAdapter(
     private val clickListener: OnChatPreviewClickListener
-) : RecyclerView.Adapter<ChatListAdapter.ChatListViewHolder>() {
+) : ListAdapter<ChatPreview, ChatListAdapter.ChatListViewHolder>(ChatPreviewDiffCallback()) {
 
-    private val items = mutableListOf<ChatPreview>()
-
-    fun submitFirst(previewList: List<ChatPreview>) {
-        items.addAll(previewList)
-        notifyDataSetChanged()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatListViewHolder {
+        return ChatListViewHolder.from(parent, clickListener)
     }
 
-    fun submitItem(preview: ChatPreview) {
-        val item = items.find { it.postId == preview.postId }
-        val title = item?.postTitle ?: ""
-        val hostImageUri = item?.hostImageUri ?: ""
-        if (item != null) {
-            val index = items.indexOf(item)
-            items.removeAt(index)
-            notifyItemRemoved(index)
-        }
-        items.add(0, preview.copy(hostImageUri = hostImageUri, postTitle = title))
-        notifyItemInserted(0)
+    override fun onBindViewHolder(holder: ChatListViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
-
     class ChatListViewHolder(
         private val binding: ItemChatPreviewBinding,
         private val clickListener: OnChatPreviewClickListener
@@ -46,7 +34,7 @@ class ChatListAdapter(
             binding.tvLastChatPreview.text = preview.lastMessage
             binding.tvTitleChatPreview.text = preview.postTitle
             binding.tvUnreadChatPreview.text = preview.unReadMessageCount
-            binding.tvLastChatDatePreview.text = DateFormat.convertTimestamp(preview.messageDate)
+//            binding.tvLastChatDatePreview.text = DateFormat.convertTimestamp(preview.messageDate)
             itemView.setOnClickListener {
                 clickListener.onClick(preview)
             }
@@ -69,13 +57,13 @@ class ChatListAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatListViewHolder {
-        return ChatListViewHolder.from(parent, clickListener)
-    }
+    class ChatPreviewDiffCallback : DiffUtil.ItemCallback<ChatPreview>() {
+        override fun areItemsTheSame(oldItem: ChatPreview, newItem: ChatPreview): Boolean {
+            return oldItem.postId == newItem.postId
+        }
 
-    override fun getItemCount() = items.size
-
-    override fun onBindViewHolder(holder: ChatListViewHolder, position: Int) {
-        holder.bind(items[position])
+        override fun areContentsTheSame(oldItem: ChatPreview, newItem: ChatPreview): Boolean {
+            return oldItem == newItem
+        }
     }
 }

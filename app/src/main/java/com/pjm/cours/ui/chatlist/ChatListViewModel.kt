@@ -1,9 +1,6 @@
 package com.pjm.cours.ui.chatlist
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.model.ChatPreview
@@ -15,43 +12,26 @@ class ChatListViewModel(
     private val chatRepository: ChatRepository
 ) : ViewModel() {
 
-    data class ChatListUiState(
-        val isDefaultListSetting: Boolean = false,
-        val newChatPreviewItem: ChatPreview = ChatPreview(),
-        val defaultChatPreviewList: List<ChatPreview> = listOf()
-    )
-
-    private val _chatListUiState = MutableLiveData<ChatListUiState>()
-    val chatListUiState: LiveData<ChatListUiState> = _chatListUiState
-
     private val _isLoading = MutableLiveData(Event(true))
     val isLoading: LiveData<Event<Boolean>> = _isLoading
 
-    init {
-        setDefaultChatPreviewList()
-    }
-
-    private fun setDefaultChatPreviewList() {
-        viewModelScope.launch {
-            chatRepository.setOnNewMessageCallback { postId, newMessage ->
-                _chatListUiState.value = _chatListUiState.value?.copy(
-                    isDefaultListSetting = false,
-                    newChatPreviewItem = ChatPreview(
-                        postId = postId,
-                        lastMessage = newMessage.text,
-                        unReadMessageCount = "0",
-                        messageDate = newMessage.timestamp.toString()
-                    )
+    val chatPreviewList: LiveData<List<ChatPreview>> =
+        chatRepository.getChatPreview().map { chatPreviewEntityList ->
+            chatPreviewEntityList.map { chatPreviewEntity ->
+                ChatPreview(
+                    postId = chatPreviewEntity.postId,
+                    hostImageUri = chatPreviewEntity.hostImageUri,
+                    postTitle = chatPreviewEntity.postTitle,
+                    messageDate = chatPreviewEntity.sendDate,
+                    lastMessage = chatPreviewEntity.lastMessage,
+                    unReadMessageCount = chatPreviewEntity.unReadMessageCount,
                 )
             }
+        }
 
-            val sortedChatPreviewList = chatRepository.getDefaultChatPreviewList()
-            _chatListUiState.value =
-                ChatListUiState(
-                    isDefaultListSetting = true,
-                    defaultChatPreviewList = sortedChatPreviewList
-                )
-            _isLoading.value = Event(false)
+    init {
+        viewModelScope.launch {
+            chatRepository.getChatPreviewList()
         }
     }
 

@@ -4,13 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.pjm.cours.data.local.dao.ChatPreviewDao
 import com.pjm.cours.data.local.dao.MessageDao
+import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.local.entities.MessageEntity
 
-@Database(entities = arrayOf(MessageEntity::class), version = 1)
+@Database(entities = [MessageEntity::class, ChatPreviewEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun messageDao(): MessageDao
+    abstract fun chatPreviewDao(): ChatPreviewDao
 
     companion object {
 
@@ -23,7 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "cour_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

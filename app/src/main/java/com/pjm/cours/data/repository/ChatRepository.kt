@@ -6,7 +6,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.pjm.cours.data.PreferenceManager
+import com.pjm.cours.data.local.dao.ChatPreviewDao
 import com.pjm.cours.data.local.dao.MessageDao
+import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.local.entities.MessageEntity
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.data.model.Message
@@ -24,14 +26,18 @@ class ChatRepository(
     private val imageUriRemoteDataSource: ImageUriDataSource,
     preferenceManager: PreferenceManager,
     private val messageDao: MessageDao,
+    private val chatPreviewDao: ChatPreviewDao,
     private val apiClient: ApiClient,
 ) {
     private val userId = preferenceManager.getString(Constants.USER_ID, "")
-    private lateinit var upDateChatPreviewCallback: (String, Message) -> (Unit)
 
     suspend fun sendMessage(postId: String, message: Message): Response<Map<String, String>> {
         val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
         return apiClient.sendMessage(postId = postId, idToken, message = message)
+    }
+
+    fun getChatPreview(): LiveData<List<ChatPreviewEntity>> {
+        return chatPreviewDao.getPreviewList()
     }
 
     fun getMessages(postId: String): LiveData<List<MessageEntity>> {
@@ -50,28 +56,23 @@ class ChatRepository(
         return messageDao.getMessageListByPostId(postId)
     }
 
-    fun setOnNewMessageCallback(callback: (String, Message) -> (Unit)) {
-        upDateChatPreviewCallback = callback
-    }
-
-    suspend fun getDefaultChatPreviewList() = withContext(Dispatchers.IO) {
+    suspend fun getChatPreviewList() = withContext(Dispatchers.IO) {
         val snapShot = chatRemoteDataSource.getUserChatIdList(userId)
-        val deferredList = snapShot.children.map { chatRoomSnapshot ->
+        snapShot.children.map { chatRoomSnapshot ->
             async {
                 val postId = chatRoomSnapshot.key ?: ""
                 val postSnapshot = chatRemoteDataSource.getPostInfo(postId)
                 val post = parsePost(postSnapshot)
                 val title = post.title
-
                 val hostImageUri = post.hostUser.profileUri
                 val imageDownLoadUri =
                     imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
                 val messageSnapshot = chatRemoteDataSource.getLastMessage(postId)
                 val message = parseMessage(messageSnapshot)
-
                 addNewMessageEventListener(postId, valueEventListener(postId))
-                ChatPreview(
+
+                val chatPreview = ChatPreview(
                     postId = postId,
                     hostImageUri = imageDownLoadUri,
                     postTitle = title,
@@ -79,10 +80,19 @@ class ChatRepository(
                     unReadMessageCount = "0",
                     messageDate = message.timestamp.toString()
                 )
+
+                chatPreviewDao.insert(
+                    ChatPreviewEntity(
+                        postId = chatPreview.postId,
+                        hostImageUri = chatPreview.hostImageUri,
+                        postTitle = chatPreview.postTitle,
+                        sendDate = chatPreview.messageDate,
+                        lastMessage = chatPreview.lastMessage,
+                        unReadMessageCount = chatPreview.unReadMessageCount,
+                    )
+                )
             }
         }
-        val chatPreviewList = deferredList.awaitAll()
-        chatPreviewList.sortedByDescending { it.messageDate }
     }
 
     private fun valueEventListener(postId: String) = object : ValueEventListener {
@@ -91,10 +101,14 @@ class ChatRepository(
             if (isFirst) {
                 isFirst = false
             } else {
-                upDateChatPreviewCallback(
-                    postId,
-                    parseMessage(snapshot)
-                )
+                val message = parseMessage(snapshot)
+                CoroutineScope(Dispatchers.IO).launch {
+                    chatPreviewDao.update(
+                        postId = postId,
+                        sendDate = message.timestamp.toString(),
+                        lastMessage = message.text
+                    )
+                }
             }
         }
 
