@@ -1,14 +1,14 @@
 package com.pjm.cours.ui.chat
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.pjm.cours.CoursApplication
 import com.pjm.cours.data.model.Message
-import com.pjm.cours.data.model.MyChat
-import com.pjm.cours.data.model.OtherChat
 import com.pjm.cours.databinding.ActivityChatBinding
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
@@ -16,7 +16,7 @@ import com.pjm.cours.util.EventObserver
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
-    private val viewModel: ChatViewModel by viewModels { ChatViewModel.provideFactory() }
+    private val viewModel: ChatViewModel by viewModels { ChatViewModel.provideFactory((application as CoursApplication).chatRepository) }
     private val adapter = ChatAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +36,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun setAdapter() {
         binding.recyclerViewChat.adapter = adapter
-        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver(){
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
 
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
@@ -65,12 +65,14 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        viewModel.newMessage.observe(this, EventObserver { message ->
-            if (message.senderEmail == viewModel.email) {
-                adapter.submitChat(MyChat(message.text))
-            } else {
-                adapter.submitChat(OtherChat(message.senderEmail, message.text))
+        viewModel.messageList.observe(this) { messageList ->
+            adapter.submitList(messageList)
+        }
+        viewModel.isError.observe(this, EventObserver { isError ->
+            if (!isError) {
+                Toast.makeText(this, "네트워크 상태를 확인해 주세요", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
 }

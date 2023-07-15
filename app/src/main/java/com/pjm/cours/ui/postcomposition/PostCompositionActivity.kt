@@ -12,7 +12,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
-import com.pjm.cours.data.PostRepository
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.ui.location.LocationActivity

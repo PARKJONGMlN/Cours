@@ -1,19 +1,25 @@
 package com.pjm.cours.ui.chat
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.pjm.cours.BuildConfig
+import com.pjm.cours.data.model.ChatItem
 import com.pjm.cours.data.model.Message
+import com.pjm.cours.data.model.MyChat
+import com.pjm.cours.data.model.OtherChat
+import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.util.Event
+import kotlinx.coroutines.launch
 
-class ChatViewModel : ViewModel() {
+class ChatViewModel(
+    private val chatRepository: ChatRepository
+) : ViewModel() {
 
-    val email = FirebaseAuth.getInstance().currentUser?.email
+    private val email = FirebaseAuth.getInstance().currentUser?.email
 
     private val _postId = MutableLiveData<Event<String>>()
     val postId: LiveData<Event<String>> = _postId
@@ -24,51 +30,64 @@ class ChatViewModel : ViewModel() {
     private val _isSendComplete = MutableLiveData<Event<Boolean>>()
     val isSendComplete: LiveData<Event<Boolean>> = _isSendComplete
 
+    private val _isError = MutableLiveData<Event<Boolean>>()
+    val isError: LiveData<Event<Boolean>> = _isError
+
     private val database = FirebaseDatabase.getInstance(BuildConfig.BASE_URL)
     private lateinit var chatRoomRef: DatabaseReference
-    private lateinit var messageListener: ChildEventListener
+
+    lateinit var messageList: LiveData<List<ChatItem>>
+
+    private fun getMessages(postId: String) {
+        messageList = chatRepository.getMessages(postId).map { messageEntityList ->
+            messageEntityList.map { messageEntity ->
+                if (messageEntity.sender == email) {
+                    MyChat(
+                        postId = messageEntity.postId,
+                        messageId = messageEntity.messageId,
+                        sender = messageEntity.sender,
+                        sendDate = messageEntity.sendDate,
+                        text = messageEntity.text
+                    )
+                } else {
+                    OtherChat(
+                        postId = messageEntity.postId,
+                        messageId = messageEntity.messageId,
+                        sender = messageEntity.sender,
+                        sendDate = messageEntity.sendDate,
+                        text = messageEntity.text
+                    )
+                }
+            }.sortedBy { it.sendDate }
+        }
+    }
+
 
     fun setPostId(postId: String) {
         _postId.value = Event(postId)
         chatRoomRef = database.getReference("chat").child(postId).child("messages")
-        messageListener = chatRoomRef.orderByChild("timestamp")
-            .addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(dataSnapshot: DataSnapshot, prevChildKey: String?) {
-                    val newMessage = dataSnapshot.getValue(Message::class.java) ?: return
-                    _newMessage.value = Event(newMessage)
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {}
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-
-                override fun onCancelled(error: DatabaseError) {
-                }
-            })
+        viewModelScope.launch {
+            getMessages(postId)
+        }
     }
 
     fun sendMessage(message: Message) {
-        try {
-            val id = chatRoomRef.push().key
-            chatRoomRef.child(id!!).setValue(message)
-                .addOnCompleteListener {
-                    _isSendComplete.value = Event(true)
-                }
-                .addOnFailureListener {
-                    _isSendComplete.value = Event(false)
-                }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        viewModelScope.launch {
+            try {
+                chatRepository.sendMessage(postId.value?.peekContent() ?: "", message)
+            } catch (e: Exception){
+                _isError.value = Event(false)
+
+            }
+
         }
     }
 
     companion object {
 
-        fun provideFactory() = viewModelFactory {
+        fun provideFactory(chatRepository: ChatRepository) = viewModelFactory {
             initializer {
-                ChatViewModel()
+                ChatViewModel(chatRepository)
             }
         }
     }

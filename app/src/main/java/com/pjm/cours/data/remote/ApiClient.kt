@@ -1,6 +1,7 @@
 package com.pjm.cours.data.remote
 
 import com.pjm.cours.BuildConfig
+import com.pjm.cours.data.model.Message
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.model.User
 import com.squareup.moshi.Moshi
@@ -62,6 +63,13 @@ interface ApiClient {
         @Path("postId") postId: String?,
         @Query("auth") auth: String?,
         @Body currentMemberCount: Map<String, String>
+    ): Response<Map<String, String>>
+
+    @POST("chat/{postId}/messages.json")
+    suspend fun sendMessage(
+        @Path("postId") postId: String,
+        @Query("auth") auth: String?,
+        @Body message: Message
     ): Response<Map<String, String>>
 
     companion object {
