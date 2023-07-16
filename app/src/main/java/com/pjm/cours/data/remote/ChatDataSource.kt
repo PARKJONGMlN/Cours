@@ -4,8 +4,9 @@ import com.google.firebase.database.*
 import com.pjm.cours.BuildConfig
 import com.pjm.cours.data.model.Message
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class ChatDataSource {
+class ChatDataSource @Inject constructor(){
 
     private val database = FirebaseDatabase.getInstance(BuildConfig.BASE_URL)
     private val userChatRoomsRef = database.getReference("member_meeting")

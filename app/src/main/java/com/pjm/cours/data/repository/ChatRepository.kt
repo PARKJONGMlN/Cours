@@ -20,8 +20,9 @@ import com.pjm.cours.util.Constants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
+import javax.inject.Inject
 
-class ChatRepository(
+class ChatRepository @Inject constructor(
     private val chatRemoteDataSource: ChatDataSource,
     private val imageUriRemoteDataSource: ImageUriDataSource,
     preferenceManager: PreferenceManager,

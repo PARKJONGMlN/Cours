@@ -5,16 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.data.model.User
+import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import javax.inject.Inject
 
-class SettingUserInfoViewModel(
+@HiltViewModel
+class SettingUserInfoViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
 
@@ -100,15 +101,6 @@ class SettingUserInfoViewModel(
                 e.printStackTrace()
             } catch (e: Throwable) {
                 e.printStackTrace()
-            }
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: UserRepository) = viewModelFactory {
-            initializer {
-                SettingUserInfoViewModel(repository)
             }
         }
     }

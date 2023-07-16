@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class PostListUiState(
     val isLoading: Boolean = true,
@@ -18,7 +18,8 @@ data class PostListUiState(
     val postList: List<Post> = listOf()
 )
 
-class PostListViewModel(
+@HiltViewModel
+class PostListViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
@@ -46,15 +47,6 @@ class PostListViewModel(
 
                 )
 
-            }
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: PostRepository) = viewModelFactory {
-            initializer {
-                PostListViewModel(repository)
             }
         }
     }

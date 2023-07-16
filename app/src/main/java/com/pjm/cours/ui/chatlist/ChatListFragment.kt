@@ -4,20 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.util.Constants
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment_chat_list) {
 
     private lateinit var adapter: ChatListAdapter
 
-    private val viewModel: ChatListViewModel by viewModels {
-        ChatListViewModel.provideFactory((requireContext().applicationContext as CoursApplication).chatRepository)
-    }
+    private val viewModel: ChatListViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

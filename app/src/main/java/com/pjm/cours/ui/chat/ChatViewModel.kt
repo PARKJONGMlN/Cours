@@ -1,8 +1,6 @@
 package com.pjm.cours.ui.chat
 
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -13,9 +11,12 @@ import com.pjm.cours.data.model.MyChat
 import com.pjm.cours.data.model.OtherChat
 import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatViewModel(
+@HiltViewModel
+class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository
 ) : ViewModel() {
 
@@ -80,15 +81,6 @@ class ChatViewModel(
 
             }
 
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(chatRepository: ChatRepository) = viewModelFactory {
-            initializer {
-                ChatViewModel(chatRepository)
-            }
         }
     }
 }

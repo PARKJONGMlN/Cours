@@ -26,7 +26,9 @@ import com.pjm.cours.databinding.FragmentLoginBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.settinguserinfo.SettingUserInfoFragment
 import com.pjm.cours.util.Constants
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
 
     private lateinit var auth: FirebaseAuth

@@ -10,27 +10,20 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import coil.load
 import coil.transform.CircleCropTransformation
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.common.ProgressDialogFragment
 import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingUserInfoFragment :
     BaseFragment<FragmentSettingUserInfoBinding>(R.layout.fragment_setting_user_info) {
 
-    private val viewModel: SettingUserInfoViewModel by viewModels {
-        SettingUserInfoViewModel.provideFactory(
-            UserRepository(
-                CoursApplication.apiContainer.provideApiClient(),
-                CoursApplication.preferencesManager
-            )
-        )
-    }
+    private val viewModel: SettingUserInfoViewModel by viewModels()
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->

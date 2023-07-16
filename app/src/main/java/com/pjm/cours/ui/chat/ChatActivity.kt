@@ -7,16 +7,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.databinding.ActivityChatBinding
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
-    private val viewModel: ChatViewModel by viewModels { ChatViewModel.provideFactory((application as CoursApplication).chatRepository) }
+    val viewModel: ChatViewModel by viewModels()
     private val adapter = ChatAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {

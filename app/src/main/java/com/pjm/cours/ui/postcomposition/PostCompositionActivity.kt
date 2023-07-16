@@ -9,27 +9,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
-import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.ui.location.LocationActivity
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.DateFormat
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
-    private val viewModel: PostCompositionViewModel by viewModels {
-        PostCompositionViewModel.provideFactory(
-            PostRepository(
-                CoursApplication.apiContainer.provideApiClient(),
-                CoursApplication.preferencesManager
-            )
-        )
-    }
+    private val viewModel: PostCompositionViewModel by viewModels()
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->

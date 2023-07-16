@@ -3,12 +3,13 @@ package com.pjm.cours.ui.location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import net.daum.mf.map.api.MapPoint
+import javax.inject.Inject
 
-class LocationViewModel : ViewModel() {
+@HiltViewModel
+class LocationViewModel @Inject constructor(): ViewModel() {
 
     private val _isLoading = MutableLiveData<Event<Boolean>>()
     val isLoading: LiveData<Event<Boolean>> = _isLoading
@@ -58,14 +59,5 @@ class LocationViewModel : ViewModel() {
     fun setCurrentMapPoint(currentMapPoint: MapPoint) {
         _currentMapPoint.value = Event(currentMapPoint)
         _isLoading.value = Event(false)
-    }
-
-    companion object {
-
-        fun provideFactory() = viewModelFactory {
-            initializer {
-                LocationViewModel()
-            }
-        }
     }
 }

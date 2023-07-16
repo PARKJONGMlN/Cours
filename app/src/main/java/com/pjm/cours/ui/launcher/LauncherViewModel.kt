@@ -3,12 +3,13 @@ package com.pjm.cours.ui.launcher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LauncherViewModel(
+@HiltViewModel
+class LauncherViewModel @Inject constructor(
     userRepository: UserRepository
 ) : ViewModel() {
 
@@ -17,14 +18,5 @@ class LauncherViewModel(
 
     init {
         _localGoogleIdToken.value = Event(userRepository.getGoogleIdToken())
-    }
-
-    companion object {
-
-        fun providerFactory(userRepository: UserRepository) = viewModelFactory {
-            initializer {
-                LauncherViewModel(userRepository)
-            }
-        }
     }
 }

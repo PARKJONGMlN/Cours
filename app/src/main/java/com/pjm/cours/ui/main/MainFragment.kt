@@ -11,7 +11,9 @@ import com.pjm.cours.ui.chatlist.ChatListFragment
 import com.pjm.cours.ui.map.MapFragment
 import com.pjm.cours.ui.postlist.PostListFragment
 import com.pjm.cours.ui.profile.ProfileFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainFragment : BaseFragment<FragmentMainBinding>(R.layout.fragment_main) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

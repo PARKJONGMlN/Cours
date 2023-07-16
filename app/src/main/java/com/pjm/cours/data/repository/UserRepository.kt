@@ -10,8 +10,9 @@ import com.pjm.cours.data.remote.ApiClient
 import com.pjm.cours.util.Constants
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
+import javax.inject.Inject
 
-class UserRepository(
+class UserRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager
 ) {
