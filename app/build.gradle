@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
     id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 Properties properties = new Properties()
@@ -93,4 +94,12 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.5.2'
     implementation 'androidx.room:room-runtime:2.5.2'
     kapt "androidx.room:room-compiler:2.5.2"
+
+    // Hilt
+    implementation 'com.google.dagger:hilt-android:2.44'
+    kapt 'com.google.dagger:hilt-compiler:2.44'
+}
+
+kapt {
+    correctErrorTypes true
 }
