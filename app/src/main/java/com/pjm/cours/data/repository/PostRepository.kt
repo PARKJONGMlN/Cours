@@ -8,8 +8,9 @@ import com.pjm.cours.util.Constants
 import com.pjm.cours.util.DateFormat
 import kotlinx.coroutines.tasks.await
 import retrofit2.Response
+import javax.inject.Inject
 
-class PostRepository(
+class PostRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager
 ) {

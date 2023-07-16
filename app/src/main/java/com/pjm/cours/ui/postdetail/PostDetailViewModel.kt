@@ -6,12 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PostDetailViewModel(private val repository: PostRepository) : ViewModel() {
+@HiltViewModel
+class PostDetailViewModel @Inject constructor(private val repository: PostRepository) :
+    ViewModel() {
 
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post

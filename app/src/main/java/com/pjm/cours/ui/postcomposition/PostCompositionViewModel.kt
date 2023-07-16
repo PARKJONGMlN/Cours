@@ -1,14 +1,15 @@
 package com.pjm.cours.ui.postcomposition
 
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import javax.inject.Inject
 
-class PostCompositionViewModel(
+@HiltViewModel
+class PostCompositionViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
@@ -132,14 +133,5 @@ class PostCompositionViewModel(
                 && _isMeetingDateSelected.value?.peekContent() ?: false
                 && _isCategorySelected.value?.peekContent() ?: false
                 && _isLanguageSelected.value?.peekContent() ?: false
-    }
-
-    companion object {
-
-        fun provideFactory(repository: PostRepository) = viewModelFactory {
-            initializer {
-                PostCompositionViewModel(repository)
-            }
-        }
     }
 }

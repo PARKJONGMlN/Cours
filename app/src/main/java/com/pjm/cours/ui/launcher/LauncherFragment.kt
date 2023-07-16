@@ -5,23 +5,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.ui.login.LoginFragment
 import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.util.EventObserver
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LauncherFragment : Fragment() {
 
-    private val viewModel: LauncherViewModel by viewModels {
-        LauncherViewModel.providerFactory(
-            UserRepository(
-                CoursApplication.apiContainer.provideApiClient(),
-                CoursApplication.preferencesManager
-            )
-        )
-    }
+    private val viewModel: LauncherViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -17,6 +17,7 @@ import com.pjm.cours.BuildConfig
 import com.pjm.cours.R
 import com.pjm.cours.databinding.ActivityLocationBinding
 import com.pjm.cours.util.Constants
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
@@ -24,13 +25,13 @@ import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
 import net.daum.mf.map.api.MapView
 
-
+@AndroidEntryPoint
 class LocationActivity : AppCompatActivity(), MapView.MapViewEventListener,
     MapView.POIItemEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener,
     MapView.CurrentLocationEventListener {
 
     private lateinit var binding: ActivityLocationBinding
-    private val viewModel: LocationViewModel by viewModels { LocationViewModel.provideFactory() }
+    private val viewModel: LocationViewModel by viewModels()
     private lateinit var mapView: MapView
 
     private val locationPermissionRequest = registerForActivityResult(

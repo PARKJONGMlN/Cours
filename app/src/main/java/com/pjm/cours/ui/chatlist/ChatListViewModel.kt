@@ -6,9 +6,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatListViewModel(
+@HiltViewModel
+class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository
 ) : ViewModel() {
 

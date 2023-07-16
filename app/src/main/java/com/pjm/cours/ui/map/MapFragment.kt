@@ -13,9 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.pjm.cours.CoursApplication
 import com.pjm.cours.R
-import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.FragmentMapBinding
 import com.pjm.cours.ui.BaseFragment
@@ -23,24 +21,19 @@ import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
+@AndroidEntryPoint
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     MapView.MapViewEventListener, MapView.POIItemEventListener,
     MapView.CurrentLocationEventListener {
 
-    private val viewModel: MapViewModel by viewModels {
-        MapViewModel.provideFactory(
-            PostRepository(
-                CoursApplication.apiContainer.provideApiClient(),
-                CoursApplication.preferencesManager
-            )
-        )
-    }
+    private val viewModel: MapViewModel by viewModels()
     private lateinit var mapView: MapView
     private lateinit var adapter: PostPreviewAdapter
 
@@ -72,7 +65,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     }
 
     private fun initMapView() {
-        mapView = MapView(requireContext())
+        mapView = MapView(requireActivity())
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
         mapView.setCurrentLocationEventListener(this)

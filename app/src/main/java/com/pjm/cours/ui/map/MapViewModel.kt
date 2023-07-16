@@ -4,16 +4,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.data.model.PostPreview
+import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.DistanceManager
 import com.pjm.cours.util.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
+import javax.inject.Inject
 
-class MapViewModel(
+@HiltViewModel
+class MapViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
@@ -112,15 +113,6 @@ class MapViewModel(
                     )
                 }
                 _isCompleted.value = Event(true)
-            }
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: PostRepository) = viewModelFactory {
-            initializer {
-                MapViewModel(repository)
             }
         }
     }
