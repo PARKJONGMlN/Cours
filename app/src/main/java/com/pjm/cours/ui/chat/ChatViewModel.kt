@@ -1,5 +1,6 @@
 package com.pjm.cours.ui.chat
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -9,6 +10,9 @@ import com.pjm.cours.data.model.ChatItem
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.data.model.MyChat
 import com.pjm.cours.data.model.OtherChat
+import com.pjm.cours.data.remote.ApiResultError
+import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.ChatRepository
 import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,13 +78,20 @@ class ChatViewModel @Inject constructor(
 
     fun sendMessage(message: Message) {
         viewModelScope.launch {
-            try {
-                chatRepository.sendMessage(postId.value?.peekContent() ?: "", message)
-            } catch (e: Exception){
-                _isError.value = Event(false)
-
+            val result = chatRepository.sendMessage(postId.value?.peekContent() ?: "", message)
+            when (result) {
+                is ApiResultSuccess -> {
+                    Log.d("TAG", "ApiResultSuccess: ${result.data}")
+                }
+                is ApiResultError -> {
+                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
+                    _isError.value = Event(true)
+                }
+                is ApiResultException -> {
+                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
+                    _isError.value = Event(true)
+                }
             }
-
         }
     }
 }

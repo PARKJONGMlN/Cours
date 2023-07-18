@@ -1,6 +1,7 @@
 package com.pjm.cours.di
 
 import com.pjm.cours.BuildConfig
+import com.pjm.cours.data.remote.ApiCallAdapterFactory
 import com.pjm.cours.data.remote.ApiClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -44,6 +45,7 @@ object NetworkModule {
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(ApiCallAdapterFactory.create())
             .build()
     }
 

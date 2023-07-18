@@ -1,12 +1,14 @@
 package com.pjm.cours.ui.postdetail
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.remote.ApiResultError
+import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,18 +28,29 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
     private val _isGetPostCompleted = MutableLiveData(Event(false))
     val isGetPostCompleted: LiveData<Event<Boolean>> = _isGetPostCompleted
 
-    private val _isRegisterCompleted = MutableLiveData(Event(false))
+    private val _isRegisterCompleted = MutableLiveData<Event<Boolean>>()
     val isRegisterCompleted: LiveData<Event<Boolean>> = _isRegisterCompleted
+
+    private val _isError = MutableLiveData(Event(false))
+    val isError: LiveData<Event<Boolean>> = _isError
 
     fun getPost(postId: String) {
         viewModelScope.launch {
             _isLoading.value = Event(true)
             val result = repository.getPost(postId)
-            val resultPost = result.body()
-            resultPost?.let { post ->
-                _post.value = post
-                _isLoading.value = Event(false)
-                _isGetPostCompleted.value = Event(true)
+            _isLoading.value = Event(false)
+
+            when (result) {
+                is ApiResultSuccess -> {
+                    _post.value = result.data
+                    _isGetPostCompleted.value = Event(true)
+                }
+                is ApiResultError -> {
+                    _isError.value = Event(true)
+                }
+                is ApiResultException -> {
+                    _isError.value = Event(true)
+                }
             }
         }
     }
@@ -46,18 +59,21 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
         viewModelScope.launch {
             _isLoading.value = Event(true)
             val result = repository.addMember(postId, _post.value?.currentMemberCount ?: "")
-            result.body()?.let {
-                _isLoading.value = Event(false)
-                _isRegisterCompleted.value = Event(true)
-            }
-        }
-    }
-
-    companion object {
-
-        fun provideFactory(repository: PostRepository) = viewModelFactory {
-            initializer {
-                PostDetailViewModel(repository)
+            _isLoading.value = Event(false)
+            when (result) {
+                is ApiResultSuccess -> {
+                    _isRegisterCompleted.value = Event(true)
+                }
+                is ApiResultError -> {
+                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
+                    _isRegisterCompleted.value = Event(false)
+                    _isError.value = Event(true)
+                }
+                is ApiResultException -> {
+                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
+                    _isRegisterCompleted.value = Event(false)
+                    _isError.value = Event(true)
+                }
             }
         }
     }

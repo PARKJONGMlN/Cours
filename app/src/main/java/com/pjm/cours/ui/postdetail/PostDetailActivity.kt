@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.ActivityPostDetailBinding
 import com.pjm.cours.ui.chat.ChatActivity
@@ -40,16 +41,19 @@ class PostDetailActivity : AppCompatActivity() {
         viewModel.getPost(postId)
     }
 
-    private fun setDialog(){
+    private fun setDialog() {
         dialogLoading = ProgressDialogFragment()
-        dialogCheckRegister = CheckRegisterDialogFragment{
+        dialogCheckRegister = CheckRegisterDialogFragment {
             viewModel.joinMeeting(postId)
         }
     }
 
     private fun setLayout() {
         binding.btnSettingComplete.setOnClickListener {
-            dialogCheckRegister.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_CHECK_REGISTER_TAG)
+            dialogCheckRegister.show(
+                supportFragmentManager,
+                Constants.DIALOG_FRAGMENT_CHECK_REGISTER_TAG
+            )
         }
         binding.appBarPostDeatil.setNavigationOnClickListener {
             finish()
@@ -88,6 +92,8 @@ class PostDetailActivity : AppCompatActivity() {
                 intent.putExtra(Constants.POST_ID, postId)
                 startActivity(intent)
                 finish()
+            } else {
+                dialogCheckRegister.dismiss()
             }
         })
 
@@ -96,6 +102,18 @@ class PostDetailActivity : AppCompatActivity() {
                 dialogLoading.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
             } else {
                 dialogLoading.dismiss()
+            }
+        })
+
+        viewModel.isError.observe(this, EventObserver { isError ->
+            if (isError) {
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_message),
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAnchorView(binding.btnSettingComplete)
+                    .show()
             }
         })
     }

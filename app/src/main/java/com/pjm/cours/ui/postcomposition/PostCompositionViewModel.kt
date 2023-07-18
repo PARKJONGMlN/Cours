@@ -1,11 +1,14 @@
 package com.pjm.cours.ui.postcomposition
 
+import android.util.Log
 import androidx.lifecycle.*
+import com.pjm.cours.data.remote.ApiResultError
+import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -13,7 +16,7 @@ class PostCompositionViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
     private val _isCompleted = MutableLiveData(false)
     val isCompleted: LiveData<Boolean> = _isCompleted
@@ -95,29 +98,31 @@ class PostCompositionViewModel @Inject constructor(
     fun createPost() {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val result = repository.createPost(
-                    title = title.value ?: "",
-                    body = body.value ?: "",
-                    limitMemberCount = numberOfMember.value ?: "",
-                    location = _location.value?.peekContent() ?: "",
-                    latitude = _locationLatitude.value?.peekContent() ?: "",
-                    longitude = _locationLongitude.value?.peekContent() ?: "",
-                    meetingDate = _meetingDate.value?.peekContent() ?: "",
-                    category = _category.value?.peekContent() ?: "",
-                    language = _language.value?.peekContent() ?: ""
-                )
-                if (result.isSuccessful && result.body() != null) {
-                    postId.value = result.body()?.get("name")
-                    _isLoading.value = false
+            val result = repository.createPost(
+                title = title.value ?: "",
+                body = body.value ?: "",
+                limitMemberCount = numberOfMember.value ?: "",
+                location = _location.value?.peekContent() ?: "",
+                latitude = _locationLatitude.value?.peekContent() ?: "",
+                longitude = _locationLongitude.value?.peekContent() ?: "",
+                meetingDate = _meetingDate.value?.peekContent() ?: "",
+                category = _category.value?.peekContent() ?: "",
+                language = _language.value?.peekContent() ?: ""
+            )
+            _isLoading.value = false
+            when (result) {
+                is ApiResultSuccess -> {
+                    postId.value = result.data["name"]
                     _isCompleted.value = true
-                } else {
-
                 }
-            } catch (e: HttpException) {
-
-            } catch (e: Throwable) {
-
+                is ApiResultError -> {
+                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
+                    _isError.value = true
+                }
+                is ApiResultException -> {
+                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
+                    _isError.value = true
+                }
             }
         }
     }

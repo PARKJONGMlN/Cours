@@ -7,11 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.model.User
+import com.pjm.cours.data.remote.ApiResultError
+import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.UserRepository
 import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -80,27 +82,26 @@ class SettingUserInfoViewModel @Inject constructor(
     fun createUser(nickname: String, intro: String) {
         viewModelScope.launch {
             _isLoading.value = Event(true)
-            try {
-                val response = repository.createUser(
-                    User(
-                        _uiState.value?.peekContent()?.selectedImageUri ?: "",
-                        nickname,
-                        intro,
-                        email
-                    )
+            val result = repository.createUser(
+                User(
+                    _uiState.value?.peekContent()?.selectedImageUri ?: "",
+                    nickname,
+                    intro,
+                    email
                 )
-                _isLoading.value = Event(false)
-                if (response.isSuccessful && response.body() != null) {
-                    val result = response.body()
-                    result?.get("name")?.let { repository.saveUserId(it) }
+            )
+            _isLoading.value = Event(false)
+            when (result) {
+                is ApiResultSuccess -> {
+                    repository.saveUserId(result.data["name"] ?: "")
                     _isSuccess.value = Event(true)
-                } else {
-
                 }
-            } catch (e: HttpException) {
-                e.printStackTrace()
-            } catch (e: Throwable) {
-                e.printStackTrace()
+                is ApiResultError -> {
+                    _isError.value = Event(true)
+                }
+                is ApiResultException -> {
+                    _isError.value = Event(true)
+                }
             }
         }
     }
