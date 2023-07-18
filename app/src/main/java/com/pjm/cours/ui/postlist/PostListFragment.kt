@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentPostListBinding
 import com.pjm.cours.ui.BaseFragment
+import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
@@ -49,11 +50,13 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
             if (uiState.isSuccess) {
                 adapter.submitList(uiState.postList)
             }
-
             if (uiState.isLoading) {
                 binding.progressLoading.visibility = View.VISIBLE
             } else {
                 binding.progressLoading.visibility = View.INVISIBLE
+            }
+            if (uiState.isError) {
+                (parentFragment as MainFragment).showSnackBar("인터넷 연결 상태를 확인 해 주세요")
             }
         })
     }

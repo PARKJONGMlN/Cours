@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.pjm.cours.R
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.databinding.ActivityChatBinding
 import com.pjm.cours.util.Constants
@@ -70,8 +71,8 @@ class ChatActivity : AppCompatActivity() {
             adapter.submitList(messageList)
         }
         viewModel.isError.observe(this, EventObserver { isError ->
-            if (!isError) {
-                Toast.makeText(this, "네트워크 상태를 확인해 주세요", Toast.LENGTH_SHORT).show()
+            if (isError) {
+                Toast.makeText(this, getString(R.string.error_message), Toast.LENGTH_SHORT).show()
             }
         })
     }

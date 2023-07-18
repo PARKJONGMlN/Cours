@@ -1,10 +1,14 @@
 package com.pjm.cours.ui.map
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pjm.cours.data.model.PostPreview
+import com.pjm.cours.data.remote.ApiResultError
+import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.DistanceManager
 import com.pjm.cours.util.Event
@@ -17,6 +21,9 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
+
+    private val _isError = MutableLiveData<Event<Boolean>>()
+    val isError: LiveData<Event<Boolean>> = _isError
 
     private val _isLoading = MutableLiveData<Event<Boolean>>()
     val isLoading: LiveData<Event<Boolean>> = _isLoading
@@ -97,23 +104,31 @@ class MapViewModel @Inject constructor(
     fun getPosts() {
         viewModelScope.launch {
             val result = repository.getPostList()
-            val postList = result.body()
-            if (result.isSuccessful && postList != null) {
-                result.body()
-                _postPreviewList.value = postList.map {
-                    PostPreview(
-                        postId = it.key,
-                        title = it.value.title,
-                        currentMemberCount = it.value.currentMemberCount,
-                        location = it.value.location,
-                        latitude = it.value.latitude,
-                        longitude = it.value.longitude,
-                        category = it.value.category,
-                        language = it.value.language
-                    )
+            when (result) {
+                is ApiResultSuccess -> {
+                    val postList = result.data
+                    _postPreviewList.value = postList.map {
+                        PostPreview(
+                            postId = it.key,
+                            title = it.value.title,
+                            currentMemberCount = it.value.currentMemberCount,
+                            location = it.value.location,
+                            latitude = it.value.latitude,
+                            longitude = it.value.longitude,
+                            category = it.value.category,
+                            language = it.value.language
+                        )
+                    }
                 }
-                _isCompleted.value = Event(true)
+                is ApiResultError -> {
+                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
+                }
+                is ApiResultException -> {
+                    _isError.value = Event(true)
+                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
+                }
             }
+            _isCompleted.value = Event(true)
         }
     }
 }

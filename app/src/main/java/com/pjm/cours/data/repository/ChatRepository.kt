@@ -13,13 +13,10 @@ import com.pjm.cours.data.local.entities.MessageEntity
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.data.model.Post
-import com.pjm.cours.data.remote.ApiClient
-import com.pjm.cours.data.remote.ChatDataSource
-import com.pjm.cours.data.remote.ImageUriDataSource
+import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
-import retrofit2.Response
 import javax.inject.Inject
 
 class ChatRepository @Inject constructor(
@@ -32,9 +29,13 @@ class ChatRepository @Inject constructor(
 ) {
     private val userId = preferenceManager.getString(Constants.USER_ID, "")
 
-    suspend fun sendMessage(postId: String, message: Message): Response<Map<String, String>> {
-        val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
-        return apiClient.sendMessage(postId = postId, idToken, message = message)
+    suspend fun sendMessage(postId: String, message: Message): ApiResponse<Map<String, String>> {
+        return try {
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            apiClient.sendMessage(postId = postId, idToken, message = message)
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
     }
 
     fun getChatPreview(): LiveData<List<ChatPreviewEntity>> {

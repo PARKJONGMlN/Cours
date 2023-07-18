@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
@@ -94,6 +95,19 @@ class PostCompositionActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
+        viewModel.isError.observe(this) { isError ->
+            if (isError) {
+                binding.groupLoading.visibility = View.GONE
+                enableScreenTouch()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_message),
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAnchorView(binding.btnPostComplete)
+                    .show()
+            }
+        }
         viewModel.isLoading.observe(this) { isLoading ->
             if (isLoading) {
                 binding.groupLoading.visibility = View.VISIBLE
@@ -144,5 +158,9 @@ class PostCompositionActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
+    }
+
+    private fun enableScreenTouch() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }

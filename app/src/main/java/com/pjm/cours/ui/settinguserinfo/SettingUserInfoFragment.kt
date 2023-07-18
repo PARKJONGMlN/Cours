@@ -10,6 +10,7 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
 import com.pjm.cours.ui.BaseFragment
@@ -81,6 +82,15 @@ class SettingUserInfoFragment :
                     }
             }
         })
+        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
+            if (isError) {
+                dialogLoading.dismiss()
+                Snackbar.make(binding.root, getString(R.string.error_message), Snackbar.LENGTH_SHORT)
+                    .setAnchorView(binding.btnSettingComplete)
+                    .show()
+            }
+        })
+
     }
 
 }

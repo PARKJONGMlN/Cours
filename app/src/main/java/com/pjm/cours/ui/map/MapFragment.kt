@@ -17,6 +17,7 @@ import com.pjm.cours.R
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.FragmentMapBinding
 import com.pjm.cours.ui.BaseFragment
+import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
@@ -56,7 +57,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onStart() {
         super.onStart()
-        viewModel.getPosts()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,7 +82,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 else -> false
             }
         }
-        setViewPagerForm()
         binding.ivMyLocationMap.setOnClickListener {
             launchPermission()
             viewModel.currentMapPoint.value?.peekContent()?.let {
@@ -94,9 +93,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onResume() {
         super.onResume()
+        viewModel.getPosts()
         initMapView()
         setLayout()
         setObserver()
+        setViewPagerForm()
         if (viewModel.isSettingOpened.value?.peekContent() == true) {
             viewModel.openSetting(false)
             if (checkLocationPermission()) {
@@ -105,13 +106,29 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.removeAllViews()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+    }
+
     private fun setObserver() {
-        viewModel.isLoading.observe(this, EventObserver { isLoading ->
+        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
+            if (isError) {
+                (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+                showMap()
+            }
+        })
+        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
             if (isLoading) {
                 showMap()
             }
         })
-        viewModel.isCompleted.observe(this, EventObserver { isCompleted ->
+        viewModel.isCompleted.observe(viewLifecycleOwner, EventObserver { isCompleted ->
             if (isCompleted) {
                 viewModel.postPreviewList.value?.let { postPreviewList ->
                     setMarker(postPreviewList)
@@ -119,7 +136,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 }
             }
         })
-        viewModel.isGrantedPermission.observe(this, EventObserver { isGrantedPermission ->
+        viewModel.isGrantedPermission.observe(viewLifecycleOwner, EventObserver { isGrantedPermission ->
             if (isGrantedPermission) {
                 viewModel.startTracking()
             } else {
@@ -136,14 +153,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 }
             }
         })
-        viewModel.isSettingOpened.observe(this, EventObserver { isSettingOpened ->
+        viewModel.isSettingOpened.observe(viewLifecycleOwner, EventObserver { isSettingOpened ->
             if (isSettingOpened) {
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", requireContext().packageName, null)
                 }.run(::startActivity)
             }
         })
-        viewModel.isTrackingMode.observe(this, EventObserver { isTrackingMode ->
+        viewModel.isTrackingMode.observe(viewLifecycleOwner, EventObserver { isTrackingMode ->
             if (isTrackingMode) {
                 mapView.currentLocationTrackingMode =
                     MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
@@ -152,7 +169,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     MapView.CurrentLocationTrackingMode.TrackingModeOff
             }
         })
-        viewModel.currentMapPoint.observe(this) {
+        viewModel.currentMapPoint.observe(viewLifecycleOwner) {
             mapView.setMapCenterPoint(it.peekContent(), true)
             viewModel.endTracking()
             showMap()
