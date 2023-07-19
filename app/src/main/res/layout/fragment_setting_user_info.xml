@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.pjm.cours.ui.settinguserinfo.SettingUserInfoViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,10 +27,12 @@
 
         <ImageView
             android:id="@+id/iv_user_profile_image"
+            imageUri="@{viewModel.selectedImageUri.peekContent()}"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginTop="16dp"
             android:contentDescription="@string/description_profile_image_select_icon"
+            android:onClick="@{()-> viewModel.onImageSelectClick()}"
             android:padding="8dp"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +71,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:maxLength="10"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:text="@={viewModel.nickName}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -83,7 +93,8 @@
                 android:id="@+id/et_user_intro"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="top" />
+                android:gravity="top"
+                android:text="@={viewModel.intro}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -93,8 +104,9 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
             android:backgroundTint="@drawable/button_background"
-            android:enabled="false"
+            android:enabled="@{viewModel.isButtonEnable}"
             android:gravity="center"
+            android:onClick="@{()->viewModel.addUser()}"
             android:text="@string/btn_complete"
             android:textColor="@color/white"
             android:textStyle="bold"

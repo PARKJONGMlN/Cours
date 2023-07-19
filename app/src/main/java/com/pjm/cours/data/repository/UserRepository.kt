@@ -29,7 +29,7 @@ class UserRepository @Inject constructor(
         preferenceManager.setUserId(Constants.USER_ID, userId)
     }
 
-    suspend fun createUser(user: User): ApiResponse<Map<String, String>> {
+    suspend fun addUser(user: User): ApiResponse<Map<String, String>> {
         return try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val uri = uploadImage(user.profileUri.toUri())

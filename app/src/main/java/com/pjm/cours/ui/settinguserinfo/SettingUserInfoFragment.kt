@@ -4,12 +4,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
-import coil.load
-import coil.transform.CircleCropTransformation
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
@@ -25,51 +22,37 @@ class SettingUserInfoFragment :
     BaseFragment<FragmentSettingUserInfoBinding>(R.layout.fragment_setting_user_info) {
 
     private val viewModel: SettingUserInfoViewModel by viewModels()
+    private val getContent = getActivityResultLauncher()
+    private val dialogLoading = ProgressDialogFragment()
 
-    private val getContent =
+    private fun getActivityResultLauncher() =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                binding.ivUserProfileImage.load(it) {
-                    transformations(CircleCropTransformation())
-                }
-                viewModel.setSelectedImageUri(it)
+            uri?.let { imageUri ->
+                viewModel.setSelectedImageUri(imageUri)
             }
         }
-
-    private val dialogLoading = ProgressDialogFragment()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLayout()
-        setObserver()
     }
 
     private fun setLayout() {
-        binding.ivUserProfileImage.setOnClickListener {
-            getContent.launch("image/*")
-        }
-        binding.etUserNickname.doOnTextChanged { _, _, _, _ ->
-            viewModel.checkNicknameEntered(binding.etUserNickname.text.toString().isNotBlank())
-        }
-        binding.btnSettingComplete.setOnClickListener {
-            viewModel.createUser(
-                binding.etUserNickname.text.toString(),
-                binding.etUserNickname.text.toString()
-            )
-        }
+        binding.viewModel = viewModel
+        setImageSelectEvent()
+        setAddUserComplete()
+        setProgressDialog()
+        setErrorMessage()
+
     }
 
-    private fun setObserver() {
-        viewModel.uiState.observe(viewLifecycleOwner, EventObserver { uiState ->
-            binding.btnSettingComplete.isEnabled = uiState.isFormValid
+    private fun setImageSelectEvent() {
+        viewModel.selectedImageEvent.observe(viewLifecycleOwner, EventObserver {
+            getContent.launch("image/*")
         })
-        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
-            if (isLoading) {
-                dialogLoading.show(parentFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
-            } else {
-                dialogLoading.dismiss()
-            }
-        })
+    }
+
+    private fun setAddUserComplete() {
         viewModel.isSuccess.observe(viewLifecycleOwner, EventObserver { isSuccess ->
             if (isSuccess) {
                 arguments?.getString(Constants.KEY_GOOGLE_ID_TOKEN)
@@ -82,15 +65,31 @@ class SettingUserInfoFragment :
                     }
             }
         })
+    }
+
+    private fun setErrorMessage() {
         viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
             if (isError) {
                 dialogLoading.dismiss()
-                Snackbar.make(binding.root, getString(R.string.error_message), Snackbar.LENGTH_SHORT)
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_message),
+                    Snackbar.LENGTH_SHORT
+                )
                     .setAnchorView(binding.btnSettingComplete)
                     .show()
             }
         })
+    }
 
+    private fun setProgressDialog() {
+        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
+            if (isLoading) {
+                dialogLoading.show(parentFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
+            } else {
+                dialogLoading.dismiss()
+            }
+        })
     }
 
 }
