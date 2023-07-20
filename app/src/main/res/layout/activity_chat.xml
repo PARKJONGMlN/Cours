@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.pjm.cours.ui.chat.ChatViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,16 +43,18 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:inputType="textPersonName"
+            android:text="@={viewModel.messageText}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_send_message"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:contentDescription="@string/description_send_icon"
             android:id="@+id/btn_send_message"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_send_icon"
+            android:onClick="@{()-> viewModel.sendMessage()}"
             app:layout_constraintBottom_toBottomOf="@+id/et_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_message"

@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="otherChat"
+            type="com.pjm.cours.data.model.OtherChat" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -18,10 +25,10 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:contentDescription="@string/description_other_profile_image"
                 android:id="@+id/iv_user_profile_image_other_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/description_other_profile_image"
                 app:srcCompat="@drawable/baseline_circle_24" />
         </androidx.cardview.widget.CardView>
 
@@ -30,9 +37,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            tools:text="사용자 닉네임"
+            android:text="@{otherChat.sender}"
             app:layout_constraintStart_toEndOf="@+id/cv_user_profile_image_other_chat"
-            app:layout_constraintTop_toTopOf="@+id/cv_user_profile_image_other_chat" />
+            app:layout_constraintTop_toTopOf="@+id/cv_user_profile_image_other_chat"
+            tools:text="사용자 닉네임" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_user_message_other_chat"
@@ -53,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:maxWidth="250dp"
                 android:padding="8dp"
+                android:text="@{otherChat.text}"
                 tools:text="@string/place_holder_text_title" />
         </androidx.cardview.widget.CardView>
 
@@ -61,10 +70,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            tools:text="보낸 시간"
+            android:text="@{otherChat.sendDate}"
             android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="@+id/cv_user_message_other_chat"
-            app:layout_constraintStart_toEndOf="@+id/cv_user_message_other_chat" />
+            app:layout_constraintStart_toEndOf="@+id/cv_user_message_other_chat"
+            tools:text="보낸 시간" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

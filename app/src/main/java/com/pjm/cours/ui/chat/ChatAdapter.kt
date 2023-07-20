@@ -48,8 +48,8 @@ class ChatAdapter : ListAdapter<ChatItem, RecyclerView.ViewHolder>(ChatDiffCallb
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: OtherChat) {
-            binding.tvUserNicknameOtherChat.text = item.sender
-            binding.tvMessageOtherChat.text = item.text
+            binding.otherChat = item
+            binding.executePendingBindings()
         }
 
         companion object {
@@ -66,7 +66,8 @@ class ChatAdapter : ListAdapter<ChatItem, RecyclerView.ViewHolder>(ChatDiffCallb
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: MyChat) {
-            binding.tvMessageMyChat.text = item.text
+            binding.myChat = item
+            binding.executePendingBindings()
         }
 
         companion object {
