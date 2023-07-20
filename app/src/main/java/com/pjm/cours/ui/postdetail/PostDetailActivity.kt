@@ -2,7 +2,6 @@ package com.pjm.cours.ui.postdetail
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
@@ -30,6 +29,10 @@ class PostDetailActivity : AppCompatActivity() {
         setContentView(binding.root)
         postId = intent.getStringExtra(Constants.POST_ID) ?: ""
         distance = intent.getStringExtra(Constants.POST_DISTANCE) ?: ""
+
+        binding.distance = distance
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         initUiState()
         setDialog()
@@ -61,30 +64,6 @@ class PostDetailActivity : AppCompatActivity() {
     }
 
     private fun setObserver() {
-        viewModel.isGetPostCompleted.observe(this, EventObserver { isGetPostCompleted ->
-            if (isGetPostCompleted) {
-                binding.tvTitlePostDetail.text = viewModel.post.value?.title
-                binding.tvCategoryPostDetail.text = viewModel.post.value?.category
-                binding.tvLanguagePostDetail.text = viewModel.post.value?.language
-                binding.tvDistancePostDetail.text =
-                    getString(R.string.format_post_distance_m, distance)
-                binding.tvBodyPostDetail.text = viewModel.post.value?.body
-                val limitMemberCount = viewModel.post.value?.limitMemberCount ?: ""
-                val currentMemberCount = viewModel.post.value?.currentMemberCount ?: ""
-                binding.tvCurrentPeoplePostDetail.text = getString(
-                    R.string.format_post_member_count,
-                    currentMemberCount,
-                    limitMemberCount
-                )
-                binding.tvMeetingDatePostDetail.text = viewModel.post.value?.meetingDate
-                binding.nestedScrollViewPostDetail.visibility = View.VISIBLE
-
-                if (currentMemberCount.toInt() < limitMemberCount.toInt()) {
-                    binding.btnSettingComplete.isEnabled = true
-                }
-            }
-        })
-
         viewModel.isRegisterCompleted.observe(this, EventObserver { isRegisterCompleted ->
             if (isRegisterCompleted) {
                 dialogCheckRegister.dismiss()
@@ -118,7 +97,4 @@ class PostDetailActivity : AppCompatActivity() {
         })
     }
 
-    companion object {
-        const val TAG = "PostDetailActivity"
-    }
 }
