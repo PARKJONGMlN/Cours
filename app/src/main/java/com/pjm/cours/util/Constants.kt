@@ -21,4 +21,7 @@ object Constants {
     const val POST_ID = "post_id"
     const val POST_DISTANCE = "post_distance"
 
+    // mapPoint
+    const val LATITUDE = "latitude"
+    const val LONGITUDE = "longitude"
 }

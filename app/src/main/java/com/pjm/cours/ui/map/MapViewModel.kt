@@ -1,6 +1,5 @@
 package com.pjm.cours.ui.map
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -46,9 +45,6 @@ class MapViewModel @Inject constructor(
     private val _postPreviewList = MutableLiveData<List<PostPreview>>()
     val postPreviewList: LiveData<List<PostPreview>> = _postPreviewList
 
-    fun setUiState(){
-        _isCompleted.value = Event(true)
-    }
 
     fun setPermission(boolean: Boolean) {
         _isGrantedPermission.value = Event(boolean)
@@ -68,37 +64,9 @@ class MapViewModel @Inject constructor(
 
     fun setCurrentMapPoint(currentMapPoint: MapPoint) {
         _currentMapPoint.value = Event(currentMapPoint)
-        calculateDistance()
+        repository.setUserCurrentPoint(currentMapPoint)
+        getPosts()
         _isLoading.value = Event(false)
-    }
-
-    private fun calculateDistance() {
-        val currentUserLatitude = _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.latitude
-        val currentUserLongitude =
-            _currentMapPoint.value?.peekContent()?.mapPointGeoCoord?.longitude
-        if (currentUserLatitude != null && currentUserLongitude != null) {
-            _postPreviewList.value = postPreviewList.value?.map {
-                PostPreview(
-                    postId = it.postId,
-                    title = it.title,
-                    currentMemberCount = it.currentMemberCount,
-                    location = it.location,
-                    latitude = it.latitude,
-                    longitude = it.longitude,
-                    category = it.category,
-                    language = it.language,
-                    distance = DistanceManager.getDistance(
-                        currentUserLatitude.toDouble(),
-                        currentUserLongitude.toDouble(),
-                        it.latitude.toDouble(),
-                        it.longitude.toDouble()
-                    ).toString()
-                )
-            }?.sortedBy {
-                it.distance.toInt()
-            }
-            _isCompleted.value = Event(true)
-        }
     }
 
     fun getPosts() {
@@ -107,25 +75,54 @@ class MapViewModel @Inject constructor(
             when (result) {
                 is ApiResultSuccess -> {
                     val postList = result.data
-                    _postPreviewList.value = postList.map {
-                        PostPreview(
-                            postId = it.key,
-                            title = it.value.title,
-                            currentMemberCount = it.value.currentMemberCount,
-                            location = it.value.location,
-                            latitude = it.value.latitude,
-                            longitude = it.value.longitude,
-                            category = it.value.category,
-                            language = it.value.language
-                        )
+                    val currentMapPoint = repository.getUserCurrentPoint()
+                    if (currentMapPoint == null) {
+                        _postPreviewList.value = postList.map {
+                            PostPreview(
+                                postId = it.key,
+                                title = it.value.title,
+                                currentMemberCount = it.value.currentMemberCount,
+                                limitMemberCount = it.value.limitMemberCount,
+                                location = it.value.location,
+                                latitude = it.value.latitude,
+                                longitude = it.value.longitude,
+                                category = it.value.category,
+                                language = it.value.language,
+                                hostImageUri = repository.getDownLoadImageUri(it.value.hostUser.profileUri)
+                            )
+                        }
+
+                    } else {
+                        _postPreviewList.value = postList.map {
+                            PostPreview(
+                                postId = it.key,
+                                title = it.value.title,
+                                currentMemberCount = it.value.currentMemberCount,
+                                limitMemberCount = it.value.limitMemberCount,
+                                location = it.value.location,
+                                latitude = it.value.latitude,
+                                longitude = it.value.longitude,
+                                category = it.value.category,
+                                language = it.value.language,
+                                distance = DistanceManager.getDistance(
+                                    currentMapPoint.mapPointGeoCoord.latitude,
+                                    currentMapPoint.mapPointGeoCoord.longitude,
+                                    it.value.latitude.toDouble(),
+                                    it.value.longitude.toDouble()
+                                ).toString(),
+                                hostImageUri = repository.getDownLoadImageUri(it.value.hostUser.profileUri)
+                            )
+                        }?.sortedBy {
+                            it.distance.toInt()
+                        }
                     }
+
                 }
                 is ApiResultError -> {
-                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
+                    _isError.value = Event(true)
                 }
                 is ApiResultException -> {
                     _isError.value = Event(true)
-                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
                 }
             }
             _isCompleted.value = Event(true)

@@ -3,18 +3,19 @@ package com.pjm.cours.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.PreferenceManager
 import com.pjm.cours.data.model.Post
-import com.pjm.cours.data.remote.ApiClient
-import com.pjm.cours.data.remote.ApiResponse
-import com.pjm.cours.data.remote.ApiResultException
-import com.pjm.cours.data.remote.ApiResultSuccess
+import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
+import com.pjm.cours.util.Constants.LATITUDE
+import com.pjm.cours.util.Constants.LONGITUDE
 import com.pjm.cours.util.DateFormat
 import kotlinx.coroutines.tasks.await
+import net.daum.mf.map.api.MapPoint
 import javax.inject.Inject
 
 class PostRepository @Inject constructor(
     private val apiClient: ApiClient,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val imageUriRemoteDataSource: ImageUriDataSource,
 ) {
 
     suspend fun createPost(
@@ -112,7 +113,21 @@ class PostRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResultException(e)
         }
-
     }
+
+    fun setUserCurrentPoint(currentMapPoint: MapPoint) {
+        val mapPoint = currentMapPoint.mapPointGeoCoord
+        preferenceManager.setUserCurrentPoint(
+            LATITUDE,
+            mapPoint.latitude.toString(),
+            LONGITUDE,
+            mapPoint.longitude.toString()
+        )
+    }
+
+    suspend fun getDownLoadImageUri(hostImageUri: String) =
+        imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
+
+    fun getUserCurrentPoint(): MapPoint? = preferenceManager.getUserCurrentPoint()
 
 }

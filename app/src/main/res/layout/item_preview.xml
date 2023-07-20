@@ -3,6 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="postPreview"
+            type="com.pjm.cours.data.model.PostPreview" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,16 +29,17 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:contentDescription="@string/description_host_profile_image"
                     android:id="@+id/iv_host_profile_image"
+                    imageUriCircle="@{postPreview.hostImageUri}"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
+                    android:layout_marginVertical="16dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
+                    android:contentDescription="@string/description_host_profile_image"
                     android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/baseline_circle_24" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cv_category_preview"
@@ -48,6 +58,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
+                        android:text="@{postPreview.category}"
                         android:textStyle="bold"
                         app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
                         app:layout_constraintTop_toTopOf="parent"
@@ -71,6 +82,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
+                        android:text="@{postPreview.language}"
                         android:textStyle="bold"
                         app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
                         app:layout_constraintTop_toTopOf="parent"
@@ -84,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="8dp"
+                    android:text="@{postPreview.title}"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
@@ -91,12 +104,13 @@
                     tools:text="모임 제목" />
 
                 <ImageView
-                    android:contentDescription="@string/description_distance_icon"
                     android:id="@+id/iv_distance_icon_preview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
+                    android:contentDescription="@string/description_distance_icon"
+                    android:visibility="@{postPreview.distance.isEmpty() ? View.GONE : View.VISIBLE}"
                     app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
                     app:layout_constraintTop_toBottomOf="@+id/tv_title_preview"
                     app:srcCompat="@drawable/baseline_location_on_24" />
@@ -106,17 +120,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:text="@{postPreview.distance.isEmpty() ? postPreview.location : @string/format_post_distance_m(postPreview.distance)}"
+                    android:visibility="@{postPreview.distance.isEmpty() ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_preview"
                     app:layout_constraintStart_toEndOf="@+id/iv_distance_icon_preview"
                     tools:text="거리" />
 
                 <ImageView
-                    android:contentDescription="@string/description_current_people_icon"
                     android:id="@+id/iv_current_people_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
+                    android:contentDescription="@string/description_current_people_icon"
                     app:layout_constraintStart_toEndOf="@+id/tv_distance_preview"
                     app:layout_constraintTop_toBottomOf="@+id/tv_title_preview"
                     app:srcCompat="@drawable/baseline_group_24" />
@@ -126,6 +142,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:text="@{@string/format_post_member_count(postPreview.currentMemberCount,postPreview.limitMemberCount)}"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_current_people_icon"
                     app:layout_constraintStart_toEndOf="@+id/iv_current_people_icon"
                     tools:text="현재인원/전체인원" />
