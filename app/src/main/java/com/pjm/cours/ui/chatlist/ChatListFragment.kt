@@ -14,18 +14,19 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment_chat_list) {
 
-    private lateinit var adapter: ChatListAdapter
-
     private val viewModel: ChatListViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setAdapter()
-        setObserver()
+        setLayout()
     }
 
-    private fun setAdapter() {
-        adapter = ChatListAdapter { chatPreview ->
+    private fun setLayout() {
+        setChatList()
+    }
+
+    private fun setChatList() {
+        val adapter = ChatListAdapter { chatPreview ->
             Intent(requireContext(), ChatActivity::class.java).apply {
                 putExtra(Constants.POST_ID, chatPreview.postId)
                 startActivity(this)
@@ -33,11 +34,9 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
         }
         binding.recyclerViewChatPreview.adapter = adapter
         binding.recyclerViewChatPreview.itemAnimator = null
-    }
-
-    private fun setObserver() {
         viewModel.chatPreviewList.observe(viewLifecycleOwner) { chatPreviewList ->
             adapter.submitList(chatPreviewList)
         }
     }
+
 }

@@ -27,7 +27,7 @@
 
         <ImageView
             android:id="@+id/iv_user_profile_image"
-            imageUri="@{viewModel.selectedImageUri.peekContent()}"
+            imageUriCircle="@{viewModel.selectedImageUri.peekContent()}"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginTop="16dp"
