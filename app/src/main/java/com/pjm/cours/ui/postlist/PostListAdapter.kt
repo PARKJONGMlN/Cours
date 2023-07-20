@@ -5,38 +5,26 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pjm.cours.R
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.databinding.ItemPostBinding
 
 class PostListAdapter(
-    private val clickListener: (Post) -> (Unit)
+    private val clickListener: OnPostClickListener
 ) : ListAdapter<Post, PostListAdapter.PostHolder>(PostDiffUtil()) {
 
     class PostHolder(
         private val binding: ItemPostBinding,
-        private val clickListener: (Post) -> (Unit)
+        private val clickListener: OnPostClickListener
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Post) {
-            binding.tvCategoryPost.text = item.category
-            binding.tvLanguagePost.text = item.language
-            binding.tvMeetingDatePost.text = item.meetingDate
-            binding.tvTitlePost.text = item.title
-            val limitMemberCount = item.limitMemberCount
-            val currentMemberCount = item.currentMemberCount
-            binding.tvCurrentPeoplePost.text = itemView.resources.getString(
-                R.string.format_post_member_count,
-                currentMemberCount,
-                limitMemberCount
-            )
-            itemView.setOnClickListener {
-                clickListener(item)
-            }
+            binding.post = item
+            binding.clickListener = clickListener
+            binding.executePendingBindings()
         }
 
         companion object {
-            fun from(parent: ViewGroup, clickListener: (Post) -> (Unit)): PostHolder {
+            fun from(parent: ViewGroup, clickListener: OnPostClickListener): PostHolder {
                 val binding = ItemPostBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,

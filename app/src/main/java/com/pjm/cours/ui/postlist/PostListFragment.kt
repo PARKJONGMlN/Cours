@@ -19,15 +19,19 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
 
     private val viewModel: PostListViewModel by viewModels()
 
-    private lateinit var adapter: PostListAdapter
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLayout()
-        setObserver()
     }
 
     private fun setLayout() {
+        binding.viewModel = viewModel
+        setAppBar()
+        setPostList()
+        setErrorMessage()
+    }
+
+    private fun setAppBar() {
         binding.appBarPostList.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.create_post -> {
@@ -37,26 +41,26 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
                 else -> false
             }
         }
-        adapter = PostListAdapter { post ->
+    }
+
+    private fun setPostList() {
+        val adapter = PostListAdapter { post ->
             val intent = Intent(requireContext(), PostDetailActivity::class.java)
             intent.putExtra(Constants.POST_ID, post.key)
             startActivity(intent)
         }
         binding.recyclerViewPostList.adapter = adapter
+        viewModel.isSuccess.observe(viewLifecycleOwner, EventObserver { isSuccess ->
+            if (isSuccess) {
+                adapter.submitList(viewModel.postList.value?.peekContent())
+            }
+        })
     }
 
-    private fun setObserver() {
-        viewModel.uiState.observe(viewLifecycleOwner, EventObserver { uiState ->
-            if (uiState.isSuccess) {
-                adapter.submitList(uiState.postList)
-            }
-            if (uiState.isLoading) {
-                binding.progressLoading.visibility = View.VISIBLE
-            } else {
-                binding.progressLoading.visibility = View.INVISIBLE
-            }
-            if (uiState.isError) {
-                (parentFragment as MainFragment).showSnackBar("인터넷 연결 상태를 확인 해 주세요")
+    private fun setErrorMessage() {
+        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
+            if (isError) {
+                (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
             }
         })
     }
