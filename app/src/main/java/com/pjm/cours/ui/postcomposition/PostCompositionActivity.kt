@@ -24,39 +24,24 @@ class PostCompositionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPostCompositionBinding
     private val viewModel: PostCompositionViewModel by viewModels()
-    private val startForResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result: ActivityResult ->
-        if (result.resultCode == RESULT_OK) {
-            val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
-            val locationLatitude =
-                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LATITUDE) ?: ""
-            val locationLongitude =
-                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LONGITUDE) ?: ""
-            viewModel.setLocation(location)
-            viewModel.setLocationPoint(locationLatitude, locationLongitude)
-            viewModel.setLocationSelection(true)
-        } else {
-            viewModel.setLocation(getString(R.string.label_post_select_location_message))
-            viewModel.setLocationSelection(false)
-        }
-    }
+    private val startForResult = getResultLauncher()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostCompositionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
         setLayout()
-        setObserver()
     }
 
     private fun setLayout() {
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-        binding.appBarPostComposition.setNavigationOnClickListener {
-            finish()
-        }
+        setAppBar()
+        setSelectButton()
+        setObserver()
+    }
+
+    private fun setSelectButton() {
         binding.ivSelectDateIcon.setOnClickListener {
             val datePicker =
                 MaterialDatePicker.Builder.datePicker()
@@ -94,6 +79,12 @@ class PostCompositionActivity : AppCompatActivity() {
         }
     }
 
+    private fun setAppBar() {
+        binding.appBarPostComposition.setNavigationOnClickListener {
+            finish()
+        }
+    }
+
     private fun setObserver() {
         viewModel.isError.observe(this) { isError ->
             if (isError) {
@@ -124,17 +115,23 @@ class PostCompositionActivity : AppCompatActivity() {
                 finish()
             }
         }
-        viewModel.location.observe(this) {
-            binding.tvPostSelectedLocation.text = it.peekContent()
-        }
-        viewModel.meetingDate.observe(this) {
-            binding.tvPostSelectedDate.text = it.peekContent()
-        }
-        viewModel.category.observe(this) {
-            binding.tvPostSelectedCategory.text = it.peekContent()
-        }
-        viewModel.language.observe(this) {
-            binding.tvPostSelectedLanguage.text = it.peekContent()
+    }
+
+    private fun getResultLauncher() = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
+            val locationLatitude =
+                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LATITUDE) ?: ""
+            val locationLongitude =
+                result.data?.getStringExtra(Constants.SELECTED_LOCATION_LONGITUDE) ?: ""
+            viewModel.setLocation(location)
+            viewModel.setLocationPoint(locationLatitude, locationLongitude)
+            viewModel.setLocationSelection(true)
+        } else {
+            viewModel.setLocation(getString(R.string.label_post_select_location_message))
+            viewModel.setLocationSelection(false)
         }
     }
 

@@ -6,7 +6,6 @@ import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,71 +27,71 @@ class PostCompositionViewModel @Inject constructor(
     val body = MutableLiveData<String>()
     val numberOfMember = MutableLiveData<String>()
 
-    private val _location = MutableLiveData<Event<String>>()
-    val location: LiveData<Event<String>> = _location
+    private val _location = MutableLiveData<String>()
+    val location: LiveData<String> = _location
 
-    private val _locationLatitude = MutableLiveData<Event<String>>()
-    private val _locationLongitude = MutableLiveData<Event<String>>()
+    private val _locationLatitude = MutableLiveData<String>()
+    private val _locationLongitude = MutableLiveData<String>()
 
-    private val _meetingDate = MutableLiveData<Event<String>>()
-    val meetingDate: LiveData<Event<String>> = _meetingDate
+    private val _meetingDate = MutableLiveData<String>()
+    val meetingDate: LiveData<String> = _meetingDate
 
-    private val _category = MutableLiveData<Event<String>>()
-    val category: LiveData<Event<String>> = _category
+    private val _category = MutableLiveData<String>()
+    val category: LiveData<String> = _category
 
-    private val _language = MutableLiveData<Event<String>>()
-    val language: LiveData<Event<String>> = _language
+    private val _language = MutableLiveData<String>()
+    val language: LiveData<String> = _language
 
-    private val _isLocationSelected = MutableLiveData<Event<Boolean>>()
-    private val _isMeetingDateSelected = MutableLiveData<Event<Boolean>>()
-    private val _isCategorySelected = MutableLiveData<Event<Boolean>>()
-    private val _isLanguageSelected = MutableLiveData<Event<Boolean>>()
+    val isLocationSelected = MutableLiveData(false)
+    val isMeetingDateSelected = MutableLiveData(false)
+    val isCategorySelected = MutableLiveData(false)
+    val isLanguageSelected = MutableLiveData(false)
 
     val isInputComplete = MediatorLiveData<Boolean>().apply {
         addSource(title) { value = checkInputs() }
         addSource(body) { value = checkInputs() }
         addSource(numberOfMember) { value = checkInputs() }
-        addSource(_isLocationSelected) { value = checkInputs() }
-        addSource(_isMeetingDateSelected) { value = checkInputs() }
-        addSource(_isCategorySelected) { value = checkInputs() }
-        addSource(_isLanguageSelected) { value = checkInputs() }
+        addSource(isLocationSelected) { value = checkInputs() }
+        addSource(isMeetingDateSelected) { value = checkInputs() }
+        addSource(isCategorySelected) { value = checkInputs() }
+        addSource(isLanguageSelected) { value = checkInputs() }
     }
 
     fun setLocation(location: String) {
-        _location.value = Event(location)
+        _location.value = location
     }
 
     fun setLocationPoint(latitude: String, longitude: String) {
-        _locationLatitude.value = Event(latitude)
-        _locationLongitude.value = Event(longitude)
+        _locationLatitude.value = latitude
+        _locationLongitude.value = longitude
     }
 
     fun setMeetingDate(location: String) {
-        _meetingDate.value = Event(location)
+        _meetingDate.value = location
     }
 
     fun setCategory(location: String) {
-        _category.value = Event(location)
+        _category.value = location
     }
 
     fun setLanguage(location: String) {
-        _language.value = Event(location)
+        _language.value = location
     }
 
     fun setLocationSelection(boolean: Boolean) {
-        _isLocationSelected.value = Event(boolean)
+        isLocationSelected.value = boolean
     }
 
     fun setMeetingDateSelection(boolean: Boolean) {
-        _isMeetingDateSelected.value = Event(boolean)
+        isMeetingDateSelected.value = boolean
     }
 
     fun setCategorySelection(boolean: Boolean) {
-        _isCategorySelected.value = Event(boolean)
+        isCategorySelected.value = boolean
     }
 
     fun setLanguageSelection(boolean: Boolean) {
-        _isLanguageSelected.value = Event(boolean)
+        isLanguageSelected.value = boolean
     }
 
     fun createPost() {
@@ -102,12 +101,12 @@ class PostCompositionViewModel @Inject constructor(
                 title = title.value ?: "",
                 body = body.value ?: "",
                 limitMemberCount = numberOfMember.value ?: "",
-                location = _location.value?.peekContent() ?: "",
-                latitude = _locationLatitude.value?.peekContent() ?: "",
-                longitude = _locationLongitude.value?.peekContent() ?: "",
-                meetingDate = _meetingDate.value?.peekContent() ?: "",
-                category = _category.value?.peekContent() ?: "",
-                language = _language.value?.peekContent() ?: ""
+                location = _location.value ?: "",
+                latitude = _locationLatitude.value ?: "",
+                longitude = _locationLongitude.value ?: "",
+                meetingDate = _meetingDate.value ?: "",
+                category = _category.value ?: "",
+                language = _language.value ?: ""
             )
             _isLoading.value = false
             when (result) {
@@ -134,9 +133,9 @@ class PostCompositionViewModel @Inject constructor(
         return currentTitle.isNotBlank()
                 && currentBody.isNotBlank()
                 && currentNumberOfMember.isNotBlank()
-                && _isLocationSelected.value?.peekContent() ?: false
-                && _isMeetingDateSelected.value?.peekContent() ?: false
-                && _isCategorySelected.value?.peekContent() ?: false
-                && _isLanguageSelected.value?.peekContent() ?: false
+                && isLocationSelected.value ?: false
+                && isMeetingDateSelected.value ?: false
+                && isCategorySelected.value ?: false
+                && isLanguageSelected.value ?: false
     }
 }
