@@ -1,6 +1,5 @@
 package com.pjm.cours.data.repository
 
-import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -43,7 +42,7 @@ class ChatRepository @Inject constructor(
         return chatPreviewDao.getPreviewList()
     }
 
-    fun getMessages(postId: String): LiveData<List<MessageEntity>> {
+    fun getMessages(postId: String): Flow<List<MessageEntity>> {
         chatRemoteDataSource.getMessageUpdates(postId) { message, messageId ->
             val messageEntity = MessageEntity(
                 postId = postId,

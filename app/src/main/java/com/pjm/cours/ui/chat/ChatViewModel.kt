@@ -1,10 +1,8 @@
 package com.pjm.cours.ui.chat
 
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.pjm.cours.BuildConfig
 import com.pjm.cours.data.model.ChatItem
 import com.pjm.cours.data.model.Message
 import com.pjm.cours.data.model.MyChat
@@ -13,8 +11,8 @@ import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.ChatRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,29 +22,33 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val email = FirebaseAuth.getInstance().currentUser?.email
+    lateinit var messageList: StateFlow<List<ChatItem>>
+    val messageText = MutableStateFlow("")
 
-    private val _postId = MutableLiveData<Event<String>>()
-    val postId: LiveData<Event<String>> = _postId
+    private val _postId = MutableStateFlow("")
+    val postId = _postId.asStateFlow()
 
-    private val _newMessage = MutableLiveData<Event<Message>>()
-    val newMessage: LiveData<Event<Message>> = _newMessage
+    private val _isError = MutableStateFlow(false)
+    val isError = _isError.asStateFlow()
 
-    private val _isSendComplete = MutableLiveData<Event<Boolean>>()
-    val isSendComplete: LiveData<Event<Boolean>> = _isSendComplete
+    private val _cleatTextEvent = MutableSharedFlow<Unit>()
+    val cleatTextEvent = _cleatTextEvent.asSharedFlow()
 
-    private val _isError = MutableLiveData<Event<Boolean>>()
-    val isError: LiveData<Event<Boolean>> = _isError
-
-    private val database = FirebaseDatabase.getInstance(BuildConfig.BASE_URL)
-    private lateinit var chatRoomRef: DatabaseReference
-
-    lateinit var messageList: LiveData<List<ChatItem>>
-
-    val messageText = MutableLiveData<String>()
-    val cleatTextEvent = MutableLiveData<Boolean>()
+    fun setPostId(postId: String) {
+        _postId.value = postId
+        getMessages(postId)
+    }
 
     private fun getMessages(postId: String) {
-        messageList = chatRepository.getMessages(postId).map { messageEntityList ->
+        messageList = transFormChatList(postId).stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    }
+
+    private fun transFormChatList(postId: String) =
+        chatRepository.getMessages(postId).map { messageEntityList ->
             messageEntityList.map { messageEntity ->
                 if (messageEntity.sender == email) {
                     MyChat(
@@ -67,36 +69,25 @@ class ChatViewModel @Inject constructor(
                 }
             }.sortedBy { it.sendDate }
         }
-    }
-
-
-    fun setPostId(postId: String) {
-        _postId.value = Event(postId)
-        chatRoomRef = database.getReference("chat").child(postId).child("messages")
-        viewModelScope.launch {
-            getMessages(postId)
-        }
-    }
 
     fun sendMessage() {
         viewModelScope.launch {
             val message = Message(
-                messageText.value ?: "",
+                messageText.value,
                 email ?: "",
                 System.currentTimeMillis()
             )
-            cleatTextEvent.value = true
-
-            val result = chatRepository.sendMessage(postId.value?.peekContent() ?: "", message)
+            _cleatTextEvent.emit(Unit)
+            val result = chatRepository.sendMessage(postId.value, message)
             when (result) {
                 is ApiResultSuccess -> {
 
                 }
                 is ApiResultError -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
                 is ApiResultException -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
             }
         }
