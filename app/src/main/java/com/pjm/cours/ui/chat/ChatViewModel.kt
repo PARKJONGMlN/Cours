@@ -99,7 +99,6 @@ class ChatViewModel @Inject constructor(
                     _isError.value = Event(true)
                 }
             }
-
         }
     }
 

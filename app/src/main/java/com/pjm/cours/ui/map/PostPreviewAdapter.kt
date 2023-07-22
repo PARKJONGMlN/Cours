@@ -23,7 +23,6 @@ class PostPreviewAdapter(
             itemView.setOnClickListener {
                 clickListener.onClick(preview)
             }
-            binding.executePendingBindings()
         }
 
         companion object {

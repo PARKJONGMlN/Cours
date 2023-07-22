@@ -43,7 +43,6 @@ class SettingUserInfoFragment :
         setAddUserComplete()
         setProgressDialog()
         setErrorMessage()
-
     }
 
     private fun setImageSelectEvent() {

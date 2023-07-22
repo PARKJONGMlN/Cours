@@ -44,9 +44,7 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
         } else {
             MapPoint.mapPointWithGeoCoord(latitude.toDouble(), longitude.toDouble())
         }
-
     }
-
 
     fun removeGoogleIdToken(key: String) {
         sharedPreferences.edit().remove(key).apply()

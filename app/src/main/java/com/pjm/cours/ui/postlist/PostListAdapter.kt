@@ -20,7 +20,6 @@ class PostListAdapter(
         fun bind(item: Post) {
             binding.post = item
             binding.clickListener = clickListener
-            binding.executePendingBindings()
         }
 
         companion object {

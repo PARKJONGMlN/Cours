@@ -130,8 +130,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             }
         })
         viewModel.postPreviewList.observe(viewLifecycleOwner) { postPreviewList ->
-            setMarker(postPreviewList)
             adapter.submitList(postPreviewList)
+            setMarker(postPreviewList)
         }
         viewModel.isGrantedPermission.observe(
             viewLifecycleOwner,
@@ -207,7 +207,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             val offset = screenWidth - pageWidth - pageMargin
             offscreenPageLimit = 2
             setPageTransformer { page, position ->
-                page.translationX = position * - offset
+                page.translationX = position * -offset
             }
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
 
@@ -281,8 +281,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
         mapView.setMapCenterPoint(p1?.mapPoint, true)
-        binding.viewPagerMap.visibility = View.VISIBLE
         binding.viewPagerMap.currentItem = mapView.poiItems.indexOf(p1)
+        binding.viewPagerMap.visibility = View.VISIBLE
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
