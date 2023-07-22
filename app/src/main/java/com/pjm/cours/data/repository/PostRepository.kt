@@ -8,6 +8,10 @@ import com.pjm.cours.util.Constants
 import com.pjm.cours.util.Constants.LATITUDE
 import com.pjm.cours.util.Constants.LONGITUDE
 import com.pjm.cours.util.DateFormat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.tasks.await
 import net.daum.mf.map.api.MapPoint
 import javax.inject.Inject
@@ -105,6 +109,35 @@ class PostRepository @Inject constructor(
             ApiResultException(e)
         }
     }
+
+    fun getPostList(
+        onSuccess : ()-> Unit,
+        onError : ()-> Unit,
+    ) = flow {
+        try {
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            val result = apiClient.getPosts(idToken)
+            when (result) {
+                is ApiResultSuccess -> {
+                    emit(result.data.map {
+                        it.value.copy(
+                            key = it.key
+                        )
+                    }.sortedByDescending { it.meetingDate })
+                }
+                is ApiResultError -> {
+                    onError()
+                }
+                is ApiResultException -> {
+                    onError()
+                }
+            }
+        } catch (e: Exception) {
+            onError()
+        }
+    }.onCompletion {
+        onSuccess()
+    }.flowOn(Dispatchers.Default)
 
     suspend fun getPost(postId: String): ApiResponse<Post> {
         return try {

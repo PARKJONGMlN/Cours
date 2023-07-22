@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentPostListBinding
 import com.pjm.cours.ui.BaseFragment
@@ -11,8 +14,8 @@ import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
-import com.pjm.cours.util.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment_post_list) {
@@ -50,19 +53,29 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
             startActivity(intent)
         }
         binding.recyclerViewPostList.adapter = adapter
-        viewModel.isSuccess.observe(viewLifecycleOwner, EventObserver { isSuccess ->
-            if (isSuccess) {
-                adapter.submitList(viewModel.postList.value?.peekContent())
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.postList.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { postList ->
+                if (postList.isNotEmpty()) {
+                    adapter.submitList(postList)
+                }
             }
-        })
+        }
     }
 
     private fun setErrorMessage() {
-        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
-            if (isError) {
-                (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isError.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isError ->
+                if (isError) {
+                    (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+                }
             }
-        })
+        }
     }
 
 }
