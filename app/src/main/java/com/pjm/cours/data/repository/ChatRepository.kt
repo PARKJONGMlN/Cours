@@ -16,6 +16,7 @@ import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -38,7 +39,7 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun getChatPreview(): LiveData<List<ChatPreviewEntity>> {
+    fun getChatPreviewList(): Flow<List<ChatPreviewEntity>> {
         return chatPreviewDao.getPreviewList()
     }
 
@@ -58,7 +59,7 @@ class ChatRepository @Inject constructor(
         return messageDao.getMessageListByPostId(postId)
     }
 
-    suspend fun getChatPreviewList() = withContext(Dispatchers.IO) {
+    suspend fun upDateChatPreviewList() = withContext(Dispatchers.IO) {
         val snapShot = chatRemoteDataSource.getUserChatIdList(userId)
         snapShot.children.map { chatRoomSnapshot ->
             async {

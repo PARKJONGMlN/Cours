@@ -1,12 +1,14 @@
 package com.pjm.cours.ui.chatlist
 
-import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.data.repository.ChatRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,11 +17,14 @@ class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository
 ) : ViewModel() {
 
-    private val _isLoading = MutableLiveData(Event(true))
-    val isLoading: LiveData<Event<Boolean>> = _isLoading
+    val chatPreviewList: StateFlow<List<ChatPreview>> = transFormChatPreviewList().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    val chatPreviewList: LiveData<List<ChatPreview>> =
-        chatRepository.getChatPreview().map { chatPreviewEntityList ->
+    private fun transFormChatPreviewList() =
+        chatRepository.getChatPreviewList().map { chatPreviewEntityList ->
             chatPreviewEntityList.map { chatPreviewEntity ->
                 ChatPreview(
                     postId = chatPreviewEntity.postId,
@@ -34,17 +39,9 @@ class ChatListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            chatRepository.getChatPreviewList()
+            chatRepository.upDateChatPreviewList()
         }
     }
 
-    companion object {
-
-        fun provideFactory(chatRepository: ChatRepository) = viewModelFactory {
-            initializer {
-                ChatListViewModel(chatRepository)
-            }
-        }
-    }
 }
 
