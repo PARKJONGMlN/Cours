@@ -9,6 +9,9 @@ import com.pjm.cours.util.Constants.LATITUDE
 import com.pjm.cours.util.Constants.LONGITUDE
 import com.pjm.cours.util.DateFormat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
@@ -101,29 +104,28 @@ class PostRepository @Inject constructor(
 
     }
 
-    suspend fun getPostList(): ApiResponse<Map<String, Post>> {
-        return try {
-            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
-            apiClient.getPosts(idToken)
-        } catch (e: Exception) {
-            ApiResultException(e)
-        }
-    }
-
     fun getPostList(
-        onSuccess : ()-> Unit,
-        onError : ()-> Unit,
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
     ) = flow {
         try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val result = apiClient.getPosts(idToken)
             when (result) {
                 is ApiResultSuccess -> {
-                    emit(result.data.map {
-                        it.value.copy(
-                            key = it.key
-                        )
-                    }.sortedByDescending { it.meetingDate })
+                    val deferredPosts = coroutineScope {
+                        result.data.map { ResponseResult ->
+                            async {
+                                ResponseResult.value.copy(
+                                    key = ResponseResult.key,
+                                    hostUser = ResponseResult.value.hostUser.copy(
+                                        profileUri = getDownLoadImageUri(ResponseResult.value.hostUser.profileUri)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    emit(deferredPosts.awaitAll().sortedByDescending { it.meetingDate })
                 }
                 is ApiResultError -> {
                     onError()
@@ -158,7 +160,7 @@ class PostRepository @Inject constructor(
         )
     }
 
-    suspend fun getDownLoadImageUri(hostImageUri: String) =
+    private suspend fun getDownLoadImageUri(hostImageUri: String) =
         imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
     fun getUserCurrentPoint(): MapPoint? = preferenceManager.getUserCurrentPoint()

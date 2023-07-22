@@ -1,17 +1,15 @@
 package com.pjm.cours.ui.map
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pjm.cours.data.model.PostPreview
-import com.pjm.cours.data.remote.ApiResultError
-import com.pjm.cours.data.remote.ApiResultException
-import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import com.pjm.cours.util.DistanceManager
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPoint
 import javax.inject.Inject
@@ -21,111 +19,123 @@ class MapViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
-    private val _isError = MutableLiveData<Event<Boolean>>()
-    val isError: LiveData<Event<Boolean>> = _isError
+    private val _isGrantedPermission = MutableSharedFlow<Boolean>()
+    val isGrantedPermission = _isGrantedPermission.asSharedFlow()
 
-    private val _isLoading = MutableLiveData<Event<Boolean>>()
-    val isLoading: LiveData<Event<Boolean>> = _isLoading
+    private val _isError = MutableStateFlow(false)
+    val isError = _isError.asStateFlow()
 
-    private val _isSettingOpened = MutableLiveData(Event(false))
-    val isSettingOpened: LiveData<Event<Boolean>> = _isSettingOpened
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
 
-    private val _isTrackingMode = MutableLiveData(Event(false))
-    val isTrackingMode: LiveData<Event<Boolean>> = _isTrackingMode
+    private val _isSettingOpened = MutableStateFlow(false)
+    val isSettingOpened = _isSettingOpened.asStateFlow()
 
-    private val _currentMapPoint = MutableLiveData<Event<MapPoint>>()
-    val currentMapPoint: LiveData<Event<MapPoint>> = _currentMapPoint
+    private val _isTrackingMode = MutableStateFlow(false)
+    val isTrackingMode = _isTrackingMode.asSharedFlow()
 
-    private val _isGrantedPermission = MutableLiveData<Event<Boolean>>()
-    val isGrantedPermission: LiveData<Event<Boolean>> = _isGrantedPermission
+    private val _currentMapPoint = MutableStateFlow<MapPoint?>(null)
+    val currentMapPoint = _currentMapPoint.asStateFlow()
 
-    private val _isCompleted = MutableLiveData(Event(false))
-    val isCompleted: LiveData<Event<Boolean>> = _isCompleted
-
-    private val _postPreviewList = MutableLiveData<List<PostPreview>>()
-    val postPreviewList: LiveData<List<PostPreview>> = _postPreviewList
+    private val _postPreviewList = MutableStateFlow<List<PostPreview>>(emptyList())
+    val postPreviewList = _postPreviewList.asStateFlow()
 
 
     fun setPermission(boolean: Boolean) {
-        _isGrantedPermission.value = Event(boolean)
+        viewModelScope.launch {
+            _isGrantedPermission.emit(boolean)
+        }
     }
 
     fun openSetting(boolean: Boolean) {
-        _isSettingOpened.value = Event(boolean)
+        _isSettingOpened.value = boolean
     }
 
     fun startTracking() {
-        _isTrackingMode.value = Event(true)
+        viewModelScope.launch {
+            _isTrackingMode.emit(true)
+        }
     }
 
     fun endTracking() {
-        _isTrackingMode.value = Event(false)
+        viewModelScope.launch {
+            _isTrackingMode.emit(false)
+        }
     }
 
     fun setCurrentMapPoint(currentMapPoint: MapPoint) {
-        _currentMapPoint.value = Event(currentMapPoint)
+        _currentMapPoint.value = currentMapPoint
         repository.setUserCurrentPoint(currentMapPoint)
         getPosts()
-        _isLoading.value = Event(false)
     }
 
     fun getPosts() {
         viewModelScope.launch {
-            val result = repository.getPostList()
-            when (result) {
-                is ApiResultSuccess -> {
-                    val postList = result.data
-                    val currentMapPoint = repository.getUserCurrentPoint()
-                    if (currentMapPoint == null) {
-                        _postPreviewList.value = postList.map {
-                            PostPreview(
-                                postId = it.key,
-                                title = it.value.title,
-                                currentMemberCount = it.value.currentMemberCount,
-                                limitMemberCount = it.value.limitMemberCount,
-                                location = it.value.location,
-                                latitude = it.value.latitude,
-                                longitude = it.value.longitude,
-                                category = it.value.category,
-                                language = it.value.language,
-                                hostImageUri = repository.getDownLoadImageUri(it.value.hostUser.profileUri)
-                            )
-                        }
-
-                    } else {
-                        _postPreviewList.value = postList.map {
-                            PostPreview(
-                                postId = it.key,
-                                title = it.value.title,
-                                currentMemberCount = it.value.currentMemberCount,
-                                limitMemberCount = it.value.limitMemberCount,
-                                location = it.value.location,
-                                latitude = it.value.latitude,
-                                longitude = it.value.longitude,
-                                category = it.value.category,
-                                language = it.value.language,
-                                distance = DistanceManager.getDistance(
-                                    currentMapPoint.mapPointGeoCoord.latitude,
-                                    currentMapPoint.mapPointGeoCoord.longitude,
-                                    it.value.latitude.toDouble(),
-                                    it.value.longitude.toDouble()
-                                ).toString(),
-                                hostImageUri = repository.getDownLoadImageUri(it.value.hostUser.profileUri)
-                            )
-                        }?.sortedBy {
-                            it.distance.toInt()
-                        }
-                    }
-
-                }
-                is ApiResultError -> {
-                    _isError.value = Event(true)
-                }
-                is ApiResultException -> {
-                    _isError.value = Event(true)
-                }
+            val currentMapPoint = repository.getUserCurrentPoint()
+            if (currentMapPoint == null) {
+                setPostPreviewList()
+            } else {
+                setPostPreviewListHaveCurrentMap(currentMapPoint)
             }
-            _isCompleted.value = Event(true)
         }
     }
+
+    private suspend fun setPostPreviewListHaveCurrentMap(currentMapPoint: MapPoint) {
+        repository.getPostList(
+            onSuccess = {
+                _isLoading.value = false
+            }, onError = {
+                _isLoading.value = false
+                _isError.value = true
+            }).collect { postList ->
+            _postPreviewList.value = postList.map { post ->
+                PostPreview(
+                    postId = post.key,
+                    title = post.title,
+                    currentMemberCount = post.currentMemberCount,
+                    limitMemberCount = post.limitMemberCount,
+                    location = post.location,
+                    latitude = post.latitude,
+                    longitude = post.longitude,
+                    category = post.category,
+                    language = post.language,
+                    distance = DistanceManager.getDistance(
+                        currentMapPoint.mapPointGeoCoord.latitude,
+                        currentMapPoint.mapPointGeoCoord.longitude,
+                        post.latitude.toDouble(),
+                        post.longitude.toDouble()
+                    ).toString(),
+                    hostImageUri = post.hostUser.profileUri
+                )
+            }.sortedBy {
+                it.distance.toInt()
+            }
+        }
+    }
+
+    private suspend fun setPostPreviewList() {
+        repository.getPostList(
+            onSuccess = {
+                _isLoading.value = false
+            }, onError = {
+                _isLoading.value = false
+                _isError.value = true
+            }).collect { postList ->
+            _postPreviewList.value = postList.map { post ->
+                PostPreview(
+                    postId = post.key,
+                    title = post.title,
+                    currentMemberCount = post.currentMemberCount,
+                    limitMemberCount = post.limitMemberCount,
+                    location = post.location,
+                    latitude = post.latitude,
+                    longitude = post.longitude,
+                    category = post.category,
+                    language = post.language,
+                    hostImageUri = post.hostUser.profileUri
+                )
+            }
+        }
+    }
+
 }
