@@ -5,11 +5,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.pjm.cours.R
 import com.pjm.cours.ui.login.LoginFragment
 import com.pjm.cours.ui.main.MainFragment
-import com.pjm.cours.util.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LauncherFragment : Fragment() {
@@ -22,18 +25,23 @@ class LauncherFragment : Fragment() {
     }
 
     private fun setObserver() {
-        viewModel.localGoogleIdToken.observe(this, EventObserver { localGoogleIdToken ->
-            if (localGoogleIdToken.isEmpty()) {
-                parentFragmentManager.commit {
-                    setReorderingAllowed(true)
-                    replace<LoginFragment>(R.id.fragment_container_view)
-                }
-            } else {
-                parentFragmentManager.commit {
-                    setReorderingAllowed(true)
-                    replace<MainFragment>(R.id.fragment_container_view)
+        lifecycleScope.launch {
+            viewModel.localGoogleIdToken.flowWithLifecycle(
+                lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { localGoogleIdToken ->
+                if (localGoogleIdToken.isEmpty()) {
+                    parentFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        replace<LoginFragment>(R.id.fragment_container_view)
+                    }
+                } else {
+                    parentFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        replace<MainFragment>(R.id.fragment_container_view)
+                    }
                 }
             }
-        })
+        }
     }
 }
