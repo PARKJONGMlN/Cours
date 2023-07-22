@@ -6,9 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.R
-import com.pjm.cours.data.model.Message
 import com.pjm.cours.databinding.ActivityChatBinding
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.EventObserver
@@ -25,18 +23,21 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.viewModel = viewModel
         initUiState()
-        setAdapter()
         setLayout()
-        setObserver()
     }
 
     private fun initUiState() {
         viewModel.setPostId(intent.getStringExtra(Constants.POST_ID) ?: "")
     }
 
-    private fun setAdapter() {
+    private fun setLayout() {
+        setChatList()
+        setObserver()
+    }
+
+    private fun setChatList() {
         binding.recyclerViewChat.adapter = adapter
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
 
@@ -52,20 +53,6 @@ class ChatActivity : AppCompatActivity() {
         binding.recyclerViewChat.scrollToPosition(adapter.itemCount - 1)
     }
 
-    private fun setLayout() {
-        binding.btnSendMessage.setOnClickListener {
-            val timestamp = System.currentTimeMillis()
-            viewModel.sendMessage(
-                Message(
-                    binding.etMessage.text.toString(),
-                    FirebaseAuth.getInstance().currentUser?.email ?: "",
-                    timestamp
-                )
-            )
-            binding.etMessage.text.clear()
-        }
-    }
-
     private fun setObserver() {
         viewModel.messageList.observe(this) { messageList ->
             adapter.submitList(messageList)
@@ -75,6 +62,11 @@ class ChatActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.error_message), Toast.LENGTH_SHORT).show()
             }
         })
+        viewModel.cleatTextEvent.observe(this) { cleatTextEvent ->
+            if (cleatTextEvent) {
+                binding.etMessage.text.clear()
+            }
+        }
     }
 
 }

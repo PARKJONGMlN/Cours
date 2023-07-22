@@ -5,11 +5,19 @@
 
     <data>
 
+        <variable
+            name="post"
+            type="com.pjm.cours.data.model.Post" />
+
+        <variable
+            name="clickListener"
+            type="com.pjm.cours.ui.postlist.OnPostClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="110dp"
+        android:onClick="@{()->clickListener.onClick(post)}"
         android:padding="16dp">
 
         <androidx.cardview.widget.CardView
@@ -27,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:text="@{post.category}"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/iv_host_profile_image"
                 app:layout_constraintTop_toTopOf="parent"
@@ -49,6 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:text="@{post.language}"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="2dp"
@@ -60,10 +70,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            tools:text="모임 날짜"
+            android:text="@{post.meetingDate}"
             app:layout_constraintBottom_toBottomOf="@+id/cv_language_post"
             app:layout_constraintStart_toEndOf="@+id/cv_language_post"
-            app:layout_constraintTop_toTopOf="@+id/cv_language_post" />
+            app:layout_constraintTop_toTopOf="@+id/cv_language_post"
+            tools:text="모임 날짜" />
 
         <ImageView
             android:id="@+id/iv_current_people_icon_post"
@@ -78,6 +89,7 @@
             android:id="@+id/tv_current_people_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@{@string/format_post_member_count(post.currentMemberCount,post.limitMemberCount)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="현재인원/전체인원" />
@@ -88,12 +100,13 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            tools:text="모임 제목"
+            android:text="@{post.title}"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cv_category_post" />
+            app:layout_constraintTop_toBottomOf="@+id/cv_category_post"
+            tools:text="모임 제목" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

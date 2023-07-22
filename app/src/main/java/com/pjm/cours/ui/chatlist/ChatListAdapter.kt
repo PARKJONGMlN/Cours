@@ -5,8 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.RoundedCornersTransformation
 import com.pjm.cours.data.model.ChatPreview
 import com.pjm.cours.databinding.ItemChatPreviewBinding
 
@@ -28,16 +26,9 @@ class ChatListAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(preview: ChatPreview) {
-            binding.ivHostProfileImageChatPreview.load(preview.hostImageUri) {
-                transformations(RoundedCornersTransformation())
-            }
-            binding.tvLastChatPreview.text = preview.lastMessage
-            binding.tvTitleChatPreview.text = preview.postTitle
-            binding.tvUnreadChatPreview.text = preview.unReadMessageCount
-//            binding.tvLastChatDatePreview.text = DateFormat.convertTimestamp(preview.messageDate)
-            itemView.setOnClickListener {
-                clickListener.onClick(preview)
-            }
+            binding.chatPreview = preview
+            binding.clickListener = clickListener
+            binding.executePendingBindings()
         }
 
         companion object {

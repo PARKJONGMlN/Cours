@@ -1,6 +1,5 @@
 package com.pjm.cours.ui.chat
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -43,6 +42,9 @@ class ChatViewModel @Inject constructor(
 
     lateinit var messageList: LiveData<List<ChatItem>>
 
+    val messageText = MutableLiveData<String>()
+    val cleatTextEvent = MutableLiveData<Boolean>()
+
     private fun getMessages(postId: String) {
         messageList = chatRepository.getMessages(postId).map { messageEntityList ->
             messageEntityList.map { messageEntity ->
@@ -76,22 +78,28 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(message: Message) {
+    fun sendMessage() {
         viewModelScope.launch {
+            val message = Message(
+                messageText.value ?: "",
+                email ?: "",
+                System.currentTimeMillis()
+            )
+            cleatTextEvent.value = true
+
             val result = chatRepository.sendMessage(postId.value?.peekContent() ?: "", message)
             when (result) {
                 is ApiResultSuccess -> {
-                    Log.d("TAG", "ApiResultSuccess: ${result.data}")
+
                 }
                 is ApiResultError -> {
-                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
                     _isError.value = Event(true)
                 }
                 is ApiResultException -> {
-                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
                     _isError.value = Event(true)
                 }
             }
         }
     }
+
 }

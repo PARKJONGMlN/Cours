@@ -1,76 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_host_profile_image_chat_preview"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        app:cardCornerRadius="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <data>
 
-        <ImageView
-            android:id="@+id/iv_host_profile_image_chat_preview"
+        <variable
+            name="chatPreview"
+            type="com.pjm.cours.data.model.ChatPreview" />
+
+        <variable
+            name="clickListener"
+            type="com.pjm.cours.ui.chatlist.OnChatPreviewClickListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> clickListener.onClick(chatPreview)}"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_host_profile_image_chat_preview"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:contentDescription="@string/description_host_profile_image"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/baseline_circle_24" />
+            app:cardCornerRadius="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </androidx.cardview.widget.CardView>
+            <ImageView
+                android:id="@+id/iv_host_profile_image_chat_preview"
+                imageUriRounded="@{chatPreview.hostImageUri}"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:contentDescription="@string/description_host_profile_image"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/baseline_circle_24" />
 
-    <TextView
-        android:id="@+id/tv_title_chat_preview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:ellipsize="end"
-        android:singleLine="true"
-        app:layout_constraintEnd_toStartOf="@+id/tv_last_chat_date_preview"
-        app:layout_constraintStart_toEndOf="@+id/cv_host_profile_image_chat_preview"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="모임 제목" />
+        </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/tv_last_chat_preview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:ellipsize="end"
-        android:singleLine="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_unread_chat_preview"
-        app:layout_constraintStart_toEndOf="@+id/cv_host_profile_image_chat_preview"
-        tools:text="마지막 채팅" />
+        <TextView
+            android:id="@+id/tv_title_chat_preview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@{chatPreview.postTitle}"
+            app:layout_constraintEnd_toStartOf="@+id/tv_last_chat_date_preview"
+            app:layout_constraintStart_toEndOf="@+id/cv_host_profile_image_chat_preview"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="모임 제목" />
 
-    <TextView
-        android:id="@+id/tv_last_chat_date_preview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:maxLength="13"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="오후 00:12" />
+        <TextView
+            android:id="@+id/tv_last_chat_preview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@{chatPreview.lastMessage}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_unread_chat_preview"
+            app:layout_constraintStart_toEndOf="@+id/cv_host_profile_image_chat_preview"
+            tools:text="마지막 채팅" />
 
-    <TextView
-        android:id="@+id/tv_unread_chat_preview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:maxLength="4"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        <TextView
+            android:id="@+id/tv_last_chat_date_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxLength="13"
+            android:text="@{chatPreview.messageDate}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="오후 00:12" />
 
-        tools:text="000+" />
+        <TextView
+            android:id="@+id/tv_unread_chat_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:maxLength="4"
+            android:text="@{chatPreview.unReadMessageCount}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="000+" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

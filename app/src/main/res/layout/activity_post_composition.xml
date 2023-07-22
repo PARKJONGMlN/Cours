@@ -110,17 +110,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
-            android:text="@string/label_post_select_location_message"
+            android:text="@{viewModel.isLocationSelected ? viewModel.location : @string/label_post_select_location_message}"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
-            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
+            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member"
+            tools:text="@string/label_post_select_location_message" />
 
         <ImageView
-            android:contentDescription="@string/description_location_icon"
             android:id="@+id/iv_select_location_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_location_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member"
             app:srcCompat="@drawable/baseline_edit_location_24" />
@@ -140,16 +141,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="@string/label_post_select_date_message"
+            android:text="@{viewModel.isMeetingDateSelected ? viewModel.meetingDate : @string/label_post_select_date_message}"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_date_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date" />
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date"
+            tools:text="@string/label_post_select_date_message" />
 
         <ImageView
-            android:contentDescription="@string/description_meeting_date_icon"
             android:id="@+id/iv_select_date_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_meeting_date_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_post_selected_date"
             app:srcCompat="@drawable/baseline_edit_calendar_24" />
@@ -169,16 +171,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="@string/label_post_select_category_message"
+            android:text="@{viewModel.isCategorySelected ? viewModel.category : @string/label_post_select_category_message}"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_category_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_category" />
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_category"
+            tools:text="@string/label_post_select_category_message" />
 
         <ImageView
-            android:contentDescription="@string/description_category_icon"
             android:id="@+id/iv_select_category_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_category_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_post_selected_category"
             app:srcCompat="@drawable/baseline_app_registration_24" />
@@ -216,16 +219,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="@string/label_post_select_language_message"
+            android:text="@{viewModel.isLanguageSelected ? viewModel.language : @string/label_post_select_language_message}"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_language_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_language" />
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_language"
+            tools:text="@string/label_post_select_language_message" />
 
         <ImageView
-            android:contentDescription="@string/description_language_icon"
             android:id="@+id/iv_select_language_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_language_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_post_selected_language"
             app:srcCompat="@drawable/baseline_app_registration_24" />

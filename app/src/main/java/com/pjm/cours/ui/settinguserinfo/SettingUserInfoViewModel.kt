@@ -1,10 +1,7 @@
 package com.pjm.cours.ui.settinguserinfo
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.model.User
 import com.pjm.cours.data.remote.ApiResultError
@@ -21,12 +18,20 @@ class SettingUserInfoViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
 
-    data class SettingUserInfoUiState(
-        val isImageSelected: Boolean = false,
-        val isNicknameEntered: Boolean = false,
-        val isFormValid: Boolean = false,
-        val selectedImageUri: String = ""
-    )
+    private val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    val nickName = MutableLiveData<String>()
+    val intro = MutableLiveData<String>()
+
+    private val _selectedImageEvent = MutableLiveData<Event<Unit>>()
+    val selectedImageEvent: LiveData<Event<Unit>> = _selectedImageEvent
+
+    private val _selectedImageUri = MutableLiveData<Event<String>>()
+    val selectedImageUri: LiveData<Event<String>> = _selectedImageUri
+
+    val isButtonEnable = MediatorLiveData(false).apply {
+        addSource(nickName) { isValidForm() }
+        addSource(_selectedImageUri) { isValidForm() }
+    }
 
     private val _isLoading = MutableLiveData<Event<Boolean>>()
     val isLoading: LiveData<Event<Boolean>> = _isLoading
@@ -37,56 +42,32 @@ class SettingUserInfoViewModel @Inject constructor(
     private val _isError = MutableLiveData(Event(false))
     val isError: LiveData<Event<Boolean>> = _isError
 
-    private val _uiState = MutableLiveData(Event(SettingUserInfoUiState()))
-    val uiState: LiveData<Event<SettingUserInfoUiState>> = _uiState
+    private fun isValidForm() {
+        isButtonEnable.value =
+            !nickName.value.isNullOrEmpty() &&
+                    !_selectedImageUri.value?.peekContent().isNullOrEmpty()
+    }
 
-    private val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    fun onImageSelectClick() {
+        _selectedImageEvent.value = Event(Unit)
+    }
 
     fun saveGoogleIdToken(idToken: String) {
         repository.saveGoogleIdToken(idToken)
     }
 
-    private fun checkFormValid() {
-        _uiState.value = _uiState.value?.peekContent()?.let {
-            Event(
-                it.copy(
-                    isFormValid = it.isImageSelected && it.isNicknameEntered
-                )
-            )
-        }
-    }
-
-    fun checkNicknameEntered(isNicknameEntered: Boolean) {
-        _uiState.value = _uiState.value?.peekContent()?.let {
-            Event(
-                it.copy(
-                    isNicknameEntered = isNicknameEntered
-                )
-            )
-        }
-        checkFormValid()
-    }
-
     fun setSelectedImageUri(selectedImageUri: Uri) {
-        _uiState.value = _uiState.value?.peekContent()?.let {
-            Event(
-                it.copy(
-                    isImageSelected = true,
-                    selectedImageUri = selectedImageUri.toString(),
-                )
-            )
-        }
-        checkFormValid()
+        _selectedImageUri.value = Event(selectedImageUri.toString())
     }
 
-    fun createUser(nickname: String, intro: String) {
+    fun addUser() {
         viewModelScope.launch {
             _isLoading.value = Event(true)
-            val result = repository.createUser(
+            val result = repository.addUser(
                 User(
-                    _uiState.value?.peekContent()?.selectedImageUri ?: "",
-                    nickname,
-                    intro,
+                    selectedImageUri.value?.peekContent() ?: "",
+                    nickName.value ?: "",
+                    intro.value ?: "",
                     email
                 )
             )

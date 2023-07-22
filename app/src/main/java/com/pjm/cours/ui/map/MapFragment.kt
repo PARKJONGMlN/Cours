@@ -57,14 +57,35 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onStart() {
         super.onStart()
+        initMapView()
+        if (viewModel.isSettingOpened.value?.peekContent() == true) {
+            viewModel.openSetting(false)
+            if (checkLocationPermission()) {
+                viewModel.startTracking()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         launchPermission()
+        setLayout()
+        setObserver()
+        setViewPagerForm()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        binding.mapView.removeAllViews()
+    }
+
+    private fun setLayout() {
+        setAppBar()
+        setCurrentLocation()
     }
 
     private fun initMapView() {
+        viewModel.getPosts()
         mapView = MapView(requireActivity())
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
@@ -72,7 +93,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.mapView.addView(mapView)
     }
 
-    private fun setLayout() {
+    private fun setAppBar() {
         binding.appBarMap.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.create_post -> {
@@ -82,38 +103,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 else -> false
             }
         }
+    }
+
+    private fun setCurrentLocation() {
         binding.ivMyLocationMap.setOnClickListener {
             launchPermission()
+            binding.viewPagerMap.visibility = View.GONE
             viewModel.currentMapPoint.value?.peekContent()?.let {
                 viewModel.startTracking()
                 mapView.setMapCenterPoint(it, true)
+                viewModel.getPosts()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getPosts()
-        initMapView()
-        setLayout()
-        setObserver()
-        setViewPagerForm()
-        if (viewModel.isSettingOpened.value?.peekContent() == true) {
-            viewModel.openSetting(false)
-            if (checkLocationPermission()) {
-                viewModel.startTracking()
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.removeAllViews()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
     }
 
     private fun setObserver() {
@@ -128,31 +129,29 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 showMap()
             }
         })
-        viewModel.isCompleted.observe(viewLifecycleOwner, EventObserver { isCompleted ->
-            if (isCompleted) {
-                viewModel.postPreviewList.value?.let { postPreviewList ->
-                    setMarker(postPreviewList)
-                    adapter.submitList(postPreviewList)
-                }
-            }
-        })
-        viewModel.isGrantedPermission.observe(viewLifecycleOwner, EventObserver { isGrantedPermission ->
-            if (isGrantedPermission) {
-                viewModel.startTracking()
-            } else {
-                showMap()
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.location_permission_message),
-                    Snackbar.LENGTH_SHORT
-                ).apply {
-                    setAction(getString(R.string.location_permission_button)) {
-                        viewModel.openSetting(true)
+        viewModel.postPreviewList.observe(viewLifecycleOwner) { postPreviewList ->
+            adapter.submitList(postPreviewList)
+            setMarker(postPreviewList)
+        }
+        viewModel.isGrantedPermission.observe(
+            viewLifecycleOwner,
+            EventObserver { isGrantedPermission ->
+                if (isGrantedPermission) {
+                    viewModel.startTracking()
+                } else {
+                    showMap()
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.location_permission_message),
+                        Snackbar.LENGTH_SHORT
+                    ).apply {
+                        setAction(getString(R.string.location_permission_button)) {
+                            viewModel.openSetting(true)
+                        }
+                        show()
                     }
-                    show()
                 }
-            }
-        })
+            })
         viewModel.isSettingOpened.observe(viewLifecycleOwner, EventObserver { isSettingOpened ->
             if (isSettingOpened) {
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -214,8 +213,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    mapView.selectPOIItem(mapView.poiItems[position], true)
-                    mapView.setMapCenterPoint(mapView.poiItems[position].mapPoint, true)
+                    if (position < mapView.poiItems.size) {
+                        mapView.selectPOIItem(mapView.poiItems[position], true)
+                        mapView.setMapCenterPoint(mapView.poiItems[position].mapPoint, true)
+                    }
                 }
             })
         }
@@ -280,8 +281,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
         mapView.setMapCenterPoint(p1?.mapPoint, true)
-        binding.viewPagerMap.visibility = View.VISIBLE
         binding.viewPagerMap.currentItem = mapView.poiItems.indexOf(p1)
+        binding.viewPagerMap.visibility = View.VISIBLE
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {

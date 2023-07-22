@@ -1,10 +1,8 @@
 package com.pjm.cours.ui.map
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.pjm.cours.R
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.ItemPreviewBinding
 
@@ -21,17 +19,7 @@ class PostPreviewAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(preview: PostPreview) {
-            if(preview.distance.isBlank()){
-                binding.ivDistanceIconPreview.visibility = View.GONE
-                binding.tvDistancePreview.visibility = View.GONE
-            } else {
-                binding.tvDistancePreview.text =
-                    itemView.resources.getString(R.string.format_post_distance_m, preview.distance)
-            }
-            binding.tvCategoryPreview.text = preview.category
-            binding.tvLanguagePreview.text = preview.language
-            binding.tvTitlePreview.text = preview.title
-            binding.tvCurrentPeoplePreview.text = preview.currentMemberCount
+            binding.postPreview = preview
             itemView.setOnClickListener {
                 clickListener.onClick(preview)
             }

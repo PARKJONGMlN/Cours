@@ -1,10 +1,7 @@
 package com.pjm.cours.ui.postdetail
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
@@ -22,11 +19,15 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post> = _post
 
+    val isButtonEnabled: LiveData<Boolean> = _post.map { post ->
+        post.currentMemberCount.toInt() < post.limitMemberCount.toInt()
+    }
+
     private val _isLoading = MutableLiveData(Event(false))
     val isLoading: LiveData<Event<Boolean>> = _isLoading
 
-    private val _isGetPostCompleted = MutableLiveData(Event(false))
-    val isGetPostCompleted: LiveData<Event<Boolean>> = _isGetPostCompleted
+    private val _isGetPostCompleted = MutableLiveData(false)
+    val isGetPostCompleted: LiveData<Boolean> = _isGetPostCompleted
 
     private val _isRegisterCompleted = MutableLiveData<Event<Boolean>>()
     val isRegisterCompleted: LiveData<Event<Boolean>> = _isRegisterCompleted
@@ -43,7 +44,7 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
             when (result) {
                 is ApiResultSuccess -> {
                     _post.value = result.data
-                    _isGetPostCompleted.value = Event(true)
+                    _isGetPostCompleted.value = true
                 }
                 is ApiResultError -> {
                     _isError.value = Event(true)
