@@ -7,6 +7,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
@@ -14,8 +17,8 @@ import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.common.ProgressDialogFragment
 import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.util.Constants
-import com.pjm.cours.util.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SettingUserInfoFragment :
@@ -46,49 +49,74 @@ class SettingUserInfoFragment :
     }
 
     private fun setImageSelectEvent() {
-        viewModel.selectedImageEvent.observe(viewLifecycleOwner, EventObserver {
-            getContent.launch("image/*")
-        })
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.selectedImageEvent.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect {
+                getContent.launch("image/*")
+            }
+        }
     }
 
     private fun setAddUserComplete() {
-        viewModel.isSuccess.observe(viewLifecycleOwner, EventObserver { isSuccess ->
-            if (isSuccess) {
-                arguments?.getString(Constants.KEY_GOOGLE_ID_TOKEN)
-                    ?.let {
-                        viewModel.saveGoogleIdToken(it)
-                        parentFragmentManager.popBackStack()
-                        parentFragmentManager.commit {
-                            replace<MainFragment>(R.id.fragment_container_view)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isSuccess.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED,
+            ).collect { isSuccess ->
+                if (isSuccess) {
+                    arguments?.getString(Constants.KEY_GOOGLE_ID_TOKEN)
+                        ?.let {
+                            viewModel.saveGoogleIdToken(it)
+                            parentFragmentManager.popBackStack()
+                            parentFragmentManager.commit {
+                                replace<MainFragment>(R.id.fragment_container_view)
+                            }
                         }
-                    }
+                }
             }
-        })
+        }
     }
 
     private fun setErrorMessage() {
-        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
-            if (isError) {
-                dialogLoading.dismiss()
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_message),
-                    Snackbar.LENGTH_SHORT
-                )
-                    .setAnchorView(binding.btnSettingComplete)
-                    .show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isError.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isError ->
+                if (isError) {
+                    dialogLoading.dismiss()
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.error_message),
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAnchorView(binding.btnSettingComplete)
+                        .show()
+                }
             }
-        })
+        }
     }
 
     private fun setProgressDialog() {
-        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
-            if (isLoading) {
-                dialogLoading.show(parentFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
-            } else {
-                dialogLoading.dismiss()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isLoading ->
+                if (isLoading) {
+                    dialogLoading.show(
+                        parentFragmentManager,
+                        Constants.DIALOG_FRAGMENT_PROGRESS_TAG
+                    )
+                } else {
+                    if(dialogLoading.isAdded){
+                        dialogLoading.dismiss()
+                    }
+                }
             }
-        })
+        }
     }
 
 }

@@ -1,15 +1,16 @@
 package com.pjm.cours.ui.settinguserinfo
 
 import android.net.Uri
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.model.User
 import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.UserRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,37 +20,40 @@ class SettingUserInfoViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
-    val nickName = MutableLiveData<String>()
-    val intro = MutableLiveData<String>()
+    val nickName = MutableStateFlow("")
+    val intro = MutableStateFlow("")
 
-    private val _selectedImageEvent = MutableLiveData<Event<Unit>>()
-    val selectedImageEvent: LiveData<Event<Unit>> = _selectedImageEvent
+    private val _selectedImageEvent = MutableSharedFlow<Unit>()
+    val selectedImageEvent = _selectedImageEvent.asSharedFlow()
 
-    private val _selectedImageUri = MutableLiveData<Event<String>>()
-    val selectedImageUri: LiveData<Event<String>> = _selectedImageUri
+    private val _selectedImageUri = MutableStateFlow("")
+    val selectedImageUri: StateFlow<String> = _selectedImageUri
 
-    val isButtonEnable = MediatorLiveData(false).apply {
-        addSource(nickName) { isValidForm() }
-        addSource(_selectedImageUri) { isValidForm() }
-    }
+    val isButtonEnable: StateFlow<Boolean> =
+        combine(nickName, selectedImageUri) { nickName, selectedImageUri ->
+            isValidForm(nickName, selectedImageUri)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
-    private val _isLoading = MutableLiveData<Event<Boolean>>()
-    val isLoading: LiveData<Event<Boolean>> = _isLoading
+    private fun isValidForm(nickName: String, selectedImageUri: String) =
+        nickName.isNotEmpty() && selectedImageUri.isNotEmpty()
 
-    private val _isSuccess = MutableLiveData(Event(false))
-    val isSuccess: LiveData<Event<Boolean>> = _isSuccess
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _isError = MutableLiveData(Event(false))
-    val isError: LiveData<Event<Boolean>> = _isError
+    private val _isSuccess = MutableStateFlow(false)
+    val isSuccess: StateFlow<Boolean> = _isSuccess
 
-    private fun isValidForm() {
-        isButtonEnable.value =
-            !nickName.value.isNullOrEmpty() &&
-                    !_selectedImageUri.value?.peekContent().isNullOrEmpty()
-    }
+    private val _isError = MutableStateFlow(false)
+    val isError: StateFlow<Boolean> = _isError
 
     fun onImageSelectClick() {
-        _selectedImageEvent.value = Event(Unit)
+        viewModelScope.launch {
+            _selectedImageEvent.emit(Unit)
+        }
     }
 
     fun saveGoogleIdToken(idToken: String) {
@@ -57,31 +61,31 @@ class SettingUserInfoViewModel @Inject constructor(
     }
 
     fun setSelectedImageUri(selectedImageUri: Uri) {
-        _selectedImageUri.value = Event(selectedImageUri.toString())
+        _selectedImageUri.value = selectedImageUri.toString()
     }
 
     fun addUser() {
         viewModelScope.launch {
-            _isLoading.value = Event(true)
+            _isLoading.value = true
             val result = repository.addUser(
                 User(
-                    selectedImageUri.value?.peekContent() ?: "",
-                    nickName.value ?: "",
-                    intro.value ?: "",
+                    selectedImageUri.value,
+                    nickName.value,
+                    intro.value,
                     email
                 )
             )
-            _isLoading.value = Event(false)
+            _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
                     repository.saveUserId(result.data["name"] ?: "")
-                    _isSuccess.value = Event(true)
+                    _isSuccess.value = true
                 }
                 is ApiResultError -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
                 is ApiResultException -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
             }
         }
