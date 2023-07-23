@@ -37,7 +37,7 @@ class ChatListViewModel @Inject constructor(
             }
         }
 
-    init {
+    fun upDateChatPreviewList(){
         viewModelScope.launch {
             chatRepository.upDateChatPreviewList()
         }

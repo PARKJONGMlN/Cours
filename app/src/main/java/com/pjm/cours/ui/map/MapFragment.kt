@@ -19,7 +19,7 @@ import com.pjm.cours.R
 import com.pjm.cours.data.model.PostPreview
 import com.pjm.cours.databinding.FragmentMapBinding
 import com.pjm.cours.ui.BaseFragment
-import com.pjm.cours.ui.main.MainFragment
+import com.pjm.cours.ui.MainActivity
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
@@ -145,7 +145,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 Lifecycle.State.STARTED
             ).collect { isError ->
                 if (isError) {
-                    (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+                    (requireActivity() as MainActivity).showSnackBar(getString(R.string.error_message))
                     showMap()
                 }
             }

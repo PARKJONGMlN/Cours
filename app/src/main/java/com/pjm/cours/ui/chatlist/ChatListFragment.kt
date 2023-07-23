@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
@@ -20,6 +21,14 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
 
     private val viewModel: ChatListViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val navController = findNavController()
+        val navGraph = navController.graph
+        navGraph.setStartDestination(R.id.chatListFragment)
+        navController.graph = navGraph
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLayout()
@@ -30,6 +39,7 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
     }
 
     private fun setChatList() {
+        viewModel.upDateChatPreviewList()
         val adapter = ChatListAdapter { chatPreview ->
             Intent(requireContext(), ChatActivity::class.java).apply {
                 putExtra(Constants.POST_ID, chatPreview.postId)
