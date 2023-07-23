@@ -1,14 +1,14 @@
 package com.pjm.cours.data.local.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.pjm.cours.data.local.entities.ChatPreviewEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChatPreviewDao {
 
     @Query("SELECT * FROM chat_preview ORDER BY send_date DESC")
-    fun getPreviewList(): LiveData<List<ChatPreviewEntity>>
+    fun getPreviewList(): Flow<List<ChatPreviewEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(chatPreview: ChatPreviewEntity)

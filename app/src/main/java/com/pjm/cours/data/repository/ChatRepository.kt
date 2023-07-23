@@ -1,6 +1,5 @@
 package com.pjm.cours.data.repository
 
-import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,6 +15,7 @@ import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -38,11 +38,11 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun getChatPreview(): LiveData<List<ChatPreviewEntity>> {
+    fun getChatPreviewList(): Flow<List<ChatPreviewEntity>> {
         return chatPreviewDao.getPreviewList()
     }
 
-    fun getMessages(postId: String): LiveData<List<MessageEntity>> {
+    fun getMessages(postId: String): Flow<List<MessageEntity>> {
         chatRemoteDataSource.getMessageUpdates(postId) { message, messageId ->
             val messageEntity = MessageEntity(
                 postId = postId,
@@ -58,7 +58,7 @@ class ChatRepository @Inject constructor(
         return messageDao.getMessageListByPostId(postId)
     }
 
-    suspend fun getChatPreviewList() = withContext(Dispatchers.IO) {
+    suspend fun upDateChatPreviewList() = withContext(Dispatchers.IO) {
         val snapShot = chatRemoteDataSource.getUserChatIdList(userId)
         snapShot.children.map { chatRoomSnapshot ->
             async {

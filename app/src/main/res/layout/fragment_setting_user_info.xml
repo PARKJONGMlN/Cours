@@ -27,7 +27,7 @@
 
         <ImageView
             android:id="@+id/iv_user_profile_image"
-            imageUriCircle="@{viewModel.selectedImageUri.peekContent()}"
+            imageUriCircle="@{viewModel.selectedImageUri}"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginTop="16dp"
@@ -113,34 +113,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/group_loading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="pb_loading,background_loading" />
-
-        <View
-            android:id="@+id/background_loading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/grey_transparent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/pb_loading"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,12 +1,13 @@
 package com.pjm.cours.ui.postcomposition
 
-import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,47 +16,54 @@ class PostCompositionViewModel @Inject constructor(
     private val repository: PostRepository
 ) : ViewModel() {
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-    private val _isCompleted = MutableLiveData(false)
-    val isCompleted: LiveData<Boolean> = _isCompleted
-    private val _isError = MutableLiveData(false)
-    val isError: LiveData<Boolean> = _isError
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+    private val _isCompleted = MutableStateFlow(false)
+    val isCompleted = _isCompleted.asStateFlow()
+    private val _isError = MutableStateFlow(false)
+    val isError = _isError.asStateFlow()
 
-    val postId = MutableLiveData<String>()
-    val title = MutableLiveData<String>()
-    val body = MutableLiveData<String>()
-    val numberOfMember = MutableLiveData<String>()
+    val postId = MutableStateFlow("")
+    val title = MutableStateFlow("")
+    val body = MutableStateFlow("")
+    val numberOfMember = MutableStateFlow("")
 
-    private val _location = MutableLiveData<String>()
-    val location: LiveData<String> = _location
+    private val _location = MutableStateFlow("")
+    val location = _location.asStateFlow()
 
-    private val _locationLatitude = MutableLiveData<String>()
-    private val _locationLongitude = MutableLiveData<String>()
+    private val _locationLatitude = MutableStateFlow("")
+    private val _locationLongitude = MutableStateFlow("")
 
-    private val _meetingDate = MutableLiveData<String>()
-    val meetingDate: LiveData<String> = _meetingDate
+    private val _meetingDate = MutableStateFlow("")
+    val meetingDate = _meetingDate.asStateFlow()
 
-    private val _category = MutableLiveData<String>()
-    val category: LiveData<String> = _category
+    private val _category = MutableStateFlow("")
+    val category = _category.asStateFlow()
 
-    private val _language = MutableLiveData<String>()
-    val language: LiveData<String> = _language
+    private val _language = MutableStateFlow("")
+    val language = _language.asStateFlow()
 
-    val isLocationSelected = MutableLiveData(false)
-    val isMeetingDateSelected = MutableLiveData(false)
-    val isCategorySelected = MutableLiveData(false)
-    val isLanguageSelected = MutableLiveData(false)
+    val isLocationSelected = MutableStateFlow(false)
+    val isMeetingDateSelected = MutableStateFlow(false)
+    val isCategorySelected = MutableStateFlow(false)
+    val isLanguageSelected = MutableStateFlow(false)
 
-    val isInputComplete = MediatorLiveData<Boolean>().apply {
-        addSource(title) { value = checkInputs() }
-        addSource(body) { value = checkInputs() }
-        addSource(numberOfMember) { value = checkInputs() }
-        addSource(isLocationSelected) { value = checkInputs() }
-        addSource(isMeetingDateSelected) { value = checkInputs() }
-        addSource(isCategorySelected) { value = checkInputs() }
-        addSource(isLanguageSelected) { value = checkInputs() }
-    }
+    val isInputComplete: StateFlow<Boolean> =
+        combine(
+            title,
+            body,
+            numberOfMember,
+            isLocationSelected,
+            isMeetingDateSelected,
+            isCategorySelected,
+            isLanguageSelected
+        ) {
+            checkInputs()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     fun setLocation(location: String) {
         _location.value = location
@@ -98,28 +106,26 @@ class PostCompositionViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val result = repository.createPost(
-                title = title.value ?: "",
-                body = body.value ?: "",
-                limitMemberCount = numberOfMember.value ?: "",
-                location = _location.value ?: "",
-                latitude = _locationLatitude.value ?: "",
-                longitude = _locationLongitude.value ?: "",
-                meetingDate = _meetingDate.value ?: "",
-                category = _category.value ?: "",
-                language = _language.value ?: ""
+                title = title.value,
+                body = body.value,
+                limitMemberCount = numberOfMember.value,
+                location = _location.value,
+                latitude = _locationLatitude.value,
+                longitude = _locationLongitude.value,
+                meetingDate = _meetingDate.value,
+                category = _category.value,
+                language = _language.value
             )
             _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
-                    postId.value = result.data["name"]
+                    postId.value = result.data["name"] ?: ""
                     _isCompleted.value = true
                 }
                 is ApiResultError -> {
-                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
                     _isError.value = true
                 }
                 is ApiResultException -> {
-                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
                     _isError.value = true
                 }
             }
@@ -127,15 +133,16 @@ class PostCompositionViewModel @Inject constructor(
     }
 
     private fun checkInputs(): Boolean {
-        val currentTitle = title.value ?: ""
-        val currentBody = body.value ?: ""
-        val currentNumberOfMember = numberOfMember.value ?: ""
+        val currentTitle = title.value
+        val currentBody = body.value
+        val currentNumberOfMember = numberOfMember.value
         return currentTitle.isNotBlank()
                 && currentBody.isNotBlank()
                 && currentNumberOfMember.isNotBlank()
-                && isLocationSelected.value ?: false
-                && isMeetingDateSelected.value ?: false
-                && isCategorySelected.value ?: false
-                && isLanguageSelected.value ?: false
+                && isLocationSelected.value
+                && isMeetingDateSelected.value
+                && isCategorySelected.value
+                && isLanguageSelected.value
     }
+
 }

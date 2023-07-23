@@ -28,7 +28,6 @@ class ChatListAdapter(
         fun bind(preview: ChatPreview) {
             binding.chatPreview = preview
             binding.clickListener = clickListener
-            binding.executePendingBindings()
         }
 
         companion object {

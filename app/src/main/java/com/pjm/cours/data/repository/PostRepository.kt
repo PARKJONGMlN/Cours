@@ -2,12 +2,22 @@ package com.pjm.cours.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.PreferenceManager
+import com.pjm.cours.data.local.dao.ChatPreviewDao
+import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.Constants.LATITUDE
 import com.pjm.cours.util.Constants.LONGITUDE
 import com.pjm.cours.util.DateFormat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.tasks.await
 import net.daum.mf.map.api.MapPoint
 import javax.inject.Inject
@@ -16,6 +26,7 @@ class PostRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager,
     private val imageUriRemoteDataSource: ImageUriDataSource,
+    private val chatPreviewDao: ChatPreviewDao,
 ) {
 
     suspend fun createPost(
@@ -94,17 +105,44 @@ class PostRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResultException(e)
         }
-
     }
 
-    suspend fun getPostList(): ApiResponse<Map<String, Post>> {
-        return try {
+    fun getPostList(
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
+    ) = flow {
+        try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
-            apiClient.getPosts(idToken)
+            val result = apiClient.getPosts(idToken)
+            when (result) {
+                is ApiResultSuccess -> {
+                    val deferredPosts = coroutineScope {
+                        result.data.map { ResponseResult ->
+                            async {
+                                ResponseResult.value.copy(
+                                    key = ResponseResult.key,
+                                    hostUser = ResponseResult.value.hostUser.copy(
+                                        profileUri = getDownLoadImageUri(ResponseResult.value.hostUser.profileUri)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    emit(deferredPosts.awaitAll().sortedByDescending { it.meetingDate })
+                }
+                is ApiResultError -> {
+                    onError()
+                }
+                is ApiResultException -> {
+                    onError()
+                }
+            }
         } catch (e: Exception) {
-            ApiResultException(e)
+            onError()
         }
-    }
+    }.onCompletion {
+        onSuccess()
+    }.flowOn(Dispatchers.Default)
 
     suspend fun getPost(postId: String): ApiResponse<Post> {
         return try {
@@ -125,9 +163,13 @@ class PostRepository @Inject constructor(
         )
     }
 
-    suspend fun getDownLoadImageUri(hostImageUri: String) =
+    private suspend fun getDownLoadImageUri(hostImageUri: String) =
         imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
     fun getUserCurrentPoint(): MapPoint? = preferenceManager.getUserCurrentPoint()
 
+
+    fun getChatPreviewList(): Flow<List<ChatPreviewEntity>> {
+        return chatPreviewDao.getPreviewList()
+    }
 }

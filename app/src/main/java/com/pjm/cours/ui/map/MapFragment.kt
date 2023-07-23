@@ -10,6 +10,8 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
@@ -21,7 +23,6 @@ import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
-import com.pjm.cours.util.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,41 +38,23 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     private val viewModel: MapViewModel by viewModels()
     private lateinit var mapView: MapView
     private lateinit var adapter: PostPreviewAdapter
-
-    private val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        permissions.entries.forEach { permission ->
-            when {
-                permission.value -> {
-                    if (viewModel.isGrantedPermission.value?.peekContent() != true) {
-                        viewModel.setPermission(true)
-                    }
-                }
-                else -> {
-                    viewModel.setPermission(false)
-                }
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        initMapView()
-        if (viewModel.isSettingOpened.value?.peekContent() == true) {
-            viewModel.openSetting(false)
-            if (checkLocationPermission()) {
-                viewModel.startTracking()
-            }
-        }
-    }
+    private val locationPermissionRequest = getActivityResultLauncher()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         launchPermission()
         setLayout()
-        setObserver()
-        setViewPagerForm()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initMapView()
+        if (viewModel.isSettingOpened.value) {
+            viewModel.openSetting(false)
+            if (checkLocationPermission()) {
+                viewModel.startTracking()
+            }
+        }
     }
 
     override fun onStop() {
@@ -82,9 +65,47 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     private fun setLayout() {
         setAppBar()
         setCurrentLocation()
+        setErrorMessage()
+        setLoading()
+        setPostPreviewList()
+        setPermission()
+        setRequestPermission()
+        setMapTracking()
+        setCurrentMapPoint()
+    }
+
+    private fun getActivityResultLauncher() = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissions.entries.forEach { permission ->
+            when {
+                permission.value -> {
+                    viewModel.setPermission(true)
+                }
+                else -> {
+                    viewModel.setPermission(false)
+                }
+            }
+        }
+    }
+
+    private fun setRequestPermission() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isSettingOpened.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isSettingOpened ->
+                if (isSettingOpened) {
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", requireContext().packageName, null)
+                    }.run(::startActivity)
+                }
+            }
+        }
     }
 
     private fun initMapView() {
+        setViewPagerForm()
         viewModel.getPosts()
         mapView = MapView(requireActivity())
         mapView.setMapViewEventListener(this)
@@ -109,69 +130,112 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.ivMyLocationMap.setOnClickListener {
             launchPermission()
             binding.viewPagerMap.visibility = View.GONE
-            viewModel.currentMapPoint.value?.peekContent()?.let {
+            viewModel.currentMapPoint.value?.let { currentMapPoint ->
+                mapView.setMapCenterPoint(currentMapPoint, true)
                 viewModel.startTracking()
-                mapView.setMapCenterPoint(it, true)
                 viewModel.getPosts()
             }
         }
     }
 
-    private fun setObserver() {
-        viewModel.isError.observe(viewLifecycleOwner, EventObserver { isError ->
-            if (isError) {
-                (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
-                showMap()
+    private fun setErrorMessage() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isError.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isError ->
+                if (isError) {
+                    (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+                    showMap()
+                }
             }
-        })
-        viewModel.isLoading.observe(viewLifecycleOwner, EventObserver { isLoading ->
-            if (isLoading) {
-                showMap()
-            }
-        })
-        viewModel.postPreviewList.observe(viewLifecycleOwner) { postPreviewList ->
-            adapter.submitList(postPreviewList)
-            setMarker(postPreviewList)
         }
-        viewModel.isGrantedPermission.observe(
-            viewLifecycleOwner,
-            EventObserver { isGrantedPermission ->
+    }
+
+    private fun setPostPreviewList() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.postPreviewList.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { postPreviewList ->
+                if (postPreviewList.isNotEmpty()) {
+                    adapter.submitList(postPreviewList)
+                    setMarker(postPreviewList)
+                }
+            }
+        }
+    }
+
+    private fun setLoading() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isLoading ->
+                if (isLoading) {
+                    showMap()
+                }
+            }
+        }
+    }
+
+    private fun setCurrentMapPoint() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.currentMapPoint.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { mapPoint ->
+                if (mapPoint != null) {
+                    viewModel.endTracking()
+                    showMap()
+                }
+            }
+        }
+    }
+
+    private fun setMapTracking() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isTrackingMode.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isTrackingMode ->
+                if (isTrackingMode) {
+                    mapView.currentLocationTrackingMode =
+                        MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+                } else {
+                    mapView.currentLocationTrackingMode =
+                        MapView.CurrentLocationTrackingMode.TrackingModeOff
+                }
+            }
+        }
+    }
+
+    private fun setPermission() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isGrantedPermission.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isGrantedPermission ->
                 if (isGrantedPermission) {
                     viewModel.startTracking()
                 } else {
                     showMap()
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.location_permission_message),
-                        Snackbar.LENGTH_SHORT
-                    ).apply {
-                        setAction(getString(R.string.location_permission_button)) {
-                            viewModel.openSetting(true)
-                        }
-                        show()
-                    }
+                    showSnackBar()
                 }
-            })
-        viewModel.isSettingOpened.observe(viewLifecycleOwner, EventObserver { isSettingOpened ->
-            if (isSettingOpened) {
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", requireContext().packageName, null)
-                }.run(::startActivity)
             }
-        })
-        viewModel.isTrackingMode.observe(viewLifecycleOwner, EventObserver { isTrackingMode ->
-            if (isTrackingMode) {
-                mapView.currentLocationTrackingMode =
-                    MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-            } else {
-                mapView.currentLocationTrackingMode =
-                    MapView.CurrentLocationTrackingMode.TrackingModeOff
+        }
+    }
+
+    private fun showSnackBar() {
+        Snackbar.make(
+            binding.root,
+            getString(R.string.location_permission_message),
+            Snackbar.LENGTH_SHORT
+        ).apply {
+            setAction(getString(R.string.location_permission_button)) {
+                viewModel.openSetting(true)
             }
-        })
-        viewModel.currentMapPoint.observe(viewLifecycleOwner) {
-            mapView.setMapCenterPoint(it.peekContent(), true)
-            viewModel.endTracking()
-            showMap()
+            show()
         }
     }
 
@@ -238,8 +302,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     private fun showMap() {
         lifecycleScope.launch {
             delay(300)
-            binding.mapView.visibility = View.VISIBLE
-            binding.progressBarMap.visibility = View.GONE
+            _binding?.let {
+                binding.mapView.visibility = View.VISIBLE
+                binding.progressBarMap.visibility = View.GONE
+            }
         }
     }
 
@@ -312,6 +378,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         val mapPointGeo = mapPoint.mapPointGeoCoord
         val currentMapPoint =
             MapPoint.mapPointWithGeoCoord(mapPointGeo.latitude, mapPointGeo.longitude)
+        mapView.setMapCenterPoint(mapPoint, true)
         viewModel.setCurrentMapPoint(currentMapPoint)
     }
 

@@ -1,11 +1,10 @@
 package com.pjm.cours.ui.launcher
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.pjm.cours.data.repository.UserRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -13,10 +12,10 @@ class LauncherViewModel @Inject constructor(
     userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _localGoogleIdToken = MutableLiveData<Event<String>>()
-    val localGoogleIdToken: LiveData<Event<String>> = _localGoogleIdToken
+    private val _localGoogleIdToken:  MutableStateFlow<String> = MutableStateFlow("")
+    val localGoogleIdToken: StateFlow<String> = _localGoogleIdToken
 
     init {
-        _localGoogleIdToken.value = Event(userRepository.getGoogleIdToken())
+        _localGoogleIdToken.value = userRepository.getGoogleIdToken()
     }
 }

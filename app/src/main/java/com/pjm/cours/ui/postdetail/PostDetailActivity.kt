@@ -4,14 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.ActivityPostDetailBinding
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.ui.common.ProgressDialogFragment
 import com.pjm.cours.util.Constants
-import com.pjm.cours.util.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PostDetailActivity : AppCompatActivity() {
@@ -27,6 +30,7 @@ class PostDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPostDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         postId = intent.getStringExtra(Constants.POST_ID) ?: ""
         distance = intent.getStringExtra(Constants.POST_DISTANCE) ?: ""
 
@@ -37,7 +41,9 @@ class PostDetailActivity : AppCompatActivity() {
         initUiState()
         setDialog()
         setLayout()
-        setObserver()
+        setRegisterComplete()
+        setLoading()
+        setErrorMessage()
     }
 
     private fun initUiState() {
@@ -63,38 +69,58 @@ class PostDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setObserver() {
-        viewModel.isRegisterCompleted.observe(this, EventObserver { isRegisterCompleted ->
-            if (isRegisterCompleted) {
-                dialogCheckRegister.dismiss()
-                intent = Intent(this, ChatActivity::class.java)
-                intent.putExtra(Constants.POST_ID, postId)
-                startActivity(intent)
-                finish()
-            } else {
-                dialogCheckRegister.dismiss()
-            }
-        })
+    private fun setErrorMessage() {
+        lifecycleScope.launch {
+            viewModel.isError.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isError ->
+                    if (isError) {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.error_message),
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAnchorView(binding.btnSettingComplete)
+                            .show()
+                    }
+                }
+        }
+    }
 
-        viewModel.isLoading.observe(this, EventObserver { isLoading ->
-            if (isLoading) {
-                dialogLoading.show(supportFragmentManager, Constants.DIALOG_FRAGMENT_PROGRESS_TAG)
-            } else {
-                dialogLoading.dismiss()
-            }
-        })
+    private fun setLoading() {
+        lifecycleScope.launch {
+            viewModel.isLoading.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isLoading ->
+                    if (isLoading) {
+                        dialogLoading.show(
+                            supportFragmentManager,
+                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG
+                        )
+                    } else {
+                        if (dialogLoading.isAdded) {
+                            dialogLoading.dismiss()
+                        }
+                    }
+                }
+        }
+    }
 
-        viewModel.isError.observe(this, EventObserver { isError ->
-            if (isError) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_message),
-                    Snackbar.LENGTH_SHORT
-                )
-                    .setAnchorView(binding.btnSettingComplete)
-                    .show()
-            }
-        })
+    private fun setRegisterComplete() {
+        lifecycleScope.launch {
+            viewModel.isRegisterCompleted.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isRegisterCompleted ->
+                    if (isRegisterCompleted) {
+                        dialogCheckRegister.dismiss()
+                        intent = Intent(this@PostDetailActivity, ChatActivity::class.java)
+                        intent.putExtra(Constants.POST_ID, postId)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        if (dialogCheckRegister.isAdded) {
+                            dialogCheckRegister.dismiss()
+                        }
+                    }
+                }
+        }
     }
 
 }

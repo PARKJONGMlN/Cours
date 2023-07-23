@@ -4,12 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.chat.ChatActivity
 import com.pjm.cours.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment_chat_list) {
@@ -34,8 +38,13 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
         }
         binding.recyclerViewChatPreview.adapter = adapter
         binding.recyclerViewChatPreview.itemAnimator = null
-        viewModel.chatPreviewList.observe(viewLifecycleOwner) { chatPreviewList ->
-            adapter.submitList(chatPreviewList)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.chatPreviewList.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { chatPreviewList ->
+                adapter.submitList(chatPreviewList)
+            }
         }
     }
 
