@@ -2,6 +2,8 @@ package com.pjm.cours.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.pjm.cours.data.PreferenceManager
+import com.pjm.cours.data.local.dao.ChatPreviewDao
+import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
@@ -12,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
@@ -23,6 +26,7 @@ class PostRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager,
     private val imageUriRemoteDataSource: ImageUriDataSource,
+    private val chatPreviewDao: ChatPreviewDao,
 ) {
 
     suspend fun createPost(
@@ -101,7 +105,6 @@ class PostRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResultException(e)
         }
-
     }
 
     fun getPostList(
@@ -165,4 +168,8 @@ class PostRepository @Inject constructor(
 
     fun getUserCurrentPoint(): MapPoint? = preferenceManager.getUserCurrentPoint()
 
+
+    fun getChatPreviewList(): Flow<List<ChatPreviewEntity>> {
+        return chatPreviewDao.getPreviewList()
+    }
 }

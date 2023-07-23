@@ -1,14 +1,15 @@
 package com.pjm.cours.ui.postdetail
 
-import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
-import com.pjm.cours.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,41 +17,63 @@ import javax.inject.Inject
 class PostDetailViewModel @Inject constructor(private val repository: PostRepository) :
     ViewModel() {
 
-    private val _post = MutableLiveData<Post>()
-    val post: LiveData<Post> = _post
+    private val _post = MutableStateFlow(Post())
+    val post = _post.asStateFlow()
 
-    val isButtonEnabled: LiveData<Boolean> = _post.map { post ->
-        post.currentMemberCount.toInt() < post.limitMemberCount.toInt()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private val _isGetPostCompleted = MutableStateFlow(false)
+    val isGetPostCompleted = _isGetPostCompleted.asStateFlow()
+
+    private val _isRegisterCompleted = MutableStateFlow(false)
+    val isRegisterCompleted = _isRegisterCompleted.asStateFlow()
+
+    private val _isError = MutableStateFlow(false)
+    val isError = _isError.asStateFlow()
+
+    private val chatPreviewList: StateFlow<List<ChatPreviewEntity>> =
+        repository.getChatPreviewList().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val isButtonEnabled: StateFlow<Boolean> = combineIsButtonEnable().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    private fun combineIsButtonEnable() = combine(_post, chatPreviewList) { post, chatPreviewList ->
+        if (post.currentMemberCount.isNotEmpty()) {
+            val isPostMember = chatPreviewList.any {
+                it.postId == post.key
+            }
+            !isPostMember && post.currentMemberCount.toInt() < post.limitMemberCount.toInt()
+        } else {
+            false
+        }
     }
-
-    private val _isLoading = MutableLiveData(Event(false))
-    val isLoading: LiveData<Event<Boolean>> = _isLoading
-
-    private val _isGetPostCompleted = MutableLiveData(false)
-    val isGetPostCompleted: LiveData<Boolean> = _isGetPostCompleted
-
-    private val _isRegisterCompleted = MutableLiveData<Event<Boolean>>()
-    val isRegisterCompleted: LiveData<Event<Boolean>> = _isRegisterCompleted
-
-    private val _isError = MutableLiveData(Event(false))
-    val isError: LiveData<Event<Boolean>> = _isError
 
     fun getPost(postId: String) {
         viewModelScope.launch {
-            _isLoading.value = Event(true)
+            _isLoading.value = true
             val result = repository.getPost(postId)
-            _isLoading.value = Event(false)
+            _isLoading.value = false
 
             when (result) {
                 is ApiResultSuccess -> {
-                    _post.value = result.data
+                    _post.value = result.data.copy(
+                        key = postId
+                    )
                     _isGetPostCompleted.value = true
                 }
                 is ApiResultError -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
                 is ApiResultException -> {
-                    _isError.value = Event(true)
+                    _isError.value = true
                 }
             }
         }
@@ -58,24 +81,23 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
 
     fun joinMeeting(postId: String) {
         viewModelScope.launch {
-            _isLoading.value = Event(true)
-            val result = repository.addMember(postId, _post.value?.currentMemberCount ?: "")
-            _isLoading.value = Event(false)
+            _isLoading.value = true
+            val result = repository.addMember(postId, _post.value.currentMemberCount)
+            _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
-                    _isRegisterCompleted.value = Event(true)
+                    _isRegisterCompleted.value = true
                 }
                 is ApiResultError -> {
-                    Log.d("TAG", "ApiResultError: code ${result.code} message ${result.message}")
-                    _isRegisterCompleted.value = Event(false)
-                    _isError.value = Event(true)
+                    _isRegisterCompleted.value = false
+                    _isError.value = true
                 }
                 is ApiResultException -> {
-                    Log.d("TAG", "ApiResultException: ${result.throwable.message} ")
-                    _isRegisterCompleted.value = Event(false)
-                    _isError.value = Event(true)
+                    _isRegisterCompleted.value = false
+                    _isError.value = true
                 }
             }
         }
     }
+
 }
