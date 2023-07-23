@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentPostListBinding
 import com.pjm.cours.ui.BaseFragment
-import com.pjm.cours.ui.main.MainFragment
+import com.pjm.cours.ui.MainActivity
 import com.pjm.cours.ui.postcomposition.PostCompositionActivity
 import com.pjm.cours.ui.postdetail.PostDetailActivity
 import com.pjm.cours.util.Constants
@@ -24,11 +24,11 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.viewModel = viewModel
         setLayout()
     }
 
     private fun setLayout() {
-        binding.viewModel = viewModel
         setAppBar()
         setPostList()
         setErrorMessage()
@@ -72,7 +72,7 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
                 Lifecycle.State.STARTED
             ).collect { isError ->
                 if (isError) {
-                    (parentFragment as MainFragment).showSnackBar(getString(R.string.error_message))
+                    (requireActivity() as MainActivity).showSnackBar(getString(R.string.error_message))
                 }
             }
         }

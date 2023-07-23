@@ -4,18 +4,17 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
 import com.pjm.cours.ui.BaseFragment
 import com.pjm.cours.ui.common.ProgressDialogFragment
-import com.pjm.cours.ui.main.MainFragment
 import com.pjm.cours.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -27,6 +26,7 @@ class SettingUserInfoFragment :
     private val viewModel: SettingUserInfoViewModel by viewModels()
     private val getContent = getActivityResultLauncher()
     private val dialogLoading = ProgressDialogFragment()
+    private val args: SettingUserInfoFragmentArgs by navArgs()
 
     private fun getActivityResultLauncher() =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -66,14 +66,8 @@ class SettingUserInfoFragment :
                 Lifecycle.State.STARTED,
             ).collect { isSuccess ->
                 if (isSuccess) {
-                    arguments?.getString(Constants.KEY_GOOGLE_ID_TOKEN)
-                        ?.let {
-                            viewModel.saveGoogleIdToken(it)
-                            parentFragmentManager.popBackStack()
-                            parentFragmentManager.commit {
-                                replace<MainFragment>(R.id.fragment_container_view)
-                            }
-                        }
+                    viewModel.saveGoogleIdToken(args.idToken)
+                    findNavController().navigate(SettingUserInfoFragmentDirections.actionSettingUserInfoFragmentToChatListFragment())
                 }
             }
         }
@@ -111,7 +105,7 @@ class SettingUserInfoFragment :
                         Constants.DIALOG_FRAGMENT_PROGRESS_TAG
                     )
                 } else {
-                    if(dialogLoading.isAdded){
+                    if (dialogLoading.isAdded) {
                         dialogLoading.dismiss()
                     }
                 }

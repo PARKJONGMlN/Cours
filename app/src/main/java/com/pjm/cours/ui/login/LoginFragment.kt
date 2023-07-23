@@ -8,8 +8,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -25,8 +24,6 @@ import com.pjm.cours.BuildConfig
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentLoginBinding
 import com.pjm.cours.ui.BaseFragment
-import com.pjm.cours.ui.settinguserinfo.SettingUserInfoFragment
-import com.pjm.cours.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,18 +63,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             auth.signInWithCredential(firebaseCredential)
                                 .addOnCompleteListener(requireActivity()) { task ->
                                     if (task.isSuccessful) {
-                                        parentFragmentManager.commit {
-                                            setReorderingAllowed(true)
-                                            addToBackStack(null)
-                                            val bundle = Bundle().apply {
-                                                putString(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
-                                            }
-                                            replace<SettingUserInfoFragment>(
-                                                R.id.fragment_container_view,
-                                                null,
-                                                bundle
+                                        findNavController().navigate(
+                                            LoginFragmentDirections.actionLoginFragmentToSettingUserInfoFragment(
+                                                idToken
                                             )
-                                        }
+                                        )
                                     } else {
 
                                     }
@@ -99,7 +89,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                     }
                 }
             } else {
-                Snackbar.make(binding.root, getString(R.string.error_message), Snackbar.LENGTH_SHORT)
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.error_message),
+                    Snackbar.LENGTH_SHORT
+                )
                     .show()
             }
         }
