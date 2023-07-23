@@ -2,22 +2,25 @@ package com.pjm.cours.ui.postcomposition
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.data.ItemStorage
 import com.pjm.cours.databinding.ActivityPostCompositionBinding
 import com.pjm.cours.ui.chat.ChatActivity
+import com.pjm.cours.ui.common.ProgressDialogFragment
 import com.pjm.cours.ui.location.LocationActivity
 import com.pjm.cours.util.Constants
 import com.pjm.cours.util.DateFormat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PostCompositionActivity : AppCompatActivity() {
@@ -25,6 +28,7 @@ class PostCompositionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostCompositionBinding
     private val viewModel: PostCompositionViewModel by viewModels()
     private val startForResult = getResultLauncher()
+    private val dialogLoading = ProgressDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +41,52 @@ class PostCompositionActivity : AppCompatActivity() {
 
     private fun setLayout() {
         setAppBar()
+        setErrorMessage()
+        setLoading()
+        setComplete()
         setSelectButton()
-        setObserver()
     }
 
     private fun setSelectButton() {
+        setDateSelector()
+        setCategorySelector()
+        setLanguageSelector()
+        setLocationSelector()
+    }
+
+    private fun setLocationSelector() {
+        binding.ivSelectLocationIcon.setOnClickListener {
+            startForResult.launch(Intent(this, LocationActivity::class.java))
+        }
+    }
+
+    private fun setLanguageSelector() {
+        binding.ivSelectLanguageIcon.setOnClickListener {
+            setDialog(
+                getString(R.string.label_dialog_title_language),
+                ItemStorage.getLanguage(),
+                Constants.DIALOG_TAG_LANGUAGE,
+            ) { selectedItem ->
+                viewModel.setLanguage(selectedItem)
+                viewModel.setLanguageSelection(true)
+            }
+        }
+    }
+
+    private fun setCategorySelector() {
+        binding.ivSelectCategoryIcon.setOnClickListener {
+            setDialog(
+                getString(R.string.label_dialog_title_category),
+                ItemStorage.getCategory(),
+                Constants.DIALOG_TAG_CATEGORY,
+            ) { selectedItem ->
+                viewModel.setCategory(selectedItem)
+                viewModel.setCategorySelection(true)
+            }
+        }
+    }
+
+    private fun setDateSelector() {
         binding.ivSelectDateIcon.setOnClickListener {
             val datePicker =
                 MaterialDatePicker.Builder.datePicker()
@@ -54,29 +99,6 @@ class PostCompositionActivity : AppCompatActivity() {
             }
             datePicker.show(supportFragmentManager, "SELECT_DATE")
         }
-        binding.ivSelectCategoryIcon.setOnClickListener {
-            setDialog(
-                getString(R.string.label_dialog_title_category),
-                ItemStorage.getCategory(),
-                Constants.DIALOG_TAG_CATEGORY,
-            ) { selectedItem ->
-                viewModel.setCategory(selectedItem)
-                viewModel.setCategorySelection(true)
-            }
-        }
-        binding.ivSelectLanguageIcon.setOnClickListener {
-            setDialog(
-                getString(R.string.label_dialog_title_language),
-                ItemStorage.getLanguage(),
-                Constants.DIALOG_TAG_LANGUAGE,
-            ) { selectedItem ->
-                viewModel.setLanguage(selectedItem)
-                viewModel.setLanguageSelection(true)
-            }
-        }
-        binding.ivSelectLocationIcon.setOnClickListener {
-            startForResult.launch(Intent(this, LocationActivity::class.java))
-        }
     }
 
     private fun setAppBar() {
@@ -85,35 +107,53 @@ class PostCompositionActivity : AppCompatActivity() {
         }
     }
 
-    private fun setObserver() {
-        viewModel.isError.observe(this) { isError ->
-            if (isError) {
-                binding.groupLoading.visibility = View.GONE
-                enableScreenTouch()
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_message),
-                    Snackbar.LENGTH_SHORT
-                )
-                    .setAnchorView(binding.btnPostComplete)
-                    .show()
-            }
-        }
-        viewModel.isLoading.observe(this) { isLoading ->
-            if (isLoading) {
-                binding.groupLoading.visibility = View.VISIBLE
-                disableScreenTouch()
-            }
-        }
-        viewModel.isCompleted.observe(this) { isCompleted ->
-            if (isCompleted) {
-                binding.groupLoading.visibility = View.GONE
-                Intent(this, ChatActivity::class.java).apply {
-                    putExtra(Constants.POST_ID, viewModel.postId.value)
-                    startActivity(this)
+    private fun setComplete() {
+        lifecycleScope.launch {
+            viewModel.isCompleted.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isCompleted ->
+                    if (isCompleted) {
+                        Intent(this@PostCompositionActivity, ChatActivity::class.java).apply {
+                            putExtra(Constants.POST_ID, viewModel.postId.value)
+                            startActivity(this)
+                        }
+                        finish()
+                    }
                 }
-                finish()
-            }
+        }
+    }
+
+    private fun setErrorMessage() {
+        lifecycleScope.launch {
+            viewModel.isError.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isError ->
+                    if (isError) {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.error_message),
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAnchorView(binding.btnPostComplete)
+                            .show()
+                    }
+                }
+        }
+    }
+
+    private fun setLoading() {
+        lifecycleScope.launch {
+            viewModel.isLoading.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isLoading ->
+                    if (isLoading) {
+                        dialogLoading.show(
+                            supportFragmentManager,
+                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG
+                        )
+                    } else {
+                        if(dialogLoading.isAdded){
+                            dialogLoading.dismiss()
+                        }
+                    }
+                }
         }
     }
 
@@ -150,14 +190,4 @@ class PostCompositionActivity : AppCompatActivity() {
         dialog.show(supportFragmentManager, dialogTag)
     }
 
-    private fun disableScreenTouch() {
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-    }
-
-    private fun enableScreenTouch() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-    }
 }
