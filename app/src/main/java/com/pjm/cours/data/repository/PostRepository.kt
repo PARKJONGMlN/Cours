@@ -64,16 +64,17 @@ class PostRepository @Inject constructor(
                 )
             )
             val postId = (result as ApiResultSuccess).data["name"]
-            apiClient.registerMeetingMember(
+            apiClient.addMemberMeetingList(
                 userId = userId,
                 auth = idToken,
                 post = mapOf(postId!! to true)
             )
-            apiClient.registerMemberMeeting(
+            apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
                 user = mapOf(userId to true)
             )
+            result
         } catch (e: Exception) {
             ApiResultException(e)
         }
@@ -87,21 +88,22 @@ class PostRepository @Inject constructor(
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val userId = preferenceManager.getString(Constants.USER_ID, "")
             val updateCount = currentMemberCount.toInt() + 1
-            apiClient.updateCurrentMemberCount(
+            val result = apiClient.updateCurrentMemberCount(
                 postId = postId,
                 auth = idToken,
                 mapOf("currentMemberCount" to updateCount.toString())
             )
-            apiClient.registerMeetingMember(
+            apiClient.addMemberMeetingList(
                 userId = userId,
                 auth = idToken,
                 post = mapOf(postId to true)
             )
-            apiClient.registerMemberMeeting(
+            apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
                 user = mapOf(userId to true)
             )
+            result
         } catch (e: Exception) {
             ApiResultException(e)
         }

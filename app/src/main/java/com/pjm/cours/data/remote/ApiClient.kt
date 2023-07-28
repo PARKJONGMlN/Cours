@@ -25,15 +25,15 @@ interface ApiClient {
         @Body user: Post
     ): ApiResponse<Map<String, String>>
 
-    @POST("meeting_member/{postId}.json")
-    suspend fun registerMemberMeeting(
+    @PATCH("meeting_member/{postId}.json")
+    suspend fun addMeetingMemberList(
         @Path("postId") postId: String,
         @Query("auth") auth: String?,
         @Body user: Map<String, Boolean>
-    ): ApiResponse<Map<String, String>>
+    ): ApiResponse<Map<String, Boolean>>
 
     @PATCH("member_meeting/{userId}.json")
-    suspend fun registerMeetingMember(
+    suspend fun addMemberMeetingList(
         @Path("userId") userId: String,
         @Query("auth") auth: String?,
         @Body post: Map<String, Boolean>
