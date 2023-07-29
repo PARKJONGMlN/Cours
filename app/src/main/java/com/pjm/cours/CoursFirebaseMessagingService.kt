@@ -47,7 +47,7 @@ class CoursFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun notify(remoteMessage: RemoteMessage) {
         val title = remoteMessage.data["title"] ?: "제목"
-        val sender = remoteMessage.data["userId"] ?: "보낸사람"
+        val sender = remoteMessage.data["sender"] ?: "보낸사람"
         val message = remoteMessage.data["message"] ?: "메시지"
         val postId = remoteMessage.data["chatRoomId"] ?: "방번호"
 

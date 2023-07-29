@@ -7,7 +7,7 @@ import com.pjm.cours.data.local.dao.MessageDao
 import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.local.entities.MessageEntity
 
-@Database(entities = [MessageEntity::class, ChatPreviewEntity::class], version = 2)
+@Database(entities = [MessageEntity::class, ChatPreviewEntity::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun messageDao(): MessageDao
