@@ -58,7 +58,7 @@ class ChatRepository @Inject constructor(
         return messageDao.getMessageListByPostId(postId)
     }
 
-    suspend fun getUserFcmToken(userId: String): ApiResponse<User>{
+    suspend fun getUserFcmToken(userId: String): ApiResponse<User> {
         return try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             apiClient.getUser(userId, idToken)
@@ -67,8 +67,8 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    fun getMemberList(postId: String){
-        chatRemoteDataSource.getMeetingMemberListId(postId,userId)
+    fun getMemberList(postId: String) {
+        chatRemoteDataSource.getMeetingMemberListId(postId, userId)
     }
 
     suspend fun upDateChatPreviewList() = withContext(Dispatchers.IO) {
@@ -151,6 +151,23 @@ class ChatRepository @Inject constructor(
 
     fun setCurrentRoomId(chatRoomId: String) {
         preferenceManager.setCurrentChatRoomId(Constants.CHAT_ROOM_ID, chatRoomId)
+    }
+
+    suspend fun exitChat(chatRoomId: String, currentMemberCount: Int): ApiResponse<Unit> {
+        return try {
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            val updateMemberCount = currentMemberCount - 1
+            chatPreviewDao.deleteByPostId(chatRoomId)
+            apiClient.updateCurrentMemberCount(
+                chatRoomId,
+                idToken,
+                mapOf("currentMemberCount" to updateMemberCount.toString())
+            )
+            apiClient.deleteMemberMeeting(userId, chatRoomId, idToken)
+            apiClient.deleteMeetingMember(chatRoomId, userId, idToken)
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
     }
 
 }

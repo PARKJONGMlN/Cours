@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_chat"
+        android:id="@+id/menu_chat_exit"
         android:icon="@drawable/baseline_menu_24"
-        android:title=""
-        app:showAsAction="ifRoom" />
+        android:title="@string/label_exit"
+        app:showAsAction="never" />
 </menu>

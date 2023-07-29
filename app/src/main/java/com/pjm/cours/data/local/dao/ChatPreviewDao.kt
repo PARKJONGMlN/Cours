@@ -19,4 +19,7 @@ interface ChatPreviewDao {
     @Query("UPDATE chat_preview SET send_date = :sendDate, last_message = :lastMessage WHERE post_id = :postId")
     suspend fun update(postId: String, sendDate: String, lastMessage: String)
 
+    @Query("DELETE FROM chat_preview WHERE post_id = :postId")
+    suspend fun deleteByPostId(postId: String)
+
 }

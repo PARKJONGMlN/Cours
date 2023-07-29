@@ -1,5 +1,6 @@
 package com.pjm.cours.ui.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +29,9 @@ class ChatViewModel @Inject constructor(
 
     private val _isError = MutableStateFlow(false)
     val isError = _isError.asStateFlow()
+
+    private val _isExitComplete = MutableStateFlow(false)
+    val isExitComplete = _isExitComplete.asStateFlow()
 
     private val _cleatTextEvent = MutableSharedFlow<Unit>()
     val cleatTextEvent = _cleatTextEvent.asSharedFlow()
@@ -125,6 +129,22 @@ class ChatViewModel @Inject constructor(
                 }
                 is ApiResultException -> {
                     _isError.value = true
+                }
+            }
+        }
+    }
+
+    fun exitChat() {
+        viewModelScope.launch {
+            val currentMember = memberTokenList.value.size + 1
+            val result = chatRepository.exitChat(_postId.value,currentMember)
+            when (result) {
+                is ApiResultSuccess -> {
+                    _isExitComplete.value = true
+                }
+                is ApiResultError -> {
+                }
+                is ApiResultException -> {
                 }
             }
         }
