@@ -1,11 +1,13 @@
 package com.pjm.cours.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentProfileBinding
 import com.pjm.cours.ui.BaseFragment
@@ -26,6 +28,21 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
 
     private fun setLayout() {
         setErrorMessage()
+        setAppBar()
+    }
+
+    private fun setAppBar() {
+        binding.appBarProfile.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_setting -> {
+                    viewModel.logOut()
+                    val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+                    findNavController().navigate(action)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun setErrorMessage() {

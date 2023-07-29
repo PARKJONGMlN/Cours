@@ -95,4 +95,8 @@ class UserRepository @Inject constructor(
     private suspend fun getDownLoadImageUri(hostImageUri: String) =
         imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
+    fun logOut(){
+        preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN,"")
+    }
+
 }

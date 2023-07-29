@@ -32,4 +32,9 @@ class ProfileViewModel @Inject constructor(
             _isError.value = true
         }
     )
+
+    fun logOut() {
+        userRepository.logOut()
+    }
+
 }
