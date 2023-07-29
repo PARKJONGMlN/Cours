@@ -32,11 +32,11 @@ class UserRepository @Inject constructor(
         preferenceManager.setUserId(Constants.USER_ID, userId)
     }
 
-    suspend fun addUser(user: User): ApiResponse<Map<String, String>> {
+    suspend fun addUser(uid: String, user: User): ApiResponse<Map<String, String>> {
         return try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val uri = uploadImage(user.profileUri.toUri())
-            apiClient.createUser(idToken, User(uri, user.nickname, user.intro, user.email))
+            apiClient.createUser(uid, idToken, User(uri, user.nickname, user.intro, user.email))
         } catch (e: Exception) {
             ApiResultException(e)
         }
@@ -95,8 +95,8 @@ class UserRepository @Inject constructor(
     private suspend fun getDownLoadImageUri(hostImageUri: String) =
         imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
-    fun logOut(){
-        preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN,"")
+    fun logOut() {
+        preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
 
 }
