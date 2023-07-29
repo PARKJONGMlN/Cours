@@ -24,6 +24,7 @@ android {
         buildConfigField "String", "GOOGLE_CLIENT_ID", properties["google_client_id"]
         buildConfigField "String", "BASE_URL", properties["google_firebase_realtime_db_url"]
         buildConfigField "String", "KAKAO_MAP_KEY", properties["kakao_map_api_key"]
+        buildConfigField "String", "FCM_KEY", properties["google_fcm_key"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -63,6 +64,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
 
     // Google
     implementation 'com.google.android.gms:play-services-auth:20.6.0'

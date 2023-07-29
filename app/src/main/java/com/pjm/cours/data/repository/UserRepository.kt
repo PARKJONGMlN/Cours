@@ -39,6 +39,17 @@ class UserRepository @Inject constructor(
         }
     }
 
+    suspend fun setUserFcmToken(fcmToken: String): ApiResponse<Map<String, String>> {
+        return try {
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            val userId = preferenceManager.getString(Constants.USER_ID, "")
+            val result = apiClient.upDateUser(userId, idToken, mapOf("fcmToken" to fcmToken))
+            result
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     private suspend fun uploadImage(uri: Uri): String {
         val storageRef = FirebaseStorage.getInstance().reference
         val email = FirebaseAuth.getInstance().currentUser?.email

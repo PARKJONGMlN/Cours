@@ -26,6 +26,11 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
         sharedPreferences.edit().putString(key, userId).apply()
     }
 
+
+    fun setCurrentChatRoomId(key: String, chatRoomId: String){
+        sharedPreferences.edit().putString(key, chatRoomId).apply()
+    }
+
     fun setUserCurrentPoint(
         latitudeKey: String,
         currentLatitude: String,
@@ -46,7 +51,4 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
         }
     }
 
-    fun removeGoogleIdToken(key: String) {
-        sharedPreferences.edit().remove(key).apply()
-    }
 }
