@@ -7,8 +7,9 @@ import retrofit2.http.*
 
 interface ApiClient {
 
-    @POST("user.json")
+    @PUT("user/{uid}.json")
     suspend fun createUser(
+        @Path("uid") uid: String,
         @Query("auth") auth: String?,
         @Body user: User
     ): ApiResponse<Map<String, String>>
@@ -23,8 +24,8 @@ interface ApiClient {
     suspend fun upDateUser(
         @Path("userId") userId: String,
         @Query("auth") auth: String?,
-        @Body nickname: Map<String,String>
-    ): ApiResponse<Map<String,String>>
+        @Body nickname: Map<String, String>
+    ): ApiResponse<Map<String, String>>
 
     @POST("post.json")
     suspend fun createPost(

@@ -66,7 +66,7 @@ class SettingUserInfoFragment :
                 Lifecycle.State.STARTED,
             ).collect { isSuccess ->
                 if (isSuccess) {
-                    viewModel.saveGoogleIdToken(args.idToken)
+                    viewModel.saveGoogleIdToken(args.uid)
                     findNavController().navigate(SettingUserInfoFragmentDirections.actionSettingUserInfoFragmentToChatListFragment())
                 }
             }

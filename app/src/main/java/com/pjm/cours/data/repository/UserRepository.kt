@@ -6,16 +6,19 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.pjm.cours.data.PreferenceManager
 import com.pjm.cours.data.model.User
-import com.pjm.cours.data.remote.ApiClient
-import com.pjm.cours.data.remote.ApiResponse
-import com.pjm.cours.data.remote.ApiResultException
+import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val apiClient: ApiClient,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val imageUriRemoteDataSource: ImageUriDataSource,
 ) {
 
     fun getGoogleIdToken() = preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
@@ -29,11 +32,11 @@ class UserRepository @Inject constructor(
         preferenceManager.setUserId(Constants.USER_ID, userId)
     }
 
-    suspend fun addUser(user: User): ApiResponse<Map<String, String>> {
+    suspend fun addUser(uid: String, user: User): ApiResponse<Map<String, String>> {
         return try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val uri = uploadImage(user.profileUri.toUri())
-            apiClient.createUser(idToken, User(uri, user.nickname, user.intro, user.email))
+            apiClient.createUser(uid, idToken, User(uri, user.nickname, user.intro, user.email))
         } catch (e: Exception) {
             ApiResultException(e)
         }
@@ -58,4 +61,42 @@ class UserRepository @Inject constructor(
         imageRef.putFile(uri).await()
         return location
     }
+
+    fun getUserInfo(
+        onSuccess: () -> Unit,
+        onError: () -> Unit,
+    ) = flow {
+        try {
+            val userId = preferenceManager.getString(Constants.USER_ID, "")
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            val result = apiClient.getUser(userId, idToken)
+            when (result) {
+                is ApiResultSuccess -> {
+                    emit(
+                        result.data.copy(
+                            profileUri = getDownLoadImageUri(result.data.profileUri)
+                        )
+                    )
+                }
+                is ApiResultError -> {
+                    onError()
+                }
+                is ApiResultException -> {
+                    onError()
+                }
+            }
+        } catch (e: Exception) {
+            onError()
+        }
+    }.onCompletion {
+        onSuccess()
+    }.flowOn(Dispatchers.Default)
+
+    private suspend fun getDownLoadImageUri(hostImageUri: String) =
+        imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
+
+    fun logOut() {
+        preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
+    }
+
 }

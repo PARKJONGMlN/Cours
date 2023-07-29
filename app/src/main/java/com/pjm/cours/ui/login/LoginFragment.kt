@@ -8,6 +8,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
@@ -25,15 +29,19 @@ import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentLoginBinding
 import com.pjm.cours.ui.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
 
+    private val viewModel: LoginViewModel by viewModels()
     private lateinit var auth: FirebaseAuth
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
     private lateinit var signInLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var signInLegacyLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private var idToken: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
@@ -49,6 +57,29 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         binding.btnLoginWithGoogle.setOnClickListener {
             beginSignIn()
         }
+        setObserver()
+    }
+
+    private fun setObserver() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isBeforeUser.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isBeforeUser ->
+                if (isBeforeUser) {
+                    viewModel.saveGoogleIdToken(auth.currentUser?.uid ?: "")
+                    findNavController().navigate(
+                        LoginFragmentDirections.actionLoginFragmentToChatListFragment()
+                    )
+                } else {
+                    findNavController().navigate(
+                        LoginFragmentDirections.actionLoginFragmentToSettingUserInfoFragment(
+                            auth.currentUser?.uid ?: ""
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun getActivityResultLauncher(signInClient: SignInClient) =
@@ -56,45 +87,39 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             if (result.resultCode == AppCompatActivity.RESULT_OK) {
                 try {
                     val credential = signInClient.getSignInCredentialFromIntent(result.data)
-                    val idToken = credential.googleIdToken
+                    idToken = credential.googleIdToken
                     when {
                         idToken != null -> {
                             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                             auth.signInWithCredential(firebaseCredential)
                                 .addOnCompleteListener(requireActivity()) { task ->
                                     if (task.isSuccessful) {
-                                        findNavController().navigate(
-                                            LoginFragmentDirections.actionLoginFragmentToSettingUserInfoFragment(
-                                                idToken
-                                            )
-                                        )
+                                        viewModel.getUserInfo()
                                     } else {
-
+                                        Snackbar.make(
+                                            binding.root,
+                                            getString(R.string.error_message),
+                                            Snackbar.LENGTH_SHORT
+                                        )
+                                            .show()
                                     }
                                 }
                         }
                         else -> {
+
                         }
                     }
                 } catch (e: ApiException) {
                     when (e.statusCode) {
                         CommonStatusCodes.CANCELED -> {
-
                         }
                         CommonStatusCodes.NETWORK_ERROR -> {
-
                         }
                         else -> {
                         }
                     }
                 }
             } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_message),
-                    Snackbar.LENGTH_SHORT
-                )
-                    .show()
             }
         }
 

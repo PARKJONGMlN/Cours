@@ -20,6 +20,8 @@ class SettingUserInfoViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    private val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
     val nickName = MutableStateFlow("")
     val intro = MutableStateFlow("")
 
@@ -68,6 +70,7 @@ class SettingUserInfoViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val result = repository.addUser(
+                uid,
                 User(
                     selectedImageUri.value,
                     nickName.value,
@@ -78,7 +81,7 @@ class SettingUserInfoViewModel @Inject constructor(
             _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
-                    repository.saveUserId(result.data["name"] ?: "")
+                    repository.saveUserId(uid)
                     _isSuccess.value = true
                 }
                 is ApiResultError -> {

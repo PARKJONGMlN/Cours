@@ -27,6 +27,11 @@
         <action
             android:id="@+id/action_loginFragment_to_settingUserInfoFragment"
             app:destination="@id/settingUserInfoFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_chatListFragment"
+            app:destination="@id/chatListFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -39,7 +44,7 @@
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
         <argument
-            android:name="idToken"
+            android:name="uid"
             app:argType="string" />
     </fragment>
 
@@ -61,6 +66,12 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.pjm.cours.ui.profile.ProfileFragment"
-        android:label="ProfileFragment" />
+        android:label="ProfileFragment">
+        <action
+            android:id="@+id/action_profileFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>
