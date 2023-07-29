@@ -29,4 +29,10 @@ object DateFormat {
         val date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
         return formatter.format(date)
     }
+
+    fun getRelativeTime(timestamp: Long): String {
+        val formatter = SimpleDateFormat("aa hh:mm", Locale.KOREA)
+        return formatter.format(Date(timestamp))
+    }
+
 }

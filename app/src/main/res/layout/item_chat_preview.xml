@@ -72,16 +72,17 @@
 
         <TextView
             android:id="@+id/tv_last_chat_date_preview"
+            relativeTime="@{chatPreview.messageDate}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:maxLength="13"
-            android:text="@{chatPreview.messageDate}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="오후 00:12" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/tv_unread_chat_preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
