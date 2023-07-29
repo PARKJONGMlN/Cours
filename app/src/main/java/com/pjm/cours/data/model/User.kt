@@ -5,4 +5,5 @@ data class User(
     val nickname: String = "",
     val intro: String = "",
     val email: String = "",
+    val fcmToken: String = ""
 )

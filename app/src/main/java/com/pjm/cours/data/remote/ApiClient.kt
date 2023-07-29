@@ -19,6 +19,13 @@ interface ApiClient {
         @Query("auth") auth: String?
     ): ApiResponse<User>
 
+    @PATCH("user/{userId}.json")
+    suspend fun upDateUser(
+        @Path("userId") userId: String,
+        @Query("auth") auth: String?,
+        @Body nickname: Map<String,String>
+    ): ApiResponse<Map<String,String>>
+
     @POST("post.json")
     suspend fun createPost(
         @Query("auth") auth: String?,

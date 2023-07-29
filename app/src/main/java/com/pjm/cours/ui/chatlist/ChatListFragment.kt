@@ -8,6 +8,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentChatListBinding
 import com.pjm.cours.ui.BaseFragment
@@ -27,6 +29,13 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
         val navGraph = navController.graph
         navGraph.setStartDestination(R.id.chatListFragment)
         navController.graph = navGraph
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+            val token = task.result
+            viewModel.upDateUser(token)
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
