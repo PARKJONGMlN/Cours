@@ -59,11 +59,11 @@ class ChatDataSource @Inject constructor(){
             })
     }
 
-    fun getMeetingMemberListId(postId: String) {
+    fun getMeetingMemberListId(postId: String, userId: String) {
         chatRoomMemberRef.child(postId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val value = snapshot.value as? Map<String, Any> ?: mapOf("" to "")
-                _memberListState.value = value.keys.toList()
+                _memberListState.value = value.keys.filter { it != userId }.toList()
             }
             override fun onCancelled(error: DatabaseError) {
 

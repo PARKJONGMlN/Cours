@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
 ) : ViewModel() {
 
     private val email = FirebaseAuth.getInstance().currentUser?.email
@@ -112,7 +112,7 @@ class ChatViewModel @Inject constructor(
                                 token,
                                 NotificationBody.NotificationData(
                                     title = message.text,
-                                    userId = email?: "",
+                                    userId = email ?: "",
                                     message = message.text,
                                     chatRoomId = postId.value
                                 )

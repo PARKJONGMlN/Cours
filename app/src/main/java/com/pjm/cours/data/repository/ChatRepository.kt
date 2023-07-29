@@ -68,7 +68,7 @@ class ChatRepository @Inject constructor(
     }
 
     fun getMemberList(postId: String){
-        chatRemoteDataSource.getMeetingMemberListId(postId)
+        chatRemoteDataSource.getMeetingMemberListId(postId,userId)
     }
 
     suspend fun upDateChatPreviewList() = withContext(Dispatchers.IO) {
