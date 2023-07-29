@@ -6,6 +6,10 @@ object Constants {
     const val KEY_GOOGLE_ID_TOKEN = "google_id_token"
     const val USER_ID = "user_id"
 
+    // chatRoomId
+    const val CHAT_ROOM_ID = "chat_room_id"
+
+
     // dialog
     const val DIALOG_TAG_CATEGORY = "tag_category"
     const val DIALOG_TAG_LANGUAGE = "tag_language"

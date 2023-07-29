@@ -57,6 +57,7 @@ class ChatViewModel @Inject constructor(
         _postId.value = postId
         getMessages(postId)
         getMemberList(postId)
+        chatRepository.setCurrentRoomId(postId)
     }
 
     private fun getMessages(postId: String) {
@@ -127,6 +128,11 @@ class ChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatRepository.setCurrentRoomId("")
     }
 
 }

@@ -21,7 +21,7 @@ import javax.inject.Inject
 class ChatRepository @Inject constructor(
     private val chatRemoteDataSource: ChatDataSource,
     private val imageUriRemoteDataSource: ImageUriDataSource,
-    preferenceManager: PreferenceManager,
+    private val preferenceManager: PreferenceManager,
     private val messageDao: MessageDao,
     private val chatPreviewDao: ChatPreviewDao,
     private val apiClient: ApiClient,
@@ -147,6 +147,10 @@ class ChatRepository @Inject constructor(
 
     suspend fun sendNotification(notification: NotificationBody) {
         fcmClient.sendNotification(notification = notification)
+    }
+
+    fun setCurrentRoomId(chatRoomId: String) {
+        preferenceManager.setCurrentChatRoomId(Constants.CHAT_ROOM_ID, chatRoomId)
     }
 
 }
