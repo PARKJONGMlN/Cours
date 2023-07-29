@@ -9,13 +9,12 @@ import com.pjm.cours.data.local.dao.ChatPreviewDao
 import com.pjm.cours.data.local.dao.MessageDao
 import com.pjm.cours.data.local.entities.ChatPreviewEntity
 import com.pjm.cours.data.local.entities.MessageEntity
-import com.pjm.cours.data.model.ChatPreview
-import com.pjm.cours.data.model.Message
-import com.pjm.cours.data.model.Post
+import com.pjm.cours.data.model.*
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -26,9 +25,10 @@ class ChatRepository @Inject constructor(
     private val messageDao: MessageDao,
     private val chatPreviewDao: ChatPreviewDao,
     private val apiClient: ApiClient,
+    private val fcmClient: FcmClient
 ) {
     private val userId = preferenceManager.getString(Constants.USER_ID, "")
-
+    val memberIdList: StateFlow<List<String>> = chatRemoteDataSource.memberListState
     suspend fun sendMessage(postId: String, message: Message): ApiResponse<Map<String, String>> {
         return try {
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
@@ -56,6 +56,19 @@ class ChatRepository @Inject constructor(
             }
         }
         return messageDao.getMessageListByPostId(postId)
+    }
+
+    suspend fun getUserFcmToken(userId: String): ApiResponse<User>{
+        return try {
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            apiClient.getUser(userId, idToken)
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
+    fun getMemberList(postId: String){
+        chatRemoteDataSource.getMeetingMemberListId(postId)
     }
 
     suspend fun upDateChatPreviewList() = withContext(Dispatchers.IO) {
@@ -130,6 +143,10 @@ class ChatRepository @Inject constructor(
 
     private fun parsePost(postSnapshot: DataSnapshot): Post {
         return postSnapshot.getValue(Post::class.java) ?: Post()
+    }
+
+    suspend fun sendNotification(notification: NotificationBody) {
+        fcmClient.sendNotification(notification = notification)
     }
 
 }

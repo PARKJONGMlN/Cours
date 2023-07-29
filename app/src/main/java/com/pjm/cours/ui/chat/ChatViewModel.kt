@@ -3,10 +3,7 @@ package com.pjm.cours.ui.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.pjm.cours.data.model.ChatItem
-import com.pjm.cours.data.model.Message
-import com.pjm.cours.data.model.MyChat
-import com.pjm.cours.data.model.OtherChat
+import com.pjm.cours.data.model.*
 import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
@@ -23,6 +20,7 @@ class ChatViewModel @Inject constructor(
 
     private val email = FirebaseAuth.getInstance().currentUser?.email
     lateinit var messageList: StateFlow<List<ChatItem>>
+    private val memberTokenList = MutableStateFlow<List<String>>(emptyList())
     val messageText = MutableStateFlow("")
 
     private val _postId = MutableStateFlow("")
@@ -34,9 +32,31 @@ class ChatViewModel @Inject constructor(
     private val _cleatTextEvent = MutableSharedFlow<Unit>()
     val cleatTextEvent = _cleatTextEvent.asSharedFlow()
 
+    init {
+        viewModelScope.launch {
+            chatRepository.memberIdList.collect { memberIdList ->
+                memberTokenList.value = memberIdList.map { userId ->
+                    val result = chatRepository.getUserFcmToken(userId)
+                    when (result) {
+                        is ApiResultSuccess -> {
+                            result.data.fcmToken
+                        }
+                        is ApiResultError -> {
+                            ""
+                        }
+                        is ApiResultException -> {
+                            ""
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun setPostId(postId: String) {
         _postId.value = postId
         getMessages(postId)
+        getMemberList(postId)
     }
 
     private fun getMessages(postId: String) {
@@ -45,6 +65,10 @@ class ChatViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    }
+
+    private fun getMemberList(postId: String) {
+        chatRepository.getMemberList(postId)
     }
 
     private fun transFormChatList(postId: String) =
@@ -81,7 +105,19 @@ class ChatViewModel @Inject constructor(
             val result = chatRepository.sendMessage(postId.value, message)
             when (result) {
                 is ApiResultSuccess -> {
-
+                    for (token in memberTokenList.value) {
+                        chatRepository.sendNotification(
+                            NotificationBody(
+                                token,
+                                NotificationBody.NotificationData(
+                                    title = message.text,
+                                    userId = email?: "",
+                                    message = message.text,
+                                    chatRoomId = postId.value
+                                )
+                            )
+                        )
+                    }
                 }
                 is ApiResultError -> {
                     _isError.value = true
