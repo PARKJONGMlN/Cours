@@ -62,6 +62,16 @@ class UserRepository @Inject constructor(
         return location
     }
 
+    suspend fun getUserInfo(): ApiResponse<User> {
+        return try {
+            val userId = preferenceManager.getString(Constants.USER_ID, "")
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            apiClient.getUser(userId, idToken)
+        } catch (e: Exception) {
+            ApiResultException(e)
+        }
+    }
+
     fun getUserInfo(
         onSuccess: () -> Unit,
         onError: () -> Unit,

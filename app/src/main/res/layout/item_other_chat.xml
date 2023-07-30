@@ -20,6 +20,7 @@
             android:layout_height="54dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
+            android:visibility="gone"
             app:cardCornerRadius="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -36,7 +37,7 @@
             android:id="@+id/tv_user_nickname_other_chat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="18dp"
             android:text="@{otherChat.sender}"
             app:layout_constraintStart_toEndOf="@+id/cv_user_profile_image_other_chat"
             app:layout_constraintTop_toTopOf="@+id/cv_user_profile_image_other_chat"
@@ -46,7 +47,7 @@
             android:id="@+id/cv_user_message_other_chat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp"
             app:cardBackgroundColor="@color/grey"
@@ -67,10 +68,10 @@
 
         <TextView
             android:id="@+id/tv_created_at_other_chat"
+            relativeTime="@{otherChat.sendDate}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:text="@{otherChat.sendDate}"
             android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="@+id/cv_user_message_other_chat"
             app:layout_constraintStart_toEndOf="@+id/cv_user_message_other_chat"

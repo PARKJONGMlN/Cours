@@ -111,7 +111,7 @@
                     android:id="@+id/iv_distance_icon_post_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:contentDescription="@string/description_distance_icon"
                     app:layout_constraintStart_toEndOf="@+id/cv_language_post_detail"
                     app:layout_constraintTop_toTopOf="@+id/cv_language_post_detail"
@@ -181,6 +181,7 @@
                     tools:text="@string/place_holder_text_body" />
 
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/tv_post_member_post_detail_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

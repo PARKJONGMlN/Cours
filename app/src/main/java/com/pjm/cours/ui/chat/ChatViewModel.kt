@@ -8,6 +8,7 @@ import com.pjm.cours.data.remote.ApiResultError
 import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.ChatRepository
+import com.pjm.cours.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -16,9 +17,14 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val email = FirebaseAuth.getInstance().currentUser?.email
+    private val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    private val _userInfo = MutableStateFlow(User())
+    val userInfo = _userInfo.asStateFlow()
+
     lateinit var messageList: StateFlow<List<ChatItem>>
     private val memberTokenList = MutableStateFlow<List<String>>(emptyList())
     val messageText = MutableStateFlow("")
@@ -28,6 +34,9 @@ class ChatViewModel @Inject constructor(
 
     private val _isError = MutableStateFlow(false)
     val isError = _isError.asStateFlow()
+
+    private val _isExitComplete = MutableStateFlow(false)
+    val isExitComplete = _isExitComplete.asStateFlow()
 
     private val _cleatTextEvent = MutableSharedFlow<Unit>()
     val cleatTextEvent = _cleatTextEvent.asSharedFlow()
@@ -51,6 +60,19 @@ class ChatViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            val result = userRepository.getUserInfo()
+            when (result) {
+                is ApiResultSuccess -> {
+                    _userInfo.value = result.data
+                }
+                is ApiResultError -> {
+                }
+                is ApiResultException -> {
+                }
+            }
+        }
+
     }
 
     fun setPostId(postId: String) {
@@ -75,7 +97,7 @@ class ChatViewModel @Inject constructor(
     private fun transFormChatList(postId: String) =
         chatRepository.getMessages(postId).map { messageEntityList ->
             messageEntityList.map { messageEntity ->
-                if (messageEntity.sender == email) {
+                if (messageEntity.senderUid == uid) {
                     MyChat(
                         postId = messageEntity.postId,
                         messageId = messageEntity.messageId,
@@ -98,8 +120,9 @@ class ChatViewModel @Inject constructor(
     fun sendMessage() {
         viewModelScope.launch {
             val message = Message(
+                uid,
                 messageText.value,
-                email ?: "",
+                userInfo.value.nickname,
                 System.currentTimeMillis()
             )
             _cleatTextEvent.emit(Unit)
@@ -112,7 +135,7 @@ class ChatViewModel @Inject constructor(
                                 token,
                                 NotificationBody.NotificationData(
                                     title = message.text,
-                                    userId = email ?: "",
+                                    sender = userInfo.value.nickname,
                                     message = message.text,
                                     chatRoomId = postId.value
                                 )
@@ -125,6 +148,22 @@ class ChatViewModel @Inject constructor(
                 }
                 is ApiResultException -> {
                     _isError.value = true
+                }
+            }
+        }
+    }
+
+    fun exitChat() {
+        viewModelScope.launch {
+            val currentMember = memberTokenList.value.size + 1
+            val result = chatRepository.exitChat(_postId.value, currentMember)
+            when (result) {
+                is ApiResultSuccess -> {
+                    _isExitComplete.value = true
+                }
+                is ApiResultError -> {
+                }
+                is ApiResultException -> {
                 }
             }
         }

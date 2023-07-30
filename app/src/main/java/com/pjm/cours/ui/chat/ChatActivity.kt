@@ -1,6 +1,7 @@
 package com.pjm.cours.ui.chat
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +41,34 @@ class ChatActivity : AppCompatActivity() {
         setChatList()
         setErrorMessage()
         setTextClear()
+        setAppBar()
+        setExit()
+    }
+
+    private fun setExit() {
+        lifecycleScope.launch {
+            viewModel.isExitComplete.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isExitComplete ->
+                    if (isExitComplete) {
+                        finish()
+                    }
+                }
+        }
+    }
+
+    private fun setAppBar() {
+        binding.appBarChat.setNavigationOnClickListener {
+            finish()
+        }
+        binding.appBarChat.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_chat_exit -> {
+                    viewModel.exitChat()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun setChatList() {

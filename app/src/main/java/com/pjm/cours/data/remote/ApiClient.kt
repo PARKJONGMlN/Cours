@@ -7,6 +7,20 @@ import retrofit2.http.*
 
 interface ApiClient {
 
+    @DELETE("meeting_member/{chatRoomId}/{userId}.json")
+    suspend fun deleteMeetingMember(
+        @Path("chatRoomId") chatRoomId: String,
+        @Path("userId") userId: String,
+        @Query("auth") auth: String?
+    ): ApiResponse<Unit>
+
+    @DELETE("member_meeting/{userId}/{chatRoomId}.json")
+    suspend fun deleteMemberMeeting(
+        @Path("userId") userId: String,
+        @Path("chatRoomId") chatRoomId: String,
+        @Query("auth") auth: String?
+    ): ApiResponse<Unit>
+
     @PUT("user/{uid}.json")
     suspend fun createUser(
         @Path("uid") uid: String,

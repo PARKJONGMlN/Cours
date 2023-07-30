@@ -12,4 +12,5 @@ data class MessageEntity(
     @ColumnInfo(name = "send_date") val sendDate: String = "",
     @ColumnInfo(name = "text") val text: String = "",
     @ColumnInfo(name = "sender") val sender: String = "",
+    @ColumnInfo(name = "senderUid") val senderUid: String = "",
 )
