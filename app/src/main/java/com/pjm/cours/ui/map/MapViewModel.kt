@@ -84,6 +84,7 @@ class MapViewModel @Inject constructor(
         repository.getPostList(
             onSuccess = {
                 _isLoading.value = false
+                _isError.value = false
             }, onError = {
                 _isLoading.value = false
                 _isError.value = true
