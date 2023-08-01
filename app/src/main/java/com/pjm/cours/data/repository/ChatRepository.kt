@@ -43,7 +43,7 @@ class ChatRepository @Inject constructor(
     }
 
     fun getMessages(postId: String): Flow<List<MessageEntity>> {
-        chatRemoteDataSource.getMessageUpdates(postId) { message, messageId ->
+        chatRemoteDataSource.getMessageUpdates(postId, userId) { message, messageId ->
             val messageEntity = MessageEntity(
                 senderUid = message.senderUid,
                 postId = postId,

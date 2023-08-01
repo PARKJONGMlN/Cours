@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class ChatDataSource @Inject constructor(){
+class ChatDataSource @Inject constructor() {
 
     private val database = FirebaseDatabase.getInstance(BuildConfig.BASE_URL)
     private val userChatRoomsRef = database.getReference("member_meeting")
@@ -36,27 +36,31 @@ class ChatDataSource @Inject constructor(){
             .addValueEventListener(listener)
     }
 
-    fun getMessageUpdates(postId: String, onNewMessage: (Message, String) -> Unit) {
-        messageRef.child(postId).child("messages").orderByChild("timestamp")
-            .addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+    fun getMessageUpdates(postId: String, userId: String, onNewMessage: (Message, String) -> Unit) {
+        chatRoomMemberRef.child(postId).child(userId).get().addOnSuccessListener { snapshot->
+            val entryTime = snapshot.value.toString()
+            messageRef.child(postId).child("messages").orderByChild("timestamp")
+                .startAt(entryTime.toDouble())
+                .addChildEventListener(object : ChildEventListener {
+                    override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
 
-                    val messageId = snapshot.key ?: ""
-                    val message = snapshot.getValue(Message::class.java) ?: return
-                    onNewMessage(message, messageId)
-                }
+                        val messageId = snapshot.key ?: ""
+                        val message = snapshot.getValue(Message::class.java) ?: return
+                        onNewMessage(message, messageId)
+                    }
 
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                }
+                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    }
 
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                }
+                    override fun onChildRemoved(snapshot: DataSnapshot) {
+                    }
 
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                }
+                    override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    }
 
-                override fun onCancelled(error: DatabaseError) {}
-            })
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+        }
     }
 
     fun getMeetingMemberListId(postId: String, userId: String) {
@@ -65,6 +69,7 @@ class ChatDataSource @Inject constructor(){
                 val value = snapshot.value as? Map<String, Any> ?: mapOf("" to "")
                 _memberListState.value = value.keys.filter { it != userId }.toList()
             }
+
             override fun onCancelled(error: DatabaseError) {
 
             }

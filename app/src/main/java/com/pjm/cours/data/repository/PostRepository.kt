@@ -72,7 +72,7 @@ class PostRepository @Inject constructor(
             apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
-                user = mapOf(userId to true)
+                user = mapOf(userId to System.currentTimeMillis().toString())
             )
             result
         } catch (e: Exception) {
@@ -101,7 +101,7 @@ class PostRepository @Inject constructor(
             apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
-                user = mapOf(userId to true)
+                user = mapOf(userId to System.currentTimeMillis().toString())
             )
             result
         } catch (e: Exception) {
