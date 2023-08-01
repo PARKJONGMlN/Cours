@@ -120,6 +120,7 @@ class PostCompositionViewModel @Inject constructor(
             when (result) {
                 is ApiResultSuccess -> {
                     postId.value = result.data["name"] ?: ""
+                    repository.setChatPreview(postId.value)
                     _isCompleted.value = true
                 }
                 is ApiResultError -> {

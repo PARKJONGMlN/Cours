@@ -29,7 +29,6 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
     }
 
     private fun setLayout() {
-        viewModel.refreshPostList()
         setAppBar()
         setPostList()
         setErrorMessage()
@@ -77,6 +76,11 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshPostList()
     }
 
 }
