@@ -119,33 +119,36 @@
 
                 <TextView
                     android:id="@+id/tv_distance_post_detail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:text="@{distance.isEmpty() ? viewModel.post.location : @string/format_post_distance_m(distance)}"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_post_detail"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_current_people_icon_post_detail"
                     app:layout_constraintStart_toEndOf="@+id/iv_distance_icon_post_detail"
                     tools:text="거리" />
 
                 <ImageView
+                    android:layout_marginEnd="4dp"
                     android:id="@+id/iv_current_people_icon_post_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:contentDescription="@string/description_current_people_icon"
-                    app:layout_constraintBottom_toBottomOf="@+id/iv_distance_icon_post_detail"
-                    app:layout_constraintStart_toEndOf="@+id/tv_distance_post_detail"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_distance_post_detail"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_current_people_post_detail"
                     app:srcCompat="@drawable/baseline_group_24" />
 
                 <TextView
+                    android:layout_marginEnd="16dp"
                     android:id="@+id/tv_current_people_post_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
                     android:text="@{@string/format_post_member_count(viewModel.post.currentMemberCount,viewModel.post.limitMemberCount)}"
                     app:layout_constraintBottom_toBottomOf="@+id/iv_current_people_icon_post_detail"
-                    app:layout_constraintStart_toEndOf="@+id/iv_current_people_icon_post_detail"
-                    tools:text="현재인원/전체인원" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="1/3" />
 
                 <TextView
                     android:id="@+id/tv_meeting_date_post_detail_label"

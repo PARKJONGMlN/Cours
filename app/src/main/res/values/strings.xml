@@ -8,6 +8,7 @@
     <string name="label_post_location">위치</string>
     <string name="label_post_detail">모임 상세 화면</string>
 
+    <string name="label_menu_delete_account">계정삭제</string>
     <string name="label_menu_logout">로그아웃</string>
 
     <string name="btn_complete">완료</string>

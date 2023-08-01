@@ -29,12 +29,31 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
         viewModel.refreshUserInfo()
         setErrorMessage()
         setAppBar()
+        setDeleteAccount()
+    }
+
+    private fun setDeleteAccount() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isDeleteAccount.flowWithLifecycle(
+                viewLifecycleOwner.lifecycle,
+                Lifecycle.State.STARTED
+            ).collect { isDeleteAccount ->
+                if (isDeleteAccount) {
+                    val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+                    findNavController().navigate(action)
+                }
+            }
+        }
     }
 
     private fun setAppBar() {
         binding.appBarProfile.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.menu_setting -> {
+                R.id.menu_delete_account->{
+                    viewModel.deleteAccount()
+                    true
+                }
+                R.id.menu_log_out -> {
                     viewModel.logOut()
                     val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
                     findNavController().navigate(action)

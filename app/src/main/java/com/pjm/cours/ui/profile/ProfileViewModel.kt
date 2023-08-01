@@ -20,11 +20,26 @@ class ProfileViewModel @Inject constructor(
     private val _isError = MutableSharedFlow<Boolean>()
     val isError = _isError.asSharedFlow()
 
+    private val _isLogOutComplete = MutableSharedFlow<Boolean>()
+    val isLogOutComplete = _isLogOutComplete.asSharedFlow()
+
+    private val _isDeleteAccount = MutableSharedFlow<Boolean>()
+    val isDeleteAccount = _isDeleteAccount.asSharedFlow()
+
     private val _userInfo = MutableStateFlow(User())
     val userInfo: StateFlow<User> = _userInfo.asStateFlow()
 
     fun logOut() {
         userRepository.logOut()
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            val result = userRepository.deleteAccount()
+            if(result){
+                _isDeleteAccount.emit(true)
+            }
+        }
     }
 
     fun refreshUserInfo() {
