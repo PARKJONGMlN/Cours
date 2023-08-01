@@ -73,6 +73,7 @@ class UserRepository @Inject constructor(
     }
 
     fun getUserInfo(
+        onComplete: () -> Unit,
         onSuccess: () -> Unit,
         onError: () -> Unit,
     ) = flow {
@@ -99,7 +100,7 @@ class UserRepository @Inject constructor(
             onError()
         }
     }.onCompletion {
-        onSuccess()
+        onComplete()
     }.flowOn(Dispatchers.Default)
 
     private suspend fun getDownLoadImageUri(hostImageUri: String) =
