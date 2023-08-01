@@ -29,6 +29,7 @@ class PostListFragment : BaseFragment<FragmentPostListBinding>(R.layout.fragment
     }
 
     private fun setLayout() {
+        viewModel.refreshPostList()
         setAppBar()
         setPostList()
         setErrorMessage()
