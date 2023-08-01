@@ -1,7 +1,6 @@
 package com.pjm.cours.ui.profile
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +26,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
     }
 
     private fun setLayout() {
+        viewModel.refreshUserInfo()
         setErrorMessage()
         setAppBar()
     }

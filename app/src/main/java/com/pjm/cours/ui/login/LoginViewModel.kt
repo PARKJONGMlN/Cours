@@ -20,6 +20,7 @@ class LoginViewModel @Inject constructor(
     fun getUserInfo() {
         viewModelScope.launch {
             userRepository.getUserInfo(
+                onComplete = { },
                 onSuccess = { },
                 onError = {
                     viewModelScope.launch {

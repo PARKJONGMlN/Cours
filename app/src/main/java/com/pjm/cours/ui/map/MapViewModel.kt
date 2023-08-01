@@ -22,8 +22,8 @@ class MapViewModel @Inject constructor(
     private val _isGrantedPermission = MutableSharedFlow<Boolean>()
     val isGrantedPermission = _isGrantedPermission.asSharedFlow()
 
-    private val _isError = MutableStateFlow(false)
-    val isError = _isError.asStateFlow()
+    private val _isError = MutableSharedFlow<Boolean>()
+    val isError = _isError.asSharedFlow()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
@@ -86,7 +86,9 @@ class MapViewModel @Inject constructor(
                 _isLoading.value = false
             }, onError = {
                 _isLoading.value = false
-                _isError.value = true
+                viewModelScope.launch {
+                    _isError.emit(true)
+                }
             }).collect { postList ->
             _postPreviewList.value = postList.map { post ->
                 PostPreview(
@@ -119,7 +121,9 @@ class MapViewModel @Inject constructor(
                 _isLoading.value = false
             }, onError = {
                 _isLoading.value = false
-                _isError.value = true
+                viewModelScope.launch{
+                    _isError.emit(true)
+                }
             }).collect { postList ->
             _postPreviewList.value = postList.map { post ->
                 PostPreview(
