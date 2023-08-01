@@ -5,6 +5,8 @@ import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.pjm.cours.data.PreferenceManager
+import com.pjm.cours.data.local.dao.ChatPreviewDao
+import com.pjm.cours.data.local.dao.MessageDao
 import com.pjm.cours.data.model.User
 import com.pjm.cours.data.remote.*
 import com.pjm.cours.util.Constants
@@ -19,6 +21,8 @@ class UserRepository @Inject constructor(
     private val apiClient: ApiClient,
     private val preferenceManager: PreferenceManager,
     private val imageUriRemoteDataSource: ImageUriDataSource,
+    private val chatPreviewDao: ChatPreviewDao,
+    private val messageDao: MessageDao
 ) {
 
     fun getGoogleIdToken() = preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
@@ -109,5 +113,71 @@ class UserRepository @Inject constructor(
     fun logOut() {
         preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
     }
+
+    suspend fun deleteAccount(): Boolean {
+        try {
+            preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
+            val userId = preferenceManager.getString(Constants.USER_ID, "")
+            val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
+            val result = apiClient.getMemberMeetingList(userId, idToken)
+            when (result) {
+                is ApiResultSuccess -> {
+                    isMeetingJoined(result, idToken, userId)
+                    return true
+                }
+                is ApiResultException -> {
+                    return false
+                }
+                is ApiResultError -> {
+                    deleteLocalDB(userId, idToken)
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    private suspend fun isMeetingJoined(
+        result: ApiResultSuccess<Map<String, Boolean>>,
+        idToken: String?,
+        userId: String
+    ) {
+        val memberMeetingIdList = result.data.keys
+        for (postId in memberMeetingIdList) {
+            val result = apiClient.getPost(postId, idToken)
+            when (result) {
+                is ApiResultSuccess -> {
+                    val updateMemberCount = result.data.currentMemberCount.toInt() - 1
+                    apiClient.updateCurrentMemberCount(
+                        postId,
+                        idToken,
+                        mapOf("currentMemberCount" to updateMemberCount.toString())
+                    )
+                }
+                is ApiResultException -> {
+
+                }
+                is ApiResultError -> {
+
+                }
+            }
+            apiClient.deleteMeetingMember(postId, userId, idToken)
+            apiClient.deleteMemberMeeting(userId, postId, idToken)
+        }
+        deleteLocalDB(userId, idToken)
+    }
+
+    private suspend fun deleteLocalDB(userId: String, idToken: String?) {
+        chatPreviewDao.deleteAll()
+        messageDao.deleteAll()
+        deleteFirebaseAuth(userId, idToken)
+    }
+
+    private suspend fun deleteFirebaseAuth(userId: String, idToken: String?) {
+        apiClient.deleteUser(userId, idToken)
+        FirebaseAuth.getInstance().currentUser?.delete()?.await()
+    }
+
 
 }

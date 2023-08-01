@@ -22,4 +22,7 @@ interface ChatPreviewDao {
     @Query("DELETE FROM chat_preview WHERE post_id = :postId")
     suspend fun deleteByPostId(postId: String)
 
+    @Query("DELETE FROM chat_preview")
+    suspend fun deleteAll()
+
 }
