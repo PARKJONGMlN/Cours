@@ -62,7 +62,14 @@ class ChatListFragment : BaseFragment<FragmentChatListBinding>(R.layout.fragment
                 viewLifecycleOwner.lifecycle,
                 Lifecycle.State.STARTED
             ).collect { chatPreviewList ->
-                adapter.submitList(chatPreviewList)
+                if(chatPreviewList.isEmpty()){
+                    binding.tvEmptyChatListMessage.visibility = View.VISIBLE
+                    binding.recyclerViewChatPreview.visibility = View.GONE
+                } else {
+                    adapter.submitList(chatPreviewList)
+                    binding.tvEmptyChatListMessage.visibility = View.GONE
+                    binding.recyclerViewChatPreview.visibility = View.VISIBLE
+                }
             }
         }
     }

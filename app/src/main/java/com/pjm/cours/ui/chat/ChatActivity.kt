@@ -1,7 +1,6 @@
 package com.pjm.cours.ui.chat
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity

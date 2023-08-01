@@ -86,6 +86,7 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
             _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
+                    repository.setChatPreview(postId)
                     _isRegisterCompleted.value = true
                 }
                 is ApiResultError -> {

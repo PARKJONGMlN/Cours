@@ -10,10 +10,7 @@ import com.pjm.cours.util.Constants
 import com.pjm.cours.util.Constants.LATITUDE
 import com.pjm.cours.util.Constants.LONGITUDE
 import com.pjm.cours.util.DateFormat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -72,7 +69,7 @@ class PostRepository @Inject constructor(
             apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
-                user = mapOf(userId to true)
+                user = mapOf(userId to System.currentTimeMillis().toString())
             )
             result
         } catch (e: Exception) {
@@ -101,7 +98,7 @@ class PostRepository @Inject constructor(
             apiClient.addMeetingMemberList(
                 postId = postId,
                 auth = idToken,
-                user = mapOf(userId to true)
+                user = mapOf(userId to System.currentTimeMillis().toString())
             )
             result
         } catch (e: Exception) {
@@ -152,6 +149,29 @@ class PostRepository @Inject constructor(
             apiClient.getPost(postId, idToken)
         } catch (e: Exception) {
             ApiResultException(e)
+        }
+    }
+
+    suspend fun setChatPreview(postId: String) = withContext(Dispatchers.Default) {
+        val result = getPost(postId)
+        when (result) {
+            is ApiResultSuccess -> {
+                val post = result.data
+                val imageDownLoadUri =
+                    imageUriRemoteDataSource.getImageDownLoadUri(post.hostUser.profileUri)
+                        .toString()
+                chatPreviewDao.insert(
+                    ChatPreviewEntity(
+                        postId = postId,
+                        hostImageUri = imageDownLoadUri,
+                        postTitle = post.title
+                    )
+                )
+            }
+            is ApiResultError -> {
+            }
+            is ApiResultException -> {
+            }
         }
     }
 

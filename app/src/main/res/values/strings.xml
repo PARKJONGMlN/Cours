@@ -62,9 +62,11 @@
     <string name="label_item_chat">채팅</string>
     <string name="label_item_profile">마이페이지</string>
     <string name="label_item_list">목록</string>
+    <string name="chat_preview_alternative_message">대화를 나눠 보세요</string>
 
     <!-- error message    -->
     <string name="error_message">네트워크 연결 상태를 확인 해주세요</string>
     <string name="label_exit">나가기</string>
+    <string name="label_empty_chat_list">현재 가입한 스터디가 존재 하지 않습니다. \n 스터디에 가입 하여 대화를 나눠보세요</string>
 
 </resources>

@@ -43,7 +43,7 @@ class ChatRepository @Inject constructor(
     }
 
     fun getMessages(postId: String): Flow<List<MessageEntity>> {
-        chatRemoteDataSource.getMessageUpdates(postId) { message, messageId ->
+        chatRemoteDataSource.getMessageUpdates(postId, userId) { message, messageId ->
             val messageEntity = MessageEntity(
                 senderUid = message.senderUid,
                 postId = postId,
@@ -159,6 +159,7 @@ class ChatRepository @Inject constructor(
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val updateMemberCount = currentMemberCount - 1
             chatPreviewDao.deleteByPostId(chatRoomId)
+            messageDao.deleteMessagesByPostId(chatRoomId)
             apiClient.updateCurrentMemberCount(
                 chatRoomId,
                 idToken,
