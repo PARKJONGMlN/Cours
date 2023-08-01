@@ -19,4 +19,7 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(posts: List<MessageEntity>)
 
+    @Query("DELETE FROM message WHERE post_id = :postId")
+    suspend fun deleteMessagesByPostId(postId: String)
+
 }
