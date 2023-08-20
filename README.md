@@ -29,10 +29,15 @@
   - Storage
   - Auth
   - FCM
+- [Kakao Map](https://apis.map.kakao.com/android/) - The Kakao Maps Open API
 
 ## **주요 기능 소개**
 
+https://github.com/PARKJONGMlN/Cours/assets/77707692/77525208-d36f-40a2-9c1c-21ba8591770f
+
+
 ## Architecture
+
 Cours 는 MVVM 아키텍처와 Repository 패턴을 적용했습니다.
 <p align = 'center'>
 <img width = '600' src = 'https://user-images.githubusercontent.com/39554623/184456867-195f5989-dc9a-4dea-8f35-41e1f11145ff.png'>
