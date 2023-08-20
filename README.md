@@ -1,6 +1,5 @@
-# 우리들의 코딩 경로 Cours = code + ours
-
-
+<h1 align="center">우리들의 코딩 경로</h1>
+<h1 align="center"><img src="http://github.com/PARKJONGMlN/Cours/assets/77707692/31285518-d657-49d5-bfe7-408c4c5b2afe" width="300" height="200"/></h1>
 <a href="https://play.google.com/store/apps/details?id=com.pjm.cours">
     <img src="http://github.com/PARKJONGMlN/Cours/assets/77707692/ab98934b-b749-4e67-9175-a9eb7faea3d6" width="250" height="100"/>
 </a>
@@ -12,7 +11,6 @@
 - 관심있는 언어, 카테고리를 고를 수 있습니다.
 - 함께하는 스터디원과 채팅을 할 수 있습니다.
 
-## **주요 기능 소개**
 ## **기술 스택**
 - Minimum SDK level 24
 - [Kotlin](https://kotlinlang.org/) based, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/) for asynchronous.
@@ -32,8 +30,13 @@
   - Auth
   - FCM
 
+## **주요 기능 소개**
+
 ## Architecture
 Cours 는 MVVM 아키텍처와 Repository 패턴을 적용했습니다.
 <p align = 'center'>
 <img width = '600' src = 'https://user-images.githubusercontent.com/39554623/184456867-195f5989-dc9a-4dea-8f35-41e1f11145ff.png'>
 </p>
+
+## Design in Figma
+![image](https://github.com/PARKJONGMlN/Cours/assets/77707692/68d620dd-b2f2-4d22-8b80-ad48756cbf94)
