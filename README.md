@@ -15,21 +15,21 @@
 - Minimum SDK level 24
 - [Kotlin](https://kotlinlang.org/) based, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/) for asynchronous.
 - JetPack
-  - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle) - Create a UI that automatically responds to lifecycle events.
-  - [LiveData](https://developer.android.com/topic/libraries/architecture/livedata) - Build data objects that notify views when the underlying database changes.
-  - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) - Store UI related data that isn't destroyed on app rotations.
-  - [Room](https://developer.android.com/training/data-storage/room) - Constructs Database by providing an abstraction layer over SQLite to allow fluent database access.
-  - [DataBinding](https://developer.android.com/topic/libraries/data-binding) - Useful to bind data directly through layouts xml file, so no `findViewById()` anymore.
-  - [Navigation](https://developer.android.com/guide/navigation) - Handles navigating between your app's destinations.
-- [Hilt](https://dagger.dev/hilt/) - Dependency injection.
-- [Coil](https://coil-kt.github.io/coil/) - An image loading library for Android backed by Kotlin Coroutines.
-- [Retrofit2 & OkHttp3](https://github.com/square/retrofit) - Construct the REST APIs.
+  - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
+  - [LiveData](https://developer.android.com/topic/libraries/architecture/livedata)
+  - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
+  - [Room](https://developer.android.com/training/data-storage/room)
+  - [DataBinding](https://developer.android.com/topic/libraries/data-binding)
+  - [Navigation](https://developer.android.com/guide/navigation)
+- [Hilt](https://dagger.dev/hilt/)
+- [Coil](https://coil-kt.github.io/coil/)
+- [Retrofit2 & OkHttp3](https://github.com/square/retrofit)
 - [Firebase](https://firebase.google.com/)
   - Realtime DB
   - Storage
   - Auth
   - FCM
-- [Kakao Map](https://apis.map.kakao.com/android/) - The Kakao Maps Open API
+- [Kakao Map](https://apis.map.kakao.com/android/)
 
 ## **주요 기능 소개**
 
