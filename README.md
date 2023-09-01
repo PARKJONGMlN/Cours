@@ -66,8 +66,6 @@
 </div>
 
 ## Architecture
-
-Cours 는 MVVM 아키텍처와 Repository 패턴을 적용했습니다.
 <p align = 'center'>
 <img width = '600' src = 'https://user-images.githubusercontent.com/39554623/184456867-195f5989-dc9a-4dea-8f35-41e1f11145ff.png'>
 </p>
