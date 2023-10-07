@@ -5,13 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.pjm.cours.data.model.Post
 import com.pjm.cours.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PostListViewModel @Inject constructor(
-    private val repository: PostRepository
+    private val repository: PostRepository,
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(true)
@@ -22,6 +26,7 @@ class PostListViewModel @Inject constructor(
 
     private val _postList = MutableStateFlow<List<Post>>(emptyList())
     val postList: StateFlow<List<Post>> = _postList.asStateFlow()
+
     fun refreshPostList() {
         _isLoading.value = true
         viewModelScope.launch {
@@ -34,11 +39,10 @@ class PostListViewModel @Inject constructor(
                     viewModelScope.launch {
                         _isError.emit(true)
                     }
-                }
+                },
             ).collect { postList ->
-                _postList.value = postList
+                _postList.value = postList.sortedBy { it.meetingDate }
             }
         }
     }
-
 }

@@ -1,5 +1,7 @@
 package com.pjm.cours.ui.postdetail
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +10,7 @@ import androidx.fragment.app.DialogFragment
 import com.pjm.cours.databinding.DialogCheckRegisterBinding
 
 class CheckRegisterDialogFragment(
-    private val clickListener: OnRegisterClickListener
+    private val clickListener: OnRegisterClickListener,
 ) : DialogFragment() {
 
     private var _binding: DialogCheckRegisterBinding? = null
@@ -17,9 +19,10 @@ class CheckRegisterDialogFragment(
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = DialogCheckRegisterBinding.inflate(inflater, container, false)
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         return binding.root
     }
 

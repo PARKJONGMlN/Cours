@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         app:cardBackgroundColor="@color/dialogBackground"
-        app:cardCornerRadius="8dp">
+        app:cardCornerRadius="15dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="320dp"
@@ -44,8 +44,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="18sp"
                     android:text="@string/label_cancel_register"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 
@@ -60,14 +61,14 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <TextView
-                    android:textColor="@color/white"
                     android:id="@+id/tv_complete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="18sp"
                     android:text="@string/label_complete_register"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
             </androidx.cardview.widget.CardView>
 

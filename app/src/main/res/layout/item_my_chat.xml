@@ -37,6 +37,7 @@
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
                 android:text="@{myChat.text}"
+                android:textColor="@color/black"
                 tools:text="@string/place_holder_text_title" />
         </androidx.cardview.widget.CardView>
 

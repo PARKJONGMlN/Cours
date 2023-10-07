@@ -7,13 +7,18 @@ import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PostCompositionViewModel @Inject constructor(
-    private val repository: PostRepository
+    private val repository: PostRepository,
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -26,7 +31,9 @@ class PostCompositionViewModel @Inject constructor(
     val postId = MutableStateFlow("")
     val title = MutableStateFlow("")
     val body = MutableStateFlow("")
-    val numberOfMember = MutableStateFlow("")
+
+    private val _numberOfMember = MutableStateFlow("")
+    val numberOfMember = _numberOfMember.asStateFlow()
 
     private val _location = MutableStateFlow("")
     val location = _location.asStateFlow()
@@ -43,6 +50,7 @@ class PostCompositionViewModel @Inject constructor(
     private val _language = MutableStateFlow("")
     val language = _language.asStateFlow()
 
+    val isNumberOfMemberSelected = MutableStateFlow(false)
     val isLocationSelected = MutableStateFlow(false)
     val isMeetingDateSelected = MutableStateFlow(false)
     val isCategorySelected = MutableStateFlow(false)
@@ -52,18 +60,22 @@ class PostCompositionViewModel @Inject constructor(
         combine(
             title,
             body,
-            numberOfMember,
+            isNumberOfMemberSelected,
             isLocationSelected,
             isMeetingDateSelected,
             isCategorySelected,
-            isLanguageSelected
+            isLanguageSelected,
         ) {
             checkInputs()
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
+            initialValue = false,
         )
+
+    fun setNumberOfMember(number: String) {
+        _numberOfMember.value = number
+    }
 
     fun setLocation(location: String) {
         _location.value = location
@@ -102,19 +114,23 @@ class PostCompositionViewModel @Inject constructor(
         isLanguageSelected.value = boolean
     }
 
+    fun setNumberOfMemberSelection(boolean: Boolean) {
+        isNumberOfMemberSelected.value = boolean
+    }
+
     fun createPost() {
         viewModelScope.launch {
             _isLoading.value = true
             val result = repository.createPost(
                 title = title.value,
                 body = body.value,
-                limitMemberCount = numberOfMember.value,
+                limitMemberCount = _numberOfMember.value,
                 location = _location.value,
                 latitude = _locationLatitude.value,
                 longitude = _locationLongitude.value,
                 meetingDate = _meetingDate.value,
                 category = _category.value,
-                language = _language.value
+                language = _language.value,
             )
             _isLoading.value = false
             when (result) {
@@ -123,9 +139,11 @@ class PostCompositionViewModel @Inject constructor(
                     repository.setChatPreview(postId.value)
                     _isCompleted.value = true
                 }
+
                 is ApiResultError -> {
                     _isError.value = true
                 }
+
                 is ApiResultException -> {
                     _isError.value = true
                 }
@@ -137,13 +155,12 @@ class PostCompositionViewModel @Inject constructor(
         val currentTitle = title.value
         val currentBody = body.value
         val currentNumberOfMember = numberOfMember.value
-        return currentTitle.isNotBlank()
-                && currentBody.isNotBlank()
-                && currentNumberOfMember.isNotBlank()
-                && isLocationSelected.value
-                && isMeetingDateSelected.value
-                && isCategorySelected.value
-                && isLanguageSelected.value
+        return currentTitle.isNotBlank() &&
+            currentBody.isNotBlank() &&
+            currentNumberOfMember.isNotBlank() &&
+            isLocationSelected.value &&
+            isMeetingDateSelected.value &&
+            isCategorySelected.value &&
+            isLanguageSelected.value
     }
-
 }

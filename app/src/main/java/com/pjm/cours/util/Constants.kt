@@ -9,10 +9,10 @@ object Constants {
     // chatRoomId
     const val CHAT_ROOM_ID = "chat_room_id"
 
-
     // dialog
     const val DIALOG_TAG_CATEGORY = "tag_category"
     const val DIALOG_TAG_LANGUAGE = "tag_language"
+    const val DIALOG_TAG_NUMBER_OF_MEMBER = "tag_number_of_member"
     const val DIALOG_FRAGMENT_PROGRESS_TAG = "tag_progress_dialog_fragment"
     const val DIALOG_FRAGMENT_CHECK_REGISTER_TAG = "tag_check_register_dialog_fragment"
 

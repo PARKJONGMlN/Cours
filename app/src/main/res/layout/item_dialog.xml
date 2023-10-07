@@ -10,6 +10,7 @@
         app:cardBackgroundColor="@color/white">
 
         <TextView
+            android:textColor="@color/black"
             android:id="@+id/tv_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

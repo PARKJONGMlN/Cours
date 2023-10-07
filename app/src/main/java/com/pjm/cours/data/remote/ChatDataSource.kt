@@ -1,6 +1,10 @@
 package com.pjm.cours.data.remote
 
-import com.google.firebase.database.*
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.pjm.cours.BuildConfig
 import com.pjm.cours.data.model.Message
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,8 +31,24 @@ class ChatDataSource @Inject constructor() {
         return postRef.child(postId).get().await()
     }
 
-    suspend fun getLastMessage(postId: String): DataSnapshot {
-        return messageRef.child(postId).child("messages").orderByKey().limitToLast(1).get().await()
+    suspend fun getLastMessage(
+        postId: String,
+        userId: String,
+        insertLastMessage: suspend (DataSnapshot) -> Unit,
+    ) {
+        chatRoomMemberRef.child(postId).child(userId).get().await().let { snapshot ->
+            val entryTime = snapshot.value.toString()
+            try {
+                val dataSnapshot = messageRef.child(postId).child("messages")
+                    .orderByChild("timestamp")
+                    .startAfter(entryTime.toDouble())
+                    .limitToLast(1)
+                    .get()
+                    .await()
+                insertLastMessage(dataSnapshot)
+            } catch (e: Exception) {
+            }
+        }
     }
 
     fun addNewMessageEventListener(postId: String, listener: ValueEventListener) {
@@ -37,19 +57,21 @@ class ChatDataSource @Inject constructor() {
     }
 
     fun getMessageUpdates(postId: String, userId: String, onNewMessage: (Message, String) -> Unit) {
-        chatRoomMemberRef.child(postId).child(userId).get().addOnSuccessListener { snapshot->
+        chatRoomMemberRef.child(postId).child(userId).get().addOnSuccessListener { snapshot ->
             val entryTime = snapshot.value.toString()
             messageRef.child(postId).child("messages").orderByChild("timestamp")
                 .startAt(entryTime.toDouble())
                 .addChildEventListener(object : ChildEventListener {
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-
                         val messageId = snapshot.key ?: ""
                         val message = snapshot.getValue(Message::class.java) ?: return
                         onNewMessage(message, messageId)
                     }
 
-                    override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    override fun onChildChanged(
+                        snapshot: DataSnapshot,
+                        previousChildName: String?,
+                    ) {
                     }
 
                     override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -71,9 +93,7 @@ class ChatDataSource @Inject constructor() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-
             }
         })
     }
-
 }

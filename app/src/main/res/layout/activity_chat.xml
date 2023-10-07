@@ -54,11 +54,12 @@
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/description_send_icon"
+            android:enabled="@{!viewModel.messageText.isEmpty()}"
             android:onClick="@{()-> viewModel.sendMessage()}"
             app:layout_constraintBottom_toBottomOf="@+id/et_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_message"
-            app:srcCompat="@drawable/baseline_play_arrow_48" />
+            app:srcCompat="@drawable/send_button_selector" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

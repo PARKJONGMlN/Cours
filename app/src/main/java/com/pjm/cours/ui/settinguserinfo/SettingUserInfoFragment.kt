@@ -14,8 +14,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.pjm.cours.R
 import com.pjm.cours.databinding.FragmentSettingUserInfoBinding
 import com.pjm.cours.ui.BaseFragment
-import com.pjm.cours.ui.common.ProgressDialogFragment
-import com.pjm.cours.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -25,7 +23,6 @@ class SettingUserInfoFragment :
 
     private val viewModel: SettingUserInfoViewModel by viewModels()
     private val getContent = getActivityResultLauncher()
-    private val dialogLoading = ProgressDialogFragment()
     private val args: SettingUserInfoFragmentArgs by navArgs()
 
     private fun getActivityResultLauncher() =
@@ -44,7 +41,6 @@ class SettingUserInfoFragment :
         binding.viewModel = viewModel
         setImageSelectEvent()
         setAddUserComplete()
-        setProgressDialog()
         setErrorMessage()
     }
 
@@ -77,14 +73,13 @@ class SettingUserInfoFragment :
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isError.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
+                Lifecycle.State.STARTED,
             ).collect { isError ->
                 if (isError) {
-                    dialogLoading.dismiss()
                     Snackbar.make(
                         binding.root,
                         getString(R.string.error_message),
-                        Snackbar.LENGTH_SHORT
+                        Snackbar.LENGTH_SHORT,
                     )
                         .setAnchorView(binding.btnSettingComplete)
                         .show()
@@ -92,25 +87,4 @@ class SettingUserInfoFragment :
             }
         }
     }
-
-    private fun setProgressDialog() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isLoading.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
-            ).collect { isLoading ->
-                if (isLoading) {
-                    dialogLoading.show(
-                        parentFragmentManager,
-                        Constants.DIALOG_FRAGMENT_PROGRESS_TAG
-                    )
-                } else {
-                    if (dialogLoading.isAdded) {
-                        dialogLoading.dismiss()
-                    }
-                }
-            }
-        }
-    }
-
 }

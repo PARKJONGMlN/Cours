@@ -62,6 +62,7 @@
                 android:layout_height="wrap_content"
                 android:maxWidth="250dp"
                 android:padding="8dp"
+                android:textColor="@color/black"
                 android:text="@{otherChat.text}"
                 tools:text="@string/place_holder_text_title" />
         </androidx.cardview.widget.CardView>

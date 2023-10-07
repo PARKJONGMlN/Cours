@@ -36,11 +36,13 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isDeleteAccount.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
+                Lifecycle.State.STARTED,
             ).collect { isDeleteAccount ->
                 if (isDeleteAccount) {
                     val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
                     findNavController().navigate(action)
+                } else {
+                    (requireActivity() as MainActivity).showSnackBar(getString(R.string.error_message))
                 }
             }
         }
@@ -49,16 +51,19 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
     private fun setAppBar() {
         binding.appBarProfile.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.menu_delete_account->{
+                R.id.menu_delete_account -> {
                     viewModel.deleteAccount()
                     true
                 }
+
                 R.id.menu_log_out -> {
                     viewModel.logOut()
+
                     val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
                     findNavController().navigate(action)
                     true
                 }
+
                 else -> false
             }
         }
@@ -68,7 +73,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isError.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
+                Lifecycle.State.STARTED,
             ).collect { isError ->
                 if (isError) {
                     (requireActivity() as MainActivity).showSnackBar(getString(R.string.error_message))
@@ -76,5 +81,4 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(R.layout.fragment_p
             }
         }
     }
-
 }

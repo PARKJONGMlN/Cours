@@ -1,6 +1,7 @@
 package com.pjm.cours.data.repository
 
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -22,11 +23,10 @@ class UserRepository @Inject constructor(
     private val preferenceManager: PreferenceManager,
     private val imageUriRemoteDataSource: ImageUriDataSource,
     private val chatPreviewDao: ChatPreviewDao,
-    private val messageDao: MessageDao
+    private val messageDao: MessageDao,
 ) {
 
     fun getGoogleIdToken() = preferenceManager.getString(Constants.KEY_GOOGLE_ID_TOKEN, "")
-
 
     fun saveGoogleIdToken(idToken: String) {
         preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, idToken)
@@ -82,6 +82,10 @@ class UserRepository @Inject constructor(
         onError: () -> Unit,
     ) = flow {
         try {
+            preferenceManager.setUserId(
+                Constants.USER_ID,
+                FirebaseAuth.getInstance().currentUser?.uid ?: "",
+            )
             val userId = preferenceManager.getString(Constants.USER_ID, "")
             val idToken = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()?.token
             val result = apiClient.getUser(userId, idToken)
@@ -89,13 +93,15 @@ class UserRepository @Inject constructor(
                 is ApiResultSuccess -> {
                     emit(
                         result.data.copy(
-                            profileUri = getDownLoadImageUri(result.data.profileUri)
-                        )
+                            profileUri = getDownLoadImageUri(result.data.profileUri),
+                        ),
                     )
                 }
+
                 is ApiResultError -> {
                     onError()
                 }
+
                 is ApiResultException -> {
                     onError()
                 }
@@ -110,8 +116,10 @@ class UserRepository @Inject constructor(
     private suspend fun getDownLoadImageUri(hostImageUri: String) =
         imageUriRemoteDataSource.getImageDownLoadUri(hostImageUri).toString()
 
-    fun logOut() {
+    suspend fun logOut() {
         preferenceManager.setGoogleIdToken(Constants.KEY_GOOGLE_ID_TOKEN, "")
+        chatPreviewDao.deleteAll()
+        messageDao.deleteAll()
     }
 
     suspend fun deleteAccount(): Boolean {
@@ -125,15 +133,22 @@ class UserRepository @Inject constructor(
                     isMeetingJoined(result, idToken, userId)
                     return true
                 }
+
                 is ApiResultException -> {
                     return false
                 }
+
                 is ApiResultError -> {
-                    deleteLocalDB(userId, idToken)
-                    return true
+                    return if (result.code in 200..299) {
+                        deleteLocalDB(userId, idToken)
+                        true
+                    } else {
+                        false
+                    }
                 }
             }
         } catch (e: Exception) {
+            Log.d("TAG", "Exception: $e")
             return false
         }
     }
@@ -141,7 +156,7 @@ class UserRepository @Inject constructor(
     private suspend fun isMeetingJoined(
         result: ApiResultSuccess<Map<String, Boolean>>,
         idToken: String?,
-        userId: String
+        userId: String,
     ) {
         val memberMeetingIdList = result.data.keys
         for (postId in memberMeetingIdList) {
@@ -152,14 +167,14 @@ class UserRepository @Inject constructor(
                     apiClient.updateCurrentMemberCount(
                         postId,
                         idToken,
-                        mapOf("currentMemberCount" to updateMemberCount.toString())
+                        mapOf("currentMemberCount" to updateMemberCount.toString()),
                     )
                 }
+
                 is ApiResultException -> {
-
                 }
-                is ApiResultError -> {
 
+                is ApiResultError -> {
                 }
             }
             apiClient.deleteMeetingMember(postId, userId, idToken)
@@ -176,8 +191,5 @@ class UserRepository @Inject constructor(
 
     private suspend fun deleteFirebaseAuth(userId: String, idToken: String?) {
         apiClient.deleteUser(userId, idToken)
-        FirebaseAuth.getInstance().currentUser?.delete()?.await()
     }
-
-
 }
