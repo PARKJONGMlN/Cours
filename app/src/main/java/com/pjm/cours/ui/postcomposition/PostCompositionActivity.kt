@@ -48,6 +48,7 @@ class PostCompositionActivity : AppCompatActivity() {
     }
 
     private fun setSelectButton() {
+        setNumberOfMember()
         setDateSelector()
         setCategorySelector()
         setLanguageSelector()
@@ -60,45 +61,86 @@ class PostCompositionActivity : AppCompatActivity() {
         }
     }
 
+    private fun setNumberOfMember() {
+        binding.tvPostSelectedNumberOfMember.setOnClickListener {
+            setDialogNumberOfMember()
+        }
+        binding.ivSelectNumberOfMemberIcon.setOnClickListener {
+            setDialogNumberOfMember()
+        }
+    }
+
+    private fun setDialogNumberOfMember() {
+        setDialog(
+            getString(R.string.label_dialog_title_number_of_member),
+            ItemStorage.getNumberOfMember(),
+            Constants.DIALOG_TAG_NUMBER_OF_MEMBER,
+        ) { selectedItem ->
+            viewModel.setNumberOfMember(selectedItem)
+            viewModel.setNumberOfMemberSelection(true)
+        }
+    }
+
     private fun setLanguageSelector() {
+        binding.tvPostSelectedLanguage.setOnClickListener {
+            setDialogLanguage()
+        }
         binding.ivSelectLanguageIcon.setOnClickListener {
-            setDialog(
-                getString(R.string.label_dialog_title_language),
-                ItemStorage.getLanguage(),
-                Constants.DIALOG_TAG_LANGUAGE,
-            ) { selectedItem ->
-                viewModel.setLanguage(selectedItem)
-                viewModel.setLanguageSelection(true)
-            }
+            setDialogLanguage()
+        }
+    }
+
+    private fun setDialogLanguage() {
+        setDialog(
+            getString(R.string.label_dialog_title_language),
+            ItemStorage.getLanguage(),
+            Constants.DIALOG_TAG_LANGUAGE,
+        ) { selectedItem ->
+            viewModel.setLanguage(selectedItem)
+            viewModel.setLanguageSelection(true)
         }
     }
 
     private fun setCategorySelector() {
+        binding.tvPostSelectedCategory.setOnClickListener {
+            setDialogCategory()
+        }
         binding.ivSelectCategoryIcon.setOnClickListener {
-            setDialog(
-                getString(R.string.label_dialog_title_category),
-                ItemStorage.getCategory(),
-                Constants.DIALOG_TAG_CATEGORY,
-            ) { selectedItem ->
-                viewModel.setCategory(selectedItem)
-                viewModel.setCategorySelection(true)
-            }
+            setDialogCategory()
+        }
+    }
+
+    private fun setDialogCategory() {
+        setDialog(
+            getString(R.string.label_dialog_title_category),
+            ItemStorage.getCategory(),
+            Constants.DIALOG_TAG_CATEGORY,
+        ) { selectedItem ->
+            viewModel.setCategory(selectedItem)
+            viewModel.setCategorySelection(true)
         }
     }
 
     private fun setDateSelector() {
-        binding.ivSelectDateIcon.setOnClickListener {
-            val datePicker =
-                MaterialDatePicker.Builder.datePicker()
-                    .setTitleText(R.string.label_post_select_date_message)
-                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                    .build()
-            datePicker.addOnPositiveButtonClickListener {
-                viewModel.setMeetingDate(DateFormat.convertDisplayDate(it))
-                viewModel.setMeetingDateSelection(true)
-            }
-            datePicker.show(supportFragmentManager, "SELECT_DATE")
+        binding.tvPostSelectedDate.setOnClickListener {
+            setDatePicker()
         }
+        binding.ivSelectDateIcon.setOnClickListener {
+            setDatePicker()
+        }
+    }
+
+    private fun setDatePicker() {
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setTitleText(R.string.label_post_select_date_message)
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
+        datePicker.addOnPositiveButtonClickListener {
+            viewModel.setMeetingDate(DateFormat.convertDisplayDate(it))
+            viewModel.setMeetingDateSelection(true)
+        }
+        datePicker.show(supportFragmentManager, "SELECT_DATE")
     }
 
     private fun setAppBar() {
@@ -130,7 +172,7 @@ class PostCompositionActivity : AppCompatActivity() {
                         Snackbar.make(
                             binding.root,
                             getString(R.string.error_message),
-                            Snackbar.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT,
                         )
                             .setAnchorView(binding.btnPostComplete)
                             .show()
@@ -146,10 +188,10 @@ class PostCompositionActivity : AppCompatActivity() {
                     if (isLoading) {
                         dialogLoading.show(
                             supportFragmentManager,
-                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG
+                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG,
                         )
                     } else {
-                        if(dialogLoading.isAdded){
+                        if (dialogLoading.isAdded) {
                             dialogLoading.dismiss()
                         }
                     }
@@ -158,7 +200,7 @@ class PostCompositionActivity : AppCompatActivity() {
     }
 
     private fun getResultLauncher() = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult(),
     ) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
             val location = result.data?.getStringExtra(Constants.SELECTED_LOCATION) ?: ""
@@ -179,15 +221,14 @@ class PostCompositionActivity : AppCompatActivity() {
         dialogTitle: String,
         dialogItemList: List<String>,
         dialogTag: String,
-        itemSelected: (selectedItem: String) -> Unit
+        itemSelected: (selectedItem: String) -> Unit,
     ) {
         val dialog = ItemPickDialogFragment(
             dialogTitle,
-            dialogItemList
+            dialogItemList,
         ) { selectedItem ->
             itemSelected(selectedItem)
         }
         dialog.show(supportFragmentManager, dialogTag)
     }
-
 }

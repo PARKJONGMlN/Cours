@@ -64,7 +64,7 @@
             android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="@{chatPreview.lastMessage.isEmpty() ? @string/chat_preview_alternative_message : chatPreview.lastMessage}"
+            android:text="@{chatPreview.lastMessage}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_unread_chat_preview"
             app:layout_constraintStart_toEndOf="@+id/cv_host_profile_image_chat_preview"

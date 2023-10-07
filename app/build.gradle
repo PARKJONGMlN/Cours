@@ -10,6 +10,9 @@ plugins {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
+Properties keystoreProperties = new Properties()
+keystoreProperties.load(project.rootProject.file('keystore.properties').newDataInputStream())
+
 android {
     namespace 'com.pjm.cours'
     compileSdk 33
@@ -18,21 +21,34 @@ android {
         applicationId "com.pjm.cours"
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 7
+        versionName "0.9.26"
+        setProperty("archivesBaseName", "cours-v${versionName}")
 
         buildConfigField "String", "GOOGLE_CLIENT_ID", properties["google_client_id"]
         buildConfigField "String", "BASE_URL", properties["google_firebase_realtime_db_url"]
         buildConfigField "String", "KAKAO_MAP_KEY", properties["kakao_map_api_key"]
         buildConfigField "String", "FCM_KEY", properties["google_fcm_key"]
+        manifestPlaceholders = [kakaoSdkAppkey: "${properties.getProperty('kakao_map_api_key_manifest')}"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties["storeFile"])
+            storePassword keystoreProperties["storePassword"]
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+        }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            versionNameSuffix "-release"
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {

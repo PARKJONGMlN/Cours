@@ -1,5 +1,7 @@
 package com.pjm.cours.ui.postcomposition
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +13,7 @@ import com.pjm.cours.databinding.DialogItemPickBinding
 class ItemPickDialogFragment(
     private val dialogTitle: String,
     private val itemList: List<String>,
-    private val clickListener: OnCategoryClickListener
+    private val clickListener: OnCategoryClickListener,
 ) : DialogFragment() {
 
     private var _binding: DialogItemPickBinding? = null
@@ -29,9 +31,10 @@ class ItemPickDialogFragment(
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = DialogItemPickBinding.inflate(inflater, container, false)
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         return binding.root
     }
 

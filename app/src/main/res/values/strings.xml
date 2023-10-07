@@ -20,6 +20,7 @@
     <string name="hint_input_post_number_of_member">인원</string>
     <string name="hint_search_post">검색어를 입력해 주세요</string>
 
+    <string name="label_post_select_number_of_member_message">모임 인원을 선택해 주세요</string>
     <string name="label_post_select_location_message">위치를 선택해 주세요</string>
     <string name="label_post_select_date_message">날짜를 선택해 주세요</string>
     <string name="label_post_select_category_message">카테고리를 선택해 주세요</string>
@@ -31,6 +32,7 @@
     <string name="label_post_register">가입 하기</string>
     <string name="label_dialog_title_category">카테고리 선택</string>
     <string name="label_dialog_title_language">언어 선택</string>
+    <string name="label_dialog_title_number_of_member">인원 선택</string>
 
     <string name="label_post_chat">모임 채팅</string>
     <string name="label_post_chat_list">채팅 목록</string>
@@ -38,6 +40,7 @@
     <string name="location_permission_message">위치 권한을 허용하면 현재 위치로 이동 할 수 있습니다.</string>
     <string name="location_permission_button">권한 설정</string>
 
+    <string name="description_number_of_member_icon">인원선택아이콘</string>
     <string name="description_location_icon">위치선택아이콘</string>
     <string name="description_meeting_date_icon">날짜 선택 아이콘</string>
     <string name="description_category_icon">카테고리 선택 아이콘</string>

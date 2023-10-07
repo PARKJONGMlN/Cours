@@ -9,7 +9,12 @@ import com.pjm.cours.data.remote.ApiResultException
 import com.pjm.cours.data.remote.ApiResultSuccess
 import com.pjm.cours.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,13 +41,13 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
         repository.getChatPreviewList().stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            initialValue = emptyList(),
         )
 
     val isButtonEnabled: StateFlow<Boolean> = combineIsButtonEnable().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
+        initialValue = false,
     )
 
     private fun combineIsButtonEnable() = combine(_post, chatPreviewList) { post, chatPreviewList ->
@@ -65,13 +70,15 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
             when (result) {
                 is ApiResultSuccess -> {
                     _post.value = result.data.copy(
-                        key = postId
+                        key = postId,
                     )
                     _isGetPostCompleted.value = true
                 }
+
                 is ApiResultError -> {
                     _isError.value = true
                 }
+
                 is ApiResultException -> {
                     _isError.value = true
                 }
@@ -83,22 +90,23 @@ class PostDetailViewModel @Inject constructor(private val repository: PostReposi
         viewModelScope.launch {
             _isLoading.value = true
             val result = repository.addMember(postId, _post.value.currentMemberCount)
-            _isLoading.value = false
             when (result) {
                 is ApiResultSuccess -> {
                     repository.setChatPreview(postId)
                     _isRegisterCompleted.value = true
                 }
+
                 is ApiResultError -> {
                     _isRegisterCompleted.value = false
                     _isError.value = true
                 }
+
                 is ApiResultException -> {
                     _isRegisterCompleted.value = false
                     _isError.value = true
                 }
             }
+            _isLoading.value = false
         }
     }
-
 }

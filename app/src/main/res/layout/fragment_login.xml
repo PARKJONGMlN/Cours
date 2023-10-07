@@ -15,7 +15,7 @@
             android:layout_marginTop="220dp"
             android:gravity="center"
             android:text="@string/app_name"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color"
             android:textSize="64sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

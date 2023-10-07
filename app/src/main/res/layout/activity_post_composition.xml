@@ -34,7 +34,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
             android:hint="@string/hint_input_post_title"
-            app:hintTextColor="@color/black"
+            app:hintTextColor="@color/text_color"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/app_bar_post_composition">
@@ -57,8 +57,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
             android:hint="@string/hint_input_post_body"
-            app:boxStrokeColor="@color/orange"
-            app:hintTextColor="@color/black"
+            app:hintTextColor="@color/text_color"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_post_title">
@@ -71,28 +70,37 @@
                 android:text="@={viewModel.body}" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_post_number_of_member"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="16dp"
-            android:hint="@string/hint_input_post_number_of_member"
-            app:hintTextColor="@color/black"
-            app:layout_constraintEnd_toEndOf="parent"
+        <TextView
+            android:id="@+id/tv_label_post_number_of_member"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/hint_input_post_number_of_member"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_post_body">
+            app:layout_constraintTop_toBottomOf="@+id/til_post_body" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_post_number_of_member"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="1"
-                android:maxLines="1"
-                android:text="@={viewModel.numberOfMember}" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:id="@+id/tv_post_selected_number_of_member"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@{viewModel.isNumberOfMemberSelected ? viewModel.numberOfMember : @string/label_post_select_number_of_member_message}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_select_number_of_member_icon"
+            app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
+            app:layout_constraintTop_toTopOf="@+id/iv_select_number_of_member_icon"
+            tools:text="@string/label_post_select_number_of_member_message" />
+
+        <ImageView
+            android:id="@+id/iv_select_number_of_member_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="@string/description_number_of_member_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_post_body"
+            app:srcCompat="@drawable/baseline_group_24" />
 
         <TextView
             android:id="@+id/tv_label_post_location"
@@ -102,17 +110,17 @@
             android:layout_marginTop="32dp"
             android:text="@string/label_post_location"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_label_post_number_of_member" />
 
         <TextView
             android:id="@+id/tv_post_selected_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
             android:text="@{viewModel.isLocationSelected ? viewModel.location : @string/label_post_select_location_message}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_select_location_icon"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_location_icon"
-            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member"
+            app:layout_constraintTop_toTopOf="@+id/iv_select_location_icon"
             tools:text="@string/label_post_select_location_message" />
 
         <ImageView
@@ -123,7 +131,7 @@
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/description_location_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_post_number_of_member"
+            app:layout_constraintTop_toBottomOf="@+id/tv_label_post_number_of_member"
             app:srcCompat="@drawable/baseline_edit_location_24" />
 
         <TextView
@@ -142,8 +150,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@{viewModel.isMeetingDateSelected ? viewModel.meetingDate : @string/label_post_select_date_message}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_select_date_icon"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_date_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date"
+            app:layout_constraintTop_toTopOf="@+id/iv_select_date_icon"
             tools:text="@string/label_post_select_date_message" />
 
         <ImageView
@@ -153,7 +162,7 @@
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/description_meeting_date_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_date"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_meeting_date"
             app:srcCompat="@drawable/baseline_edit_calendar_24" />
 
         <TextView
@@ -172,8 +181,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@{viewModel.isCategorySelected ? viewModel.category : @string/label_post_select_category_message}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_select_category_icon"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_category_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_category"
+            app:layout_constraintTop_toTopOf="@+id/iv_select_category_icon"
             tools:text="@string/label_post_select_category_message" />
 
         <ImageView
@@ -183,7 +193,7 @@
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/description_category_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_category"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_category"
             app:srcCompat="@drawable/baseline_app_registration_24" />
 
         <TextView
@@ -220,8 +230,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@{viewModel.isLanguageSelected ? viewModel.language : @string/label_post_select_language_message}"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_select_language_icon"
             app:layout_constraintEnd_toStartOf="@+id/iv_select_language_icon"
-            app:layout_constraintTop_toTopOf="@+id/tv_label_post_language"
+            app:layout_constraintTop_toTopOf="@+id/iv_select_language_icon"
             tools:text="@string/label_post_select_language_message" />
 
         <ImageView
@@ -231,7 +242,7 @@
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/description_language_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_post_selected_language"
+            app:layout_constraintTop_toTopOf="@+id/tv_label_post_language"
             app:srcCompat="@drawable/baseline_app_registration_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -64,18 +64,18 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isBeforeUser.flowWithLifecycle(
                 viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
+                Lifecycle.State.STARTED,
             ).collect { isBeforeUser ->
                 if (isBeforeUser) {
                     viewModel.saveGoogleIdToken(auth.currentUser?.uid ?: "")
                     findNavController().navigate(
-                        LoginFragmentDirections.actionLoginFragmentToChatListFragment()
+                        LoginFragmentDirections.actionLoginFragmentToChatListFragment(),
                     )
                 } else {
                     findNavController().navigate(
                         LoginFragmentDirections.actionLoginFragmentToSettingUserInfoFragment(
-                            auth.currentUser?.uid ?: ""
-                        )
+                            auth.currentUser?.uid ?: "",
+                        ),
                     )
                 }
             }
@@ -99,22 +99,24 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                                         Snackbar.make(
                                             binding.root,
                                             getString(R.string.error_message),
-                                            Snackbar.LENGTH_SHORT
+                                            Snackbar.LENGTH_SHORT,
                                         )
                                             .show()
                                     }
                                 }
                         }
-                        else -> {
 
+                        else -> {
                         }
                     }
                 } catch (e: ApiException) {
                     when (e.statusCode) {
                         CommonStatusCodes.CANCELED -> {
                         }
+
                         CommonStatusCodes.NETWORK_ERROR -> {
                         }
+
                         else -> {
                         }
                     }
@@ -129,7 +131,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 .setSupported(true)
                 .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
                 .setFilterByAuthorizedAccounts(false)
-                .build()
+                .build(),
         )
         .setAutoSelectEnabled(true)
         .build()
@@ -144,14 +146,12 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             .addOnSuccessListener { result: PendingIntent ->
                 try {
                     signInLegacyLauncher.launch(
-                        IntentSenderRequest.Builder(result.intentSender).build()
+                        IntentSenderRequest.Builder(result.intentSender).build(),
                     )
                 } catch (e: IntentSender.SendIntentException) {
-
                 }
             }
             .addOnFailureListener { e: Exception? ->
-
             }
     }
 
@@ -161,10 +161,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 try {
                     signInLauncher.launch(
                         IntentSenderRequest.Builder(result.pendingIntent.intentSender)
-                            .build()
+                            .build(),
                     )
                 } catch (e: IntentSender.SendIntentException) {
-
                 }
             }
             .addOnFailureListener(requireActivity()) {

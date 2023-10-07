@@ -59,10 +59,12 @@ class PostDetailActivity : AppCompatActivity() {
 
     private fun setLayout() {
         binding.btnSettingComplete.setOnClickListener {
-            dialogCheckRegister.show(
-                supportFragmentManager,
-                Constants.DIALOG_FRAGMENT_CHECK_REGISTER_TAG
-            )
+            if (!dialogCheckRegister.isAdded) {
+                dialogCheckRegister.show(
+                    supportFragmentManager,
+                    Constants.DIALOG_FRAGMENT_CHECK_REGISTER_TAG,
+                )
+            }
         }
         binding.appBarPostDeatil.setNavigationOnClickListener {
             finish()
@@ -77,7 +79,7 @@ class PostDetailActivity : AppCompatActivity() {
                         Snackbar.make(
                             binding.root,
                             getString(R.string.error_message),
-                            Snackbar.LENGTH_SHORT
+                            Snackbar.LENGTH_SHORT,
                         )
                             .setAnchorView(binding.btnSettingComplete)
                             .show()
@@ -93,7 +95,7 @@ class PostDetailActivity : AppCompatActivity() {
                     if (isLoading) {
                         dialogLoading.show(
                             supportFragmentManager,
-                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG
+                            Constants.DIALOG_FRAGMENT_PROGRESS_TAG,
                         )
                     } else {
                         if (dialogLoading.isAdded) {
@@ -122,5 +124,4 @@ class PostDetailActivity : AppCompatActivity() {
                 }
         }
     }
-
 }

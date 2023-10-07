@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingUserInfoViewModel @Inject constructor(
-    private val repository: UserRepository
+    private val repository: UserRepository,
 ) : ViewModel() {
 
     private val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
@@ -37,14 +37,14 @@ class SettingUserInfoViewModel @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
+            initialValue = false,
         )
 
     private fun isValidForm(nickName: String, selectedImageUri: String) =
         nickName.isNotEmpty() && selectedImageUri.isNotEmpty()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
+    val isLoading = _isLoading.asStateFlow()
 
     private val _isSuccess = MutableStateFlow(false)
     val isSuccess: StateFlow<Boolean> = _isSuccess
@@ -75,8 +75,8 @@ class SettingUserInfoViewModel @Inject constructor(
                     selectedImageUri.value,
                     nickName.value,
                     intro.value,
-                    email
-                )
+                    email,
+                ),
             )
             _isLoading.value = false
             when (result) {
@@ -84,9 +84,11 @@ class SettingUserInfoViewModel @Inject constructor(
                     repository.saveUserId(uid)
                     _isSuccess.value = true
                 }
+
                 is ApiResultError -> {
                     _isError.value = true
                 }
+
                 is ApiResultException -> {
                     _isError.value = true
                 }

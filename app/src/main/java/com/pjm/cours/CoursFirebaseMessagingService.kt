@@ -64,13 +64,13 @@ class CoursFirebaseMessagingService : FirebaseMessagingService() {
                 this,
                 1,
                 intentArray,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE,
             )
 
             val channelId = "my_channel"
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val notificationBuilder = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_playstore)
                 .setContentTitle(sender)
                 .setContentText(message)
                 .setAutoCancel(true)
@@ -90,5 +90,4 @@ class CoursFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.notify(1, notificationBuilder.build())
         }
     }
-
 }
